@@ -6,8 +6,10 @@ WORKDIR /app
 
 # copy package.json into our working directory
 COPY package.json .
+COPY package-lock.json .
 
 # run npm install
+RUN npm install -g nodemon
 RUN npm install
 
 # add our source code into the image
@@ -16,4 +18,4 @@ COPY . .
 EXPOSE 5000
 
 # command to start the app
-CMD ["nodemon", "run", "start"]
+ENTRYPOINT ["nodemon", "/app/src/index.js"]
