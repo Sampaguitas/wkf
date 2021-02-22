@@ -1,0 +1,206 @@
+[
+    {
+        "lunar": "13",
+        "name": "FF",
+        "tags": ["FF"],
+        "pffTypes": ["FORGED_FLANGES", "FORGED_OLETS", "LINE_BLANKS", "VALVES"]
+    },
+    {
+        "lunar": "0A",
+        "name": "LRF",
+        "tags": ["LRF"],
+        "pffTypes": ["FORGED_FLANGES", "LINE_BLANKS", "VALVES"]
+    },
+    {
+        "lunar": "0E",
+        "name": "RF",
+        "tags": ["RF"],
+        "pffTypes": ["FORGED_FLANGES", "FORGED_OLETS", "LINE_BLANKS", "VALVES"]
+    },
+    {
+        "lunar": "0F",
+        "name": "RTJ",
+        "tags": ["RTJ"],
+        "pffTypes": ["FORGED_FLANGES", "FORGED_OLETS", "LINE_BLANKS", "VALVES"]
+    },
+    {
+        "lunar": "01",
+        "name": "BE",
+        "tags": ["BE"],
+        "pffTypes": ["PIPES"]
+    },
+    {
+        "lunar": "05",
+        "name": "BW",
+        "tags": ["BW"],
+        "pffTypes": ["PIPE_FITTINGS", "FORGED_OLETS"]
+    },
+    {
+        "lunar": "14",
+        "name": "GROOVE",
+        "tags": ["GROOVE"],
+        "pffTypes": ["PIPES"]
+    },
+    {
+        "lunar": "08",
+        "name": "PE",
+        "tags": ["PE"],
+        "pffTypes": ["PIPES", "FORGED_OLETS"]
+    },
+    {
+        "lunar": "0B",
+        "name": "TRD",
+        "tags": ["TRD"],
+        "pffTypes": ["PIPES"]
+    },
+    {
+        "lunar": "19",
+        "name": "BEB",
+        "tags": ["BEB"],
+        "pffTypes": ["SWAGE_NIPPLES", "PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "03",
+        "name": "BEP",
+        "tags": ["BEP"],
+        "pffTypes": ["SWAGE_NIPPLES", "PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "04",
+        "name": "BET",
+        "tags": ["BET"],
+        "pffTypes": ["SWAGE_NIPPLES", "PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "16",
+        "name": "LEB/SEP",
+        "tags": ["LEB/SEP"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "09",
+        "name": "LEB/SET",
+        "tags": ["LEB/SET"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "1C",
+        "name": "LEP/SEB",
+        "tags": ["LEP/SEB"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "1C",
+        "name": "LEP/SEB",
+        "tags": ["LEP/SEB"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "15",
+        "name": "LEP/SET",
+        "tags": ["LEP/SET"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "1D",
+        "name": "LET/SEB",
+        "tags": ["LET/SEB"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "1E",
+        "name": "LET/SEP",
+        "tags": ["LET/SEP"],
+        "pffTypes": ["SWAGE_NIPPLES"]
+    },
+    {
+        "lunar": "1A",
+        "name": "OEB/OEP",
+        "tags": ["OEB/OEP"],
+        "pffTypes": ["PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "0C",
+        "name": "OEB/OET",
+        "tags": ["OEB/OET"],
+        "pffTypes": ["PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "0D",
+        "name": "OEP/OET",
+        "tags": ["OEP/OET"],
+        "pffTypes": ["PIPE_NIPPLES"]
+    },
+    {
+        "lunar": "17",
+        "name": "NPT",
+        "tags": ["NPT"],
+        "pffTypes": ["FORGED_FITTINGS", "FORGED_OLETS", "VALVES", "MI_FITTINGS"]
+    },
+    {
+        "lunar": "11",
+        "name": "SW",
+        "tags": ["SW"],
+        "pffTypes": ["FORGED_FITTINGS", "FORGED_OLETS", "VALVES"]
+    },
+    {
+        "lunar": "18",
+        "name": "BSP",
+        "tags": ["BSP"],
+        "pffTypes": ["MI_FITTINGS"]
+    },
+    {
+        "lunar": "34",
+        "name": "FF A",
+        "tags": ["FF A"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "49",
+        "name": "RF B1",
+        "tags": ["RF B1"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "4A",
+        "name": "RF B2",
+        "tags": ["RF B2"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "36",
+        "name": "TONGE C",
+        "tags": ["TONGE C"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "06",
+        "name": "GROOVE D",
+        "tags": ["GROOVE D"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "37",
+        "name": "SPIGOT E",
+        "tags": ["SPIGOT E"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "38",
+        "name": "RECESS F",
+        "tags": ["RECESS F"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "8D",
+        "name": "ORING SPIGOT G",
+        "tags": ["ORING SPIGOT G"],
+        "pffTypes": ["EN_FLANGES"]
+    },
+    {
+        "lunar": "8E",
+        "name": "ORING GROOVE H",
+        "tags": ["ORING GROOVE H"],
+        "pffTypes": ["EN_FLANGES"]
+    }
+]
