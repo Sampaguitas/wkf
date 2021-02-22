@@ -3,30 +3,30 @@ services:
   nginx:
     depends_on:
       - user
-      # - dropdown
+      - dropdown
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    restart: always # because it is routing traffic to our entire app
+    restart: always
     ports:
       - '80:80'
   user:
     build:
       context: ./user
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: on-failure
     container_name: user
     volumes:
-      - /app/node_modules # Inside the container, don't try to override this folder, just leave as is
+      - /app/node_modules
     env_file:
       - ./env/backend.env
   dropdown:
     build:
       context: ./dropdown
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: on-failure
     container_name: dropdown
     volumes:
-      - /app/node_modules # Inside the container, don't try to override this folder, just leave as is
+      - /app/node_modules
     env_file: 
       - ./env/backend.env
