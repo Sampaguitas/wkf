@@ -1,15 +1,8 @@
-const express = require("express");
-const mongoose = require("mongoose");
-mongoose.set("useFindAndModify", false);
-const _ = require("lodash");
 const bodyParser = require("body-parser");
 const passport = require("passport");
-const cors = require("cors");
-const keys = require("./config/keys");
+const app = require("express")();
 
-const app = express();
-
-app.use(cors());
+app.use(require("cors")());
 
 //bodyParser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,12 +10,12 @@ app.use(bodyParser.json());
 
 //Passport config file
 app.use(passport.initialize());
-require("./models/index");
 require("./config/passport")(passport);
 
 // Connect to MongoDB
-mongoose
-.connect(keys.mongoURI,{useNewUrlParser:true, useUnifiedTopology: true})
+require("mongoose")
+.set("useFindAndModify", false)
+.connect(require("./config/keys").mongoURI,{useNewUrlParser:true, useUnifiedTopology: true})
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
