@@ -2,13 +2,28 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    const pff_type = decodeURI(req.query.pff_type);
-    res.status(200).json(require("../constants/lengths.json")
-    .filter(e => !!req.query.pff_type && pff_type !== "OTHERS" ? e.pffTypes.includes(pff_type) : true)
-    .reduce(function (acc, cur) {
-        acc.push(cur.name);
-        return acc;
-    }, []));
+    
+    const pffType = decodeURI(req.query.pff_type);
+
+    require("../models/Length").aggregate([
+        {
+            $match: {
+                pffTypes: ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType
+            }
+        },
+        {
+            $group : {
+                _id : "$key", names : { $push : "$name" } 
+            } 
+        },
+    ])
+    .exec(function(error, result) {
+        if(!!error || result.length < 1) {
+            res.status(200).json([]);
+        } else {
+            res.status(200).json(result[0].names);
+        }
+    });
 });
 
 module.exports = router;
