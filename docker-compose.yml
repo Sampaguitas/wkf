@@ -18,6 +18,7 @@ services:
     container_name: user
     volumes:
       - /app/node_modules
+      - "./user/src:/app/src"
     env_file:
       - ./env/backend.env
   dropdown:
@@ -28,5 +29,6 @@ services:
     container_name: dropdown
     volumes:
       - /app/node_modules
+      - "./dropdown/src:/app/src"
     env_file: 
       - ./env/backend.env
