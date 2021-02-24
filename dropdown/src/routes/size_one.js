@@ -11,24 +11,10 @@ router.get("/", (req, res) => {
     const pffType = decodeURI(req.query.pff_type);
 
     require("../models/Size").aggregate([
-        {
-            $unwind: "$tags"
-        },
-        {
-            $match: {
-                pffTypes: ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType
-            }
-        },
-        {
-            $sort: {
-                "_id" : 1
-            }
-        },
-        {
-            $group : {
-                _id : "$key", tags : { $push : "$tags" } 
-            }
-        }
+        { $unwind: "$tags" },
+        { $match: { "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType } },
+        { $sort: { "_id" : 1 } },
+        { $group : { "_id" : "$key", "tags" : { $push : "$tags" } } }
     ])
     .exec(function(error, result) {
         if(!!error || result.length < 1) {
@@ -47,13 +33,7 @@ router.get("/", (req, res) => {
                     acc.other.push(cur);
                 }
                 return acc;
-            }, {
-                "nps": [],
-                "dn": [],
-                "mm": [],
-                "in": [],
-                "other": []
-            });
+            }, { "nps": [], "dn": [], "mm": [], "in": [], "other": [] });
             res.status(200).json(
                 [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
                 .filter((value, index, self) => self.indexOf(value) === index)
