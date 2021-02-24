@@ -7,36 +7,60 @@ let regMm = /^(\d|\.)* mm$/
 let regIn = /^(\d|\.)* in$/
 
 router.get("/", (req, res) => {
-    const pff_type = decodeURI(req.query.pff_type);
-    let temp = require("../constants/sizes.json")
-    .filter(e => !!pff_type && pff_type !== "OTHERS" ? e.pffTypes.includes(pff_type) : true)
-    .reduce(function (acc, cur) {
-        cur.tags.map(tag => {
-            if(regNps.test(tag)) {
-                acc.nps.push(tag);
-            } else if(regDn.test(tag)) {
-                acc.dn.push(tag);
-            } else if(regMm.test(tag)) {
-                acc.mm.push(tag);
-            } else if(regIn.test(tag)) {
-                acc.in.push(tag);
-            } else {
-                acc.other.push(tag);
+    
+    const pffType = decodeURI(req.query.pff_type);
+
+    require("../models/Size").aggregate([
+        {
+            $unwind: "$tags"
+        },
+        {
+            $match: {
+                pffTypes: ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType
             }
-        });
-        return acc;
-    }, {
-        "nps": [],
-        "dn": [],
-        "mm": [],
-        "in": [],
-        "other": []
-    }
-    );
-    res.status(200).json(
-        [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
-        .filter((value, index, self) => self.indexOf(value) === index)
-        );
+        },
+        {
+            $sort: {
+                "_id" : 1
+            }
+        },
+        {
+            $group : {
+                _id : "$key", tags : { $push : "$tags" } 
+            }
+        }
+    ])
+    .exec(function(error, result) {
+        if(!!error || result.length < 1) {
+            res.status(200).json([]);
+        } else {
+            let temp = result[0].tags.reduce(function(acc, cur) {
+                if(regNps.test(cur)) {
+                    acc.nps.push(cur);
+                } else if(regDn.test(cur)) {
+                    acc.dn.push(cur);
+                } else if(regMm.test(cur)) {
+                    acc.mm.push(cur);
+                } else if(regIn.test(cur)) {
+                    acc.in.push(cur);
+                } else {
+                    acc.other.push(cur);
+                }
+                return acc;
+            }, {
+                "nps": [],
+                "dn": [],
+                "mm": [],
+                "in": [],
+                "other": []
+            });
+            res.status(200).json(
+                [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
+                .filter((value, index, self) => self.indexOf(value) === index)
+            );
+        }
+    });
 });
+
 
 module.exports = router;

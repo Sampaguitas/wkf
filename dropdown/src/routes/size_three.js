@@ -7,47 +7,70 @@ let regMm = /^(\d|\.)* mm$/
 let regIn = /^(\d|\.)* in$/
 
 router.get("/", (req, res) => {
-    const pff_type = decodeURI(req.query.pff_type);
-    const size_two = decodeURI(req.query.size_two);
-    console.log(pff_type);
-    if (!!req.query.pff_type && !["FORGED_OLETS", "OTHERS"].includes(pff_type)) {
-        res.status(200).json([]);
+    
+    const pffType = decodeURI(req.query.pff_type);
+    const sizeTwo = decodeURI(req.query.size_two);
+
+    if (!["FORGED_OLETS", "OTHERS", "undefined", ""].includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeTwo)) {
+        res.status(200).json([])
     } else {
-        let temp_two = require("../constants/sizes.json")
-        .find(e => e.tags.includes(size_two) && !!e.mm);
-        if (!temp_two) {
-            res.status(200).json([]);
-        } else {
-            let temp_three = require("../constants/sizes.json")
-            .filter(e => !!req.query.pff_type && pff_type !== "OTHERS" ? e.pffTypes.includes(pff_type) : !!e.mm)
-            .filter(e => !!req.query.pff_type && pff_type !== "OTHERS" ? pff_type === "FORGED_OLETS" ? e.mm >= temp_two.mm : false : !!e.mm)
-            .reduce(function (acc, cur) {
-                cur.tags.map(tag => {
-                    if(regNps.test(tag)) {
-                        acc.nps.push(tag);
-                    } else if(regDn.test(tag)) {
-                        acc.dn.push(tag);
-                    } else if(regMm.test(tag)) {
-                        acc.mm.push(tag);
-                    } else if(regIn.test(tag)) {
-                        acc.in.push(tag);
+        require("../models/Size").findOne({tags: sizeTwo}, function(errTempOne, resTempOne) {
+            if (errTempOne || !resTempOne) {
+                res.status(200).json([]);
+            } else {
+                require("../models/Size").aggregate([
+                    {
+                        $unwind: "$tags"
+                    },
+                    {
+                        $match: {
+                            pffTypes: ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
+                            mm: ["undefined", "OTHERS", ""].includes(pffType) ? { $ne: null } : pffType === "FORGED_OLETS" ? { $gte: resTempOne.mm } : { $lt: resTempOne.mm }
+                        }
+                    },
+                    {
+                        $sort: {
+                            "_id" : 1
+                        }
+                    },
+                    {
+                        $group : {
+                            _id : "$key", tags : { $push : "$tags" } 
+                        }
+                    }
+                ])
+                .exec(function(error, result) {
+                    if(!!error || result.length < 1) {
+                        res.status(200).json([]);
                     } else {
-                        acc.other.push(tag);
+                        let temp = result[0].tags.reduce(function(acc, cur) {
+                            if(regNps.test(cur)) {
+                                acc.nps.push(cur);
+                            } else if(regDn.test(cur)) {
+                                acc.dn.push(cur);
+                            } else if(regMm.test(cur)) {
+                                acc.mm.push(cur);
+                            } else if(regIn.test(cur)) {
+                                acc.in.push(cur);
+                            } else {
+                                acc.other.push(cur);
+                            }
+                            return acc;
+                        }, {
+                            "nps": [],
+                            "dn": [],
+                            "mm": [],
+                            "in": [],
+                            "other": []
+                        });
+                        res.status(200).json(
+                            [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
+                            .filter((value, index, self) => self.indexOf(value) === index)
+                        );
                     }
                 });
-                return acc;
-            }, {
-                "nps": [],
-                "dn": [],
-                "mm": [],
-                "in": [],
-                "other": []
-            });
-            res.status(200).json(
-            [...temp_three.nps, ...temp_three.dn, ...temp_three.mm, ...temp_three.in, ...temp_three.other]
-            .filter((value, index, self) => self.indexOf(value) === index)
-            );
-        }
+            }
+        });
     }
 });
 

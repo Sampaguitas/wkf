@@ -38,5 +38,5 @@ app.use("/type", passport.authenticate("jwt", { session: false }), require("./ro
 app.use("/wall_one", passport.authenticate("jwt", { session: false }), require("./routes/wall_one"));
 app.use("/wall_two", passport.authenticate("jwt", { session: false }), require("./routes/wall_two"));
 
-//test
+// //test
 app.use("/test", passport.authenticate("jwt", { session: false }), require("./routes/test"));

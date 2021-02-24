@@ -12,6 +12,11 @@ router.get("/", (req, res) => {
             }
         },
         {
+            $sort: {
+                "_id" : 1
+            }
+        },
+        {
             $group : {
                 _id : "$key", names : { $push : "$name" } 
             } 
