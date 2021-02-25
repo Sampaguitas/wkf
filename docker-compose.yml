@@ -3,7 +3,7 @@ services:
   nginx:
     depends_on:
       - user
-      - dropdown
+      - drop
       - update
     build:
       context: ./nginx
@@ -22,15 +22,15 @@ services:
       - "./user/src:/app/src"
     env_file:
       - ./env/backend.env
-  dropdown:
+  drop:
     build:
-      context: ./dropdown
+      context: ./drop
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: dropdown
+    container_name: drop
     volumes:
       - /app/node_modules
-      - "./dropdown/src:/app/src"
+      - "./drop/src:/app/src"
     env_file: 
       - ./env/backend.env
   update:
