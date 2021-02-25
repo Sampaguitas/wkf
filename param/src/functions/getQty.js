@@ -1,4 +1,4 @@
-module.exports = function generateQty(uom, qty){
+module.exports = (uom, qty) => {
     switch(uom) {
         case "LB": return qty * 0.4535924;
         case "FT": return qty * 0.3048;

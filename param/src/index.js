@@ -26,3 +26,4 @@ const port = process.env.PORT || 5002;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
 app.use("/generate", passport.authenticate("jwt", { session: false }), require("./routes/generate"));
+// app.use("/test", passport.authenticate("jwt", { session: false }), require("./routes/test"));

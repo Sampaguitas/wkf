@@ -1,4 +1,4 @@
-module.exports = function generateWeight(uom){
+module.exports = (uom) => {
     switch(uom) {
         case "KG":
         case "LB": return "KG";

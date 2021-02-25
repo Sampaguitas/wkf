@@ -49,26 +49,37 @@ module.exports = (type, end, pffType) => {
 
 function findEnd(end) {
     return new Promise(function(resolve) {
-        require("../models/End").findOne({name: end}, function (err, res) {
-            if (!!err || !res) {
-                resolve({
-                    "key": "end",
-                    "value": {
-                        "lunar": "FF", 
-                        "name": end,
-                        "tags": end ? [end] : []
-                    }
-                });
-            } else {
-                resolve({
-                    "key": "end",
-                    "value": {
-                        "lunar": res.lunar,
-                        "name": end,
-                        "tags": res.tags
-                    }
-                });
-            }
-        });
+        if (!end) {
+            resolve({
+                "key": "end",
+                "value": {
+                    "lunar": "FF", 
+                    "name": "",
+                    "tags": []
+                }
+            });
+        } else {
+            require("../models/End").findOne({name: end}, function (err, res) {
+                if (!!err || !res) {
+                    resolve({
+                        "key": "end",
+                        "value": {
+                            "lunar": "FF", 
+                            "name": end,
+                            "tags": end ? [end] : []
+                        }
+                    });
+                } else {
+                    resolve({
+                        "key": "end",
+                        "value": {
+                            "lunar": res.lunar,
+                            "name": end,
+                            "tags": res.tags
+                        }
+                    });
+                }
+            });
+        }
     });
 }

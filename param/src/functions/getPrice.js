@@ -1,4 +1,4 @@
-module.exports = function generatePrice(uom, price, rate){
+module.exports = (uom, price, rate) => {
     switch(uom) {
         case "LB": return(price * rate * 0.4535924);
         case "FT": return(price * rate * 0.3048);
