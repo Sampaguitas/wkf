@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    const pffType = decodeURI(req.query.pff_type);
-    require("../models/Surface").distinct("name", {
+    const pffType = decodeURI(req.query.pffType);
+    require("../models/End").distinct("name", {
         "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType
     }).exec(function (error, result) {
         if (!!error || !result) {

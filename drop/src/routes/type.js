@@ -3,9 +3,9 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
 
-    const pffType = decodeURI(req.query.pff_type);
-    const isMultiple = decodeURI(req.query.is_multiple);
-    const isComplete = decodeURI(req.query.is_complete);
+    const pffType = decodeURI(req.query.pffType);
+    const isMultiple = decodeURI(req.query.isMultiple);
+    const isComplete = decodeURI(req.query.isComplete);
 
     require("../models/Type").distinct("name", {
         "pffType": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,

@@ -8,8 +8,8 @@ let regIn = /^(\d|\.)* mm$/
 
 router.get("/", (req, res) => {
 
-    const pffType = decodeURI(req.query.pff_type);
-    const sizeOne = decodeURI(req.query.size_one);
+    const pffType = decodeURI(req.query.pffType);
+    const sizeOne = decodeURI(req.query.sizeOne);
     let noPffTwo = ["PIPES", "PIPE_NIPPLES", "LINE_BLANKS", "FASTENERS", "RING_GASKETS", "SW_GASKETS"]
 
     if (noPffTwo.includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeOne)) {

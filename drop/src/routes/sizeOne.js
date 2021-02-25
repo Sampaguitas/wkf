@@ -8,7 +8,7 @@ let regIn = /^(\d|\.)* in$/
 
 router.get("/", (req, res) => {
     
-    const pffType = decodeURI(req.query.pff_type);
+    const pffType = decodeURI(req.query.pffType);
 
     require("../models/Size").aggregate([
         { $unwind: "$tags" },

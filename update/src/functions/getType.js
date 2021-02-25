@@ -16,7 +16,6 @@ function searchType(type, sizeId) {
             "types": type
         }, function(err, res) {
             if (!!err || !res) {
-                console.log("sizeId:", sizeId);
                 resolve(findType(type));
             } else {
                 resolve({

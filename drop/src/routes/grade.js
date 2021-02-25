@@ -3,10 +3,10 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
 
-    const steelType = decodeURI(req.query.steel_type);
-    const pffType = decodeURI(req.query.pff_type);
-    const isMultiple = decodeURI(req.query.is_multiple);
-    const isComplete = decodeURI(req.query.is_complete);
+    const steelType = decodeURI(req.query.steelType);
+    const pffType = decodeURI(req.query.pffType);
+    const isMultiple = decodeURI(req.query.isMultiple);
+    const isComplete = decodeURI(req.query.isComplete);
 
     require("../models/Grade").distinct("name", {
         "steelType": ["undefined", "OTHERS", ""].includes(steelType) ? { $exists: true } : steelType,

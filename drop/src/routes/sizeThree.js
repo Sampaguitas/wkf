@@ -8,8 +8,8 @@ let regIn = /^(\d|\.)* in$/
 
 router.get("/", (req, res) => {
 
-    const pffType = decodeURI(req.query.pff_type);
-    const sizeTwo = decodeURI(req.query.size_two);
+    const pffType = decodeURI(req.query.pffType);
+    const sizeTwo = decodeURI(req.query.sizeTwo);
 
     if (!["FORGED_OLETS", "OTHERS", "undefined", ""].includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeTwo)) {
         res.status(200).json([])

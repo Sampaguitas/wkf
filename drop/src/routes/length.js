@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
 
-    const pffType = decodeURI(req.query.pff_type);
+    const pffType = decodeURI(req.query.pffType);
 
     require("../models/Length").aggregate([
         { $match: { "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType } },
