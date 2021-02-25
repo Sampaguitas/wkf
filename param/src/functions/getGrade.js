@@ -3,17 +3,23 @@ module.exports = (grade) => {
         require("../models/Grade").findOne({name: grade}, function(err, res) {
             if(!!err || !res) {
                 resolve({
-                    'lunar': 'FFF', 
-                    'name': grade,
-                    'tags': grade ? [grade] : [],
-                    'steelType': 'OTHER',
+                    "key": "grade",
+                    "value": {
+                        "lunar": "FFF", 
+                        "name": grade,
+                        "tags": grade ? [grade] : [],
+                        "steelType": "OTHER"
+                    }
                 });
             } else {
                 resolve({
-                    'lunar': res.lunar,
-                    'name': grade,
-                    'tags': res.tags,
-                    'steelType': res.steelType,
+                    "key": "grade",
+                    "value": {
+                        "lunar": res.lunar,
+                        "name": grade,
+                        "tags": res.tags,
+                        "steelType": res.steelType
+                    }
                 });
             }
         });
