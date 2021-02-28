@@ -39,7 +39,7 @@ router.post("/", (req, res) => {
                     let end = !!ends[index] ? ends[index] : "";
                     let surface = !!surfaces[index] ? surfaces[index] : "";
 
-                    myPromises.push(upsertParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, artNrs.length));
+                    myPromises.push(updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, artNrs.length));
                 }
         
                 Promise.all(myPromises).then(myResults => {
@@ -63,7 +63,7 @@ router.post("/", (req, res) => {
 
 module.exports = router;
 
-function upsertParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, length) {
+function updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, length) {
     return new Promise(function(resolve) {
         require("../functions/processUpdate")(processId, index, length).then( () => {
             if (!artNr || !sizeOne || !type || !grade) {
