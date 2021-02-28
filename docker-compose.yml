@@ -4,7 +4,7 @@ services:
     depends_on:
       - user
       - drop
-      - update
+      - param
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -33,14 +33,14 @@ services:
       - "./drop/src:/app/src"
     env_file: 
       - ./env/backend.env
-  update:
+  param:
     build:
-      context: ./update
+      context: ./param
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: update
+    container_name: param
     volumes:
       - /app/node_modules
-      - "./update/src:/app/src"
+      - "./param/src:/app/src"
     env_file: 
       - ./env/backend.env

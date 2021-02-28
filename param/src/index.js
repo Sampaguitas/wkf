@@ -7,8 +7,8 @@ const router = express.Router();
 app.use(require("cors")());
 
 //bodyParser middleware
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-app.use(bodyParser.json({limit: '10mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
+app.use(bodyParser.json({limit: '5mb'}));
 
 //Passport config file
 app.use(passport.initialize());
@@ -25,6 +25,4 @@ require("mongoose")
 const port = process.env.PORT || 5002;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.use("/param", passport.authenticate("jwt", { session: false }), require("./routes/param"));
-app.use("/stock", passport.authenticate("jwt", { session: false }), require("./routes/stock"));
-// app.use("/test", passport.authenticate("jwt", { session: false }), require("./routes/test"));
+app.use("/update", passport.authenticate("jwt", { session: false }), require("./routes/update"));
