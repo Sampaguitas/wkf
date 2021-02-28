@@ -70,7 +70,7 @@ function updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wall
                 resolve({
                     "isRejected": true,
                     "row": index + 1,
-                    "reason": "artNr, sizeOne, type or grade is incomplete."
+                    "reason": "artNr, sizeOne, type or grade is missing."
                 });
             } else {
                 require("../functions/getParam")(sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface)
