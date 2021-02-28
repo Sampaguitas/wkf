@@ -6,11 +6,16 @@ router.post("/", (req, res) => {
     const { sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface } = req.body;
     require("../functions/getParam")(sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface)
     .then(parameters => {
-        res.status(200).json({
-            "artNr": artNr,
+        require("../models/Param").findOneAndUpdate({ "artNr": artNr }, {
             "description": require("../functions/getDesc")(parameters),
             "vlunar": require("../functions/getVlunar")(parameters),
             "parameters": parameters
+        }, {new: true, upsert: true }, function(errUpdate, resUpdate) {
+            if (!!errUpdate || !resUpdate) {
+                res.status(400).json({message: "Could not update param."});
+            } else {
+                res.status(200).json({message: resUpdate });
+            }
         });
     });
 });
