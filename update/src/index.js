@@ -7,8 +7,8 @@ const router = express.Router();
 app.use(require("cors")());
 
 //bodyParser middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({limit: '10mb'}));
 
 //Passport config file
 app.use(passport.initialize());

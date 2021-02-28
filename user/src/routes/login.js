@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 router.post("/", (req, res) => {
     const email = req.body.email.toLowerCase();
     const password = decodeURI(req.body.password);
-    require("../models/User").findOne({ email }, { password:1 })
+    require("../models/User").findOne({ email }, { password:1, name: 1 })
     .then(user => {
         if (!user) {
             return res.status(400).json({ message: "Wrong email or password." });
@@ -16,7 +16,8 @@ router.post("/", (req, res) => {
                     return res.status(400).json({ message: "Wrong email or password." });
                 } else {                       
                     const payload = { 
-                        id: user.id
+                        "id": user.id,
+                        "name": user.name
                     };
                     jwt.sign(
                         payload,
