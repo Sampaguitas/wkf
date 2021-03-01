@@ -16,6 +16,7 @@ router.post("/", (req, res) => {
     const surfaces = JSON.parse(req.body.surfaces);
 
     let myPromises = [];
+    let myPromisesTwo = [];
     let nRejected = 0;
     let nUpserted = 0;
     let rejections = [];
@@ -43,7 +44,7 @@ router.post("/", (req, res) => {
                 }
         
                 Promise.all(myPromises).then(myResults => {
-                    myResults.map(result => {
+                    myResults.map((result) => {
                         if (result.isRejected) {
                             nRejected++;
                             rejections.push({
@@ -54,7 +55,7 @@ router.post("/", (req, res) => {
                             nUpserted++;
                         }
                     });
-                    require("../function/processFinalise")(processId, nRejected, nUpserted, rejections);
+                    require("../functions/processFinalise")(processId, nRejected, nUpserted, rejections).then( () => console.log("done"))
                 });
             }).catch(errCreate => res.status(400).json({ "message": errCreate.message }));
         }).catch(errCheck => res.status(400).json({"message": errCheck.message }));

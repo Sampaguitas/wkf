@@ -1,6 +1,6 @@
 module.exports = (processId, index, length) => {
     return new Promise(function(resolve) {
-        let progress = Math.min(Math.max(index / (length -1), 0), 1);
+        let progress = Math.min(Math.max((index + 1) / length, 0), 1);
         require("../models/Process").findOneAndUpdate({
             "_id" : processId
         },

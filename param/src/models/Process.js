@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const _ = require('lodash');
 
 const ProcessSchema = new Schema({
     "user": String,
