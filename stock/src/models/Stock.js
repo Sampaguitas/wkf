@@ -17,7 +17,7 @@ const StockSchema = new Schema({
     },
     "supplier": {
         "names": [String],
-        "qtys": [String]
+        "qtys": [Number]
     }
 },
 {

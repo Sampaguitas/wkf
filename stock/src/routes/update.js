@@ -37,14 +37,14 @@ router.post("/", upload.single("file"), function(req, res) {
                                     row: i + 1,
                                     reason: "line does not contain 21 fields."
                                 });
-                            } else if (!String(row[0]).trim()) {
+                            } else if (!require("../functions/getString")(row[0])) {
                                 myPromises.push({
                                     isRejected: true,
                                     isUpserted: false,
                                     row: i + 1,
                                     reason: "opco is not defined."
                                 });
-                            } else if (!["LB", "FT", "ST", "KG", "M"].includes(String(row[10]).trim())) {
+                            } else if (!["LB", "FT", "ST", "KG", "M"].includes(require("../functions/getString")(row[10]))) {
                                 myPromises.push({
                                     isRejected: true,
                                     isUpserted: false,
@@ -85,8 +85,8 @@ router.post("/", upload.single("file"), function(req, res) {
 function updateStock(row, processId, index, length) {
     return new Promise(function(resolve) {
         require("../functions/processUpdate")(processId, index, length - 2).then( () => {
-            let uom = String(row[10]).trim();
-            let filter = { artNr: String(row[2]).trim(), opco: String(row[0]).trim() }
+            let uom = require("../functions/getString")(row[10]);
+            let filter = { artNr: require("../functions/getString")(row[2]), opco: require("../functions/getString")(row[0]) }
             let options = { new: true, upsert: true }
             let update = {
                 $set: {
@@ -96,13 +96,13 @@ function updateStock(row, processId, index, length) {
                         "rv": require("../functions/getPrice")(uom, Number(row[6]), 1)
                     },
                     "purchase": {
-                        "supplier": String(row[11]).trim(),
+                        "supplier": require("../functions/getString")(row[11]),
                         "qty": require("../functions/getQty")(uom, Number(row[4])),
                         "firstInStock": require("../functions/getQty")(uom, Number(row[9])),
                         "deliveryDate": require("../functions/getDate")(row[12])
                     },
                     "supplier": {
-                        "names": [String(row[13]).trim(), String(row[14]).trim(), String(row[15]).trim(), String(row[16]).trim()],
+                        "names": [require("../functions/getString")(row[13]), require("../functions/getString")(row[14]), require("../functions/getString")(row[15]), require("../functions/getString")(row[16])],
                         "qtys": [Number(row[17]), Number(row[18]), Number(row[19]), Number(row[20])]
                     }
                 }
@@ -129,7 +129,7 @@ function updateStock(row, processId, index, length) {
 function deleteStock(row, processId, index, length) {
     return new Promise(function(resolve) {
         require("../functions/processUpdate")(processId, index, length - 2).then( () => {
-            let filter = { artNr: String(row[2]).trim(), opco: String(row[0]).trim() }
+            let filter = { artNr: require("../functions/getString")(row[2]), opco: require("../functions/getString")(row[0]) }
             require("../models/Stock").findOneAndDelete(filter, function(err, res) {
                 if (!!err) {
                     resolve({
@@ -151,12 +151,12 @@ function deleteStock(row, processId, index, length) {
 
 function updateParam(row) {
     return new Promise(function(resolve) {
-        let uom = String(row[10]).trim();
-        let filter = { artNr: String(row[2]).trim() }
+        let uom = require("../functions/getString")(row[10]);
+        let filter = { artNr: require("../functions/getString")(row[2]) }
         let options = { new: true, upsert: true }
         let update = {
             $set: {
-                "description": String(row[3]).trim(),
+                "description": require("../functions/getString")(row[3]),
                 "weight": require("../functions/getWeight")(uom, Number(row[8])),
                 "uom": require("../functions/getUom")(uom),
             }

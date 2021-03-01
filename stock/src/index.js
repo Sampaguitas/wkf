@@ -4,8 +4,8 @@ const app = require("express")();
 app.use(require("cors")());
 
 //bodyParser middleware
-app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
-app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '13mb' }));
+app.use(bodyParser.json({limit: '13mb'}));
 
 // Connect to MongoDB
 require("mongoose")
