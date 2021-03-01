@@ -5,6 +5,7 @@ services:
       - user
       - drop
       - param
+      - stock
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -43,4 +44,15 @@ services:
       - /app/node_modules
       - "./param/src:/app/src"
     env_file: 
+      - ./env/backend.env
+  stock:
+    build:
+      context: ./stock
+      dockerfile: Dockerfile.dev
+    restart: on-failure
+    container_name: stock
+    volumes:
+      - /app/node_modules
+      - "./stock/src:/app/src"
+    env_file:
       - ./env/backend.env

@@ -16,7 +16,6 @@ router.post("/", (req, res) => {
     const surfaces = JSON.parse(req.body.surfaces);
 
     let myPromises = [];
-    let myPromisesTwo = [];
     let nRejected = 0;
     let nUpserted = 0;
     let rejections = [];
