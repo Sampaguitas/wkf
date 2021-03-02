@@ -97,7 +97,7 @@ function updateStock(row, processId, index, length) {
                     },
                     "purchase": {
                         "supplier": require("../functions/getString")(row[11]),
-                        "qty": require("../functions/getQty")(uom, Number(row[4])),
+                        "qty": require("../functions/getQty")(uom, Number(row[7])),
                         "firstInStock": require("../functions/getQty")(uom, Number(row[9])),
                         "deliveryDate": require("../functions/getDate")(row[12])
                     },

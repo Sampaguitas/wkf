@@ -13,7 +13,7 @@ module.exports = (parameters) => {
                 break;
             case "sizeThree":
                 if (!!parameters[cur].name) {
-                    acc = parameters.type.pffType === "FORGED_OLETS" ? `${acc} - ${parameters[cur].name}` : `${acc} X ${parameters[cur].name}`;
+                    acc = `${acc} - ${parameters[cur].name}`;
                 }
                 break;
             case "wallTwo":

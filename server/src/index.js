@@ -40,3 +40,5 @@ app.use("/dropdown/surface", passport.authenticate("jwt", { session: false }), r
 app.use("/dropdown/type", passport.authenticate("jwt", { session: false }), require("./routes/dropdown/type"));
 app.use("/dropdown/wallOne", passport.authenticate("jwt", { session: false }), require("./routes/dropdown/wallOne"));
 app.use("/dropdown/wallTwo", passport.authenticate("jwt", { session: false }), require("./routes/dropdown/wallTwo"));
+
+app.use("/stock/find", passport.authenticate("jwt", { session: false }), require("./routes/stock/find"));
