@@ -3,7 +3,6 @@ services:
   nginx:
     depends_on:
       - server
-      # - drop
       - param
       - stock
     build:
@@ -23,17 +22,6 @@ services:
       - "./server/src:/app/src"
     env_file:
       - ./env/backend.env
-  # drop:
-  #   build:
-  #     context: ./drop
-  #     dockerfile: Dockerfile.dev
-  #   restart: on-failure
-  #   container_name: drop
-  #   volumes:
-  #     - /app/node_modules
-  #     - "./drop/src:/app/src"
-  #   env_file: 
-  #     - ./env/backend.env
   param:
     build:
       context: ./param
