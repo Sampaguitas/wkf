@@ -1,8 +1,0 @@
-# dependencies
-/node_modules
-
-# Environment variables
-.env
-
-# config file
-/src/config/keys_dev.js

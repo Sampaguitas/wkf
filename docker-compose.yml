@@ -2,8 +2,8 @@ version: "3.3"
 services:
   nginx:
     depends_on:
-      - user
-      - drop
+      - server
+      # - drop
       - param
       - stock
     build:
@@ -12,28 +12,28 @@ services:
     restart: always
     ports:
       - '80:80'
-  user:
+  server:
     build:
-      context: ./user
+      context: ./server
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: user
+    container_name: server
     volumes:
       - /app/node_modules
-      - "./user/src:/app/src"
+      - "./server/src:/app/src"
     env_file:
       - ./env/backend.env
-  drop:
-    build:
-      context: ./drop
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    container_name: drop
-    volumes:
-      - /app/node_modules
-      - "./drop/src:/app/src"
-    env_file: 
-      - ./env/backend.env
+  # drop:
+  #   build:
+  #     context: ./drop
+  #     dockerfile: Dockerfile.dev
+  #   restart: on-failure
+  #   container_name: drop
+  #   volumes:
+  #     - /app/node_modules
+  #     - "./drop/src:/app/src"
+  #   env_file: 
+  #     - ./env/backend.env
   param:
     build:
       context: ./param
