@@ -1,3 +1,3 @@
 module.exports = (myString) => {
-    return String(myString).replace("?", "").trim().replace("\u0000", "");
+    return String(myString).replace(/\?*/g, "").replace(/\u0000*/g, "").trim();
 }

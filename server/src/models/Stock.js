@@ -24,4 +24,13 @@ const StockSchema = new Schema({
     timestamps: true
 });
 
+StockSchema.virtual("param", {
+    ref: "params",
+    localField: "artNr",
+    foreignField: "artNr",
+    justOne: true
+});
+
+StockSchema.set('toJSON', { virtuals: true });
+
 module.exports = Stock = mongoose.model("stocks", StockSchema);

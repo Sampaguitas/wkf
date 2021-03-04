@@ -21,7 +21,7 @@ router.post("/", upload.single("file"), function(req, res) {
     } else {
         require("../functions/processRefresh")().then( () => {
             require("../functions/processCheck")("update stocks").then( () => {
-                const rows = file.buffer.toString().replace("\r","").split("\n");
+                const rows = file.buffer.toString().replace(/\r*/g,"").split("\n");
                 let rowsLength = rows.length;
                 if (rowsLength < 3) {
                     res.status(400).json({ "message": "the file seems to be empty." });

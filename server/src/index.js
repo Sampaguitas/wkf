@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 
 //Passport config file
 app.use(passport.initialize());
+require("./models/index.js");
 require("./config/passport")(passport);
 
 // Connect to MongoDB
@@ -42,3 +43,4 @@ app.use("/dropdown/wallOne", passport.authenticate("jwt", { session: false }), r
 app.use("/dropdown/wallTwo", passport.authenticate("jwt", { session: false }), require("./routes/dropdown/wallTwo"));
 
 app.use("/stock/find", passport.authenticate("jwt", { session: false }), require("./routes/stock/find"));
+app.use("/stock/findOneArt", passport.authenticate("jwt", { session: false }), require("./routes/stock/findOneArt"));
