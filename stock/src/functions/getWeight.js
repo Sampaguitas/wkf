@@ -1,7 +1,7 @@
 module.exports = (uom, weight) => {
     switch(uom) {
-        case "LB": return weight * 0.4535924;
-        case "FT": return weight * 0.3048;
+        case "LB": return weight / 2.204623;
+        case "FT": return weight / 0.671969;
         default: return weight; //"ST", "KG", "M":
     }
 }
