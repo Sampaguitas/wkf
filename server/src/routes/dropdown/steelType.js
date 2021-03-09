@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    require("../../models/Steel").distinct("name").exec(function (error, result) {
+    const name = decodeURI(req.query.name);
+    require("../../models/Steel").distinct("name", {
+        "name": { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,'i') }
+    }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
         } else {

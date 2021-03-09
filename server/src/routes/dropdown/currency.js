@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    require("../../models/Currency").distinct("_id").exec(function (error, result) {
+    const name = decodeURI(req.query.name);
+
+    require("../../models/Currency").distinct("_id", {
+        _id : { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,"i") }
+    }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
         } else {

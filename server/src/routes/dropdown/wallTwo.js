@@ -10,6 +10,8 @@ router.get("/", (req, res) => {
     const steelType = decodeURI(req.query.steelType);
     const pffType = decodeURI(req.query.pffType);
     const sizeTwo = decodeURI(req.query.sizeTwo);
+    const name = decodeURI(req.query.name);
+
     let regSch = ["CARBON_STEEL", "LOW_TEMP", "LOW_ALLOY"].includes(steelType) ? /^S\d*$/ : /^S\d*S?$/
 
     let noWallTwo = [
@@ -38,7 +40,8 @@ router.get("/", (req, res) => {
                     {
                         $match: {
                             "sizeId": resTempOne.mm,
-                            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType
+                            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
+                            "tags": { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,'i') }
                         }
                     },
                     { $sort: { "_id": 1 } },

@@ -10,6 +10,7 @@ router.get("/", (req, res) => {
 
     const pffType = decodeURI(req.query.pffType);
     const sizeTwo = decodeURI(req.query.sizeTwo);
+    const name = decodeURI(req.query.name);
 
     if (!["FORGED_OLETS", "OTHERS", "undefined", ""].includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeTwo)) {
         res.status(200).json([])
@@ -23,7 +24,8 @@ router.get("/", (req, res) => {
                     {
                         $match: {
                             "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
-                            "mm": ["undefined", "OTHERS", ""].includes(pffType) ? { $ne: null } : pffType === "FORGED_OLETS" ? { $gte: resTempOne.mm } : { $lt: resTempOne.mm }
+                            "mm": ["undefined", "OTHERS", ""].includes(pffType) ? { $ne: null } : pffType === "FORGED_OLETS" ? { $gte: resTempOne.mm } : { $lt: resTempOne.mm },
+                            "tags": { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,'i') }
                         }
                     },
                     { $sort: { "_id": 1 } },

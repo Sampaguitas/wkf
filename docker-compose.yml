@@ -2,6 +2,7 @@ version: "3.3"
 services:
   nginx:
     depends_on:
+      - client
       - server
       - param
       - stock
@@ -11,6 +12,17 @@ services:
     restart: always
     ports:
       - '80:80'
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: client
+    volumes:
+      - /app/node_modules
+      - "./client/src:/app/src"
+    env_file:
+      - ./env/client.env
   server:
     build:
       context: ./server
@@ -21,7 +33,7 @@ services:
       - /app/node_modules
       - "./server/src:/app/src"
     env_file:
-      - ./env/backend.env
+      - ./env/server.env
   param:
     build:
       context: ./param
@@ -32,7 +44,7 @@ services:
       - /app/node_modules
       - "./param/src:/app/src"
     env_file: 
-      - ./env/backend.env
+      - ./env/server.env
   stock:
     build:
       context: ./stock
@@ -43,4 +55,4 @@ services:
       - /app/node_modules
       - "./stock/src:/app/src"
     env_file:
-      - ./env/backend.env
+      - ./env/server.env

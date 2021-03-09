@@ -9,10 +9,15 @@ let regIn = /^(\d|\.)* in$/
 router.get("/", (req, res) => {
     
     const pffType = decodeURI(req.query.pffType);
-
+    const name = decodeURI(req.query.name);
     require("../../models/Size").aggregate([
         { $unwind: "$tags" },
-        { $match: { "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType } },
+        {
+            $match: {
+                "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
+                "tags": { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,'i') }
+            }
+        },
         { $sort: { "_id" : 1 } },
         { $group : { "_id" : "$key", "tags" : { $push : "$tags" } } }
     ])

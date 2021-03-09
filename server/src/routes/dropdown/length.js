@@ -4,9 +4,15 @@ const router = express.Router();
 router.get("/", (req, res) => {
 
     const pffType = decodeURI(req.query.pffType);
-
+    const name = decodeURI(req.query.name);
+    
     require("../../models/Length").aggregate([
-        { $match: { "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType } },
+        { 
+            $match: { 
+                "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
+                "name" : { $regex: new RegExp(`^${require("../../functions/escape")(name)}`,'i') }
+            }
+        },
         { $sort: { "_id": 1 } },
         { $group: { "_id": "$key", "names": { $push: "$name" } } },
     ]).exec(function (error, result) {
