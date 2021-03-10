@@ -14,7 +14,7 @@ RUN npm install
 # add our source code into the image
 COPY . .
 
-EXPOSE 8080
+EXPOSE 3000
 
 # command to start the app
 CMD ["npm", "run", "start"]

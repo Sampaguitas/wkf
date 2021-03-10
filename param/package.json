@@ -2,6 +2,8 @@
   "name": "param",
   "version": "1.0.0",
   "description": "microservice",
+  "author": "Timothee Desurmont",
+  "license": "ISC",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -11,8 +13,6 @@
   "engines": {
     "node": "14.4.0"
   },
-  "author": "Timothee Desurmont",
-  "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
