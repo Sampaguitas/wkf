@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 
-export default () => {
+export default function NotFound() {
     let location = useLocation();
     return (
         <article>

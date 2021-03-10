@@ -1,8 +1,7 @@
 import * as React from "react"
 
-// NOTE: React Testing Library works well with React Hooks and classes.
-// Your tests will be the same regardless of how you write your components.
-function HiddenMessage({children}) {
+export default ({children}) => {
+  //source: https://github.com/testing-library/react-testing-library
   const [showMessage, setShowMessage] = React.useState(false)
   return (
     <div>
@@ -18,6 +17,3 @@ function HiddenMessage({children}) {
   )
 }
 
-export default HiddenMessage
-
-//source: https://github.com/testing-library/react-testing-library

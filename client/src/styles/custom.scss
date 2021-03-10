@@ -1,0 +1,89 @@
+// // Import custom font from Google
+@import url("https://fast.fonts.net/lt/1.css?apiType=css&c=c45a7976-675e-4738-a588-e66804a288a8&fontids=1566547");
+@font-face{
+  font-family:"ITC Kabel W01 Book";
+  font-style: normal; //
+  font-weight: 400; //
+  src:url("../fonts/1566547/5af0f1cc-5efb-4044-9cd4-666903574425.woff2") format("woff2"),url("../fonts/1566547/4dbd1790-bde7-4645-8a67-d91c4ff72b1f.woff") format("woff");
+  font-display: swap;
+}
+
+// Override default variables before the import
+
+// Override / set color variables
+$white: #fff;
+$black: #000;
+$green: #05A881; //#00e389
+$blue: #0077C0; //#3399ff
+$orange: #f26c22;
+$yellow: #ffd925;
+$red: #A8052C; // #e5001e
+
+// Create grayscale
+$gray-dark: #292b2c;
+$gray: #3f3f3f;
+$gray-light: #7e7e7e;
+$gray-lighter: #ededed;
+$gray-lightest: #fafafa;
+
+// Set brand colors
+$primary: $blue;
+$success: $green;
+$info: $yellow;
+$warning: $orange;
+$danger: $red;
+
+// Override button colors
+$btn-info-color: darken($info, 45);
+
+// Override alert background colors
+$state-success-bg: lighten($success, 30);
+$state-info-bg: lighten($info, 30);
+$state-warning-bg: lighten($warning, 30);
+$state-danger-bg: lighten($danger, 45);
+
+// Override alert text colors
+$state-success-text: darken($success, 30);
+$state-info-text: darken($info, 30);
+$state-warning-text: darken($warning, 30);
+$state-danger-text: darken($danger, 10);
+
+// Override badges padding (doubled because otherwise too crammed)
+// $badge-padding-x: 0.8em;
+// $badge-padding-y: 0.4em;
+
+// Don't make badges normal instead of bold
+// $badge-font-weight: normal;
+
+// Override fonts
+$font-family-sans-serif: 'Open Sans, sans-serif'; //Raleway', sans-serif;
+$font-family-serif: Georgia, 'Times New Roman', Times, serif;
+$font-family-monospace: Menlo, Monaco, Consolas, 'Liberation Mono',
+  'Courier New', monospace;
+$font-family-base: $font-family-sans-serif;
+
+// Set global options
+$enable-shadows: false;
+$enable-gradients: true;
+
+//remove outline
+textarea:focus, 
+textarea.form-control:focus, 
+input.form-control:focus, 
+input[type=text]:focus, 
+input[type=password]:focus, 
+input[type=email]:focus, 
+input[type=number]:focus, 
+[type=text].form-control:focus, 
+[type=password].form-control:focus, 
+[type=email].form-control:focus, 
+[type=tel].form-control:focus, 
+[contenteditable].form-control:focus {
+  box-shadow: inset 0 -1px 0 #ddd;
+  border-color: rgb(206, 212, 218);
+  border-width: 1px;
+}
+
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';
