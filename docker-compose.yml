@@ -16,6 +16,8 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        NPM_TOKEN: $NPM_TOKEN
     restart: on-failure
     container_name: client
     volumes:
