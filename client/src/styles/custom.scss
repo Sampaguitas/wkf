@@ -1,4 +1,4 @@
-// // Import custom font from Google
+// // Import custom fonts
 @import url("https://fast.fonts.net/lt/1.css?apiType=css&c=c45a7976-675e-4738-a588-e66804a288a8&fontids=1566547");
 @font-face{
   font-family:"ITC Kabel W01 Book";
@@ -66,7 +66,7 @@ $font-family-base: $font-family-sans-serif;
 $enable-shadows: false;
 $enable-gradients: true;
 
-//remove outline
+//remove outline (from LCG)
 textarea:focus, 
 textarea.form-control:focus, 
 input.form-control:focus, 
@@ -83,7 +83,6 @@ input[type=number]:focus,
   border-color: rgb(206, 212, 218);
   border-width: 1px;
 }
-
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
