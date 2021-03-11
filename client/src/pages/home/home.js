@@ -1,6 +1,8 @@
 import React from "react";
+import { connect } from 'react-redux';
 
-export default class Home extends React.Component{
+
+class Home extends React.Component{
     constructor(props) {
         super(props);
         this.state = {}
@@ -14,3 +16,11 @@ export default class Home extends React.Component{
         );
     }
 }
+
+function mapStateToProps(state) {
+    const { alert, sidemenu } = state;
+    return { alert, sidemenu };
+}
+
+const connectedHome = connect(mapStateToProps)(Home);
+export { connectedHome as Home };
