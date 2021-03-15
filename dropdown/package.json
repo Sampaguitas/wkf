@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "microservice",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/Sampaguitas/wkf/tree/master/dropdown"
+  },
   "scripts": {
     "start": "node src/index.js",
     "start.dev": "nodemon -L src/index.js",

@@ -5,6 +5,10 @@
   "author": "Timothee Desurmont",
   "license": "ISC",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/Sampaguitas/wkf/tree/master/param"
+  },
   "scripts": {
     "start": "node src/index.js",
     "start.dev": "nodemon -L src/index.js",

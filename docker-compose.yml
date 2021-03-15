@@ -59,8 +59,10 @@ services:
     build:
       context: ./dropdown
       dockerfile: Dockerfile.dev
+    expose:
+      - "5001"
     restart: on-failure
-    container_name: dropdown
+    # container_name: dropdown
     volumes:
       - /app/node_modules
       - "./dropdown/src:/app/src"

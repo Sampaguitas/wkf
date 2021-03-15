@@ -5,6 +5,10 @@
   "author": "Timothee Desurmont",
   "license": "ISC",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/Sampaguitas/wkf/tree/master/client"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.29",
     "@fortawesome/free-solid-svg-icons": "^5.13.1",

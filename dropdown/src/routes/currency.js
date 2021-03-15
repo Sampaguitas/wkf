@@ -3,7 +3,6 @@ const router = express.Router();
 
 router.get("/", (req, res) => {
     const name = decodeURI(req.query.name);
-
     require("../models/Currency").distinct("_id", {
         _id : { $regex: new RegExp(`^${require("../functions/escape")(name)}`,"i") }
     }).exec(function (error, result) {
