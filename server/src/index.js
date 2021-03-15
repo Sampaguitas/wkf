@@ -26,6 +26,7 @@ app.listen(port, () => console.log(`Server running on ${port}`));
 
 //user
 app.use("/user/login", require("./routes/user/login"));
+app.use("/user/reqPwd", require("./routes/user/reqPwd"));
 
 //dropdown
 app.use("/dropdown/currency", passport.authenticate("jwt", { session: false }), require("./routes/dropdown/currency"));

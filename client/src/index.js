@@ -2,8 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
-import "./styles/main.css";
+
 import "./styles/custom.scss";
+import "./styles/main.css";
+
 
 import { store } from "./_helpers";
 import { App } from "./app/app.js";

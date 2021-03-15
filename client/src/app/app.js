@@ -7,8 +7,10 @@ import { history } from "../_helpers";
 import { alertActions } from "../_actions";
 
 import {Login} from "../pages/account/login";
+import {ReqPwd} from "../pages/account/reqpwd";
 import {Home} from "../pages/home/home";
 import {NotFound} from "../pages/account/notfound";
+
 
 //Icons
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -34,23 +36,25 @@ class App extends React.Component {
     return (
       <Router>
           <Switch>
-              <Route path="/login" component={Login} user={user}/>
-              <PrivateRoute exact path="/" component={Home} user={user}/>
-              <Route path="*" component={NotFound} />
+              <Route path="/login" component={Login} user={user} />
+              <Route path="/reqpwd" component={ReqPwd} user={user} />
+              <PrivateRoute exact path="/" component={Home} user={user} />
+              <Route path="*" user={user} component={NotFound} />
           </Switch>
       </Router>
     );
   }
 }
 
-function PrivateRoute({ component, user, ...rest }) {
+function PrivateRoute({ component: Component, user: User, ...rest }) {
+  
   //source: https://reactrouter.com/web
   return (
     <Route
       {...rest}
-      render={props => 
-        user ? (
-          <component {...props} />
+      render={props =>
+        User ? (
+          <Component {...props} />
         ) : (
           <Redirect
             to={{

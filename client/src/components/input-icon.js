@@ -21,7 +21,7 @@ class InputIcon extends Component {
         const {submitted, value, icon, name, type, onChange, placeholder, autoComplete, title} = this.props;
         return (
             <div className={'form-group' + (submitted && !value ? ' has-error' : '')}>
-                <div className="input-group input-group-lg">
+                <div className="input-group no-select">
                     <div className="input-group-prepend">
                         <div className="input-group-text">
                             <FontAwesomeIcon icon={icon} />

@@ -1,20 +1,11 @@
-// // Import custom fonts
-@import url("https://fast.fonts.net/lt/1.css?apiType=css&c=c45a7976-675e-4738-a588-e66804a288a8&fontids=1566547");
-@font-face{
-  font-family:"ITC Kabel W01 Book";
-  font-style: normal; //
-  font-weight: 400; //
-  src:url("../fonts/1566547/5af0f1cc-5efb-4044-9cd4-666903574425.woff2") format("woff2"),url("../fonts/1566547/4dbd1790-bde7-4645-8a67-d91c4ff72b1f.woff") format("woff");
-  font-display: swap;
-}
-
-// Override default variables before the import
+// Import custom font from Google
+@import url('https://fonts.googleapis.com/css?family=Raleway');
 
 // Override / set color variables
 $white: #fff;
 $black: #000;
 $green: #05A881; //#00e389
-$blue: #0077C0; //#3399ff
+$blue: #0070C0; //#3399ff
 $orange: #f26c22;
 $yellow: #ffd925;
 $red: #A8052C; // #e5001e
@@ -56,7 +47,7 @@ $state-danger-text: darken($danger, 10);
 // $badge-font-weight: normal;
 
 // Override fonts
-$font-family-sans-serif: 'Open Sans, sans-serif'; //Raleway', sans-serif;
+$font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 $font-family-serif: Georgia, 'Times New Roman', Times, serif;
 $font-family-monospace: Menlo, Monaco, Consolas, 'Liberation Mono',
   'Courier New', monospace;
@@ -65,24 +56,6 @@ $font-family-base: $font-family-sans-serif;
 // Set global options
 $enable-shadows: false;
 $enable-gradients: true;
-
-//remove outline (from LCG)
-textarea:focus, 
-textarea.form-control:focus, 
-input.form-control:focus, 
-input[type=text]:focus, 
-input[type=password]:focus, 
-input[type=email]:focus, 
-input[type=number]:focus, 
-[type=text].form-control:focus, 
-[type=password].form-control:focus, 
-[type=email].form-control:focus, 
-[type=tel].form-control:focus, 
-[contenteditable].form-control:focus {
-  box-shadow: inset 0 -1px 0 #ddd;
-  border-color: rgb(206, 212, 218);
-  border-width: 1px;
-}
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';

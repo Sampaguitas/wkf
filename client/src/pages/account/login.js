@@ -1,8 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { NavLink } from 'react-router-dom';
+import { NavLink, Redirect } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { history } from '../../_helpers';
+import { history } from "../../_helpers";
 import { sidemenuActions } from "../../_actions";
 import InputIcon from "../../components/input-icon";
 import logo from "../../assets/logo.jpg";
@@ -15,10 +15,10 @@ export default class Login extends React.Component{
           email: "",
           password: "",
           loggingIn: false,
-          menuItem: '',
+          menuItem: "",
           alert: {
-            type: '',
-            message: ''
+            type: "",
+            message: ""
           }
         };
         this.handleChange = this.handleChange.bind(this);
@@ -27,7 +27,7 @@ export default class Login extends React.Component{
 
     componentDidMount() {
         const { dispatch } = this.props;
-        localStorage.removeItem('user');
+        localStorage.removeItem("user");
         dispatch(sidemenuActions.restore());
     }
     
@@ -46,11 +46,11 @@ export default class Login extends React.Component{
             loggingIn: true
             }, () => {
                 const requestOptions = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
                 };
-                return fetch(`${process.env.apiUrl}/user/login`, requestOptions)
+                return fetch(`/server/user/login`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                     loggingIn: false,
@@ -58,29 +58,29 @@ export default class Login extends React.Component{
                     const data = text && JSON.parse(text);
                     const resMsg = (data && data.message) || response.statusText;
                     if (response.status === 401) {
-                        // Unauthorized
-                        localStorage.removeItem('user');
+                        localStorage.removeItem("user");
                     } else if (!!data.token) {
-                        localStorage.setItem('user', JSON.stringify(data));
-                        history.push('/');
+                        localStorage.setItem("user", JSON.stringify(data));
+                        history.push("/");
+                        window.location.reload();
                     } else {
                         this.setState({
                         alert: {
-                            type: response.status === 200 ? 'alert-success' : 'alert-danger',
+                            type: response.status === 200 ? "alert-success" : "alert-danger",
                             message: resMsg
                         }
                         });
                     }
                     });
                 }).catch( () => {
-                    localStorage.removeItem('user');
+                    localStorage.removeItem("user");
                 }));
             });
         }
     }
 
     render() {
-        const { email, menuItem, password, loggingIn } = this.state;
+        const { email, password, loggingIn } = this.state;
         let alert = this.state.alert.message ? this.state.alert : this.props.alert;
         return(
             <div id="login-card" className="row justify-content-center align-self-center">
@@ -114,10 +114,10 @@ export default class Login extends React.Component{
                             autoComplete="current-password"
                         />
                         <hr />
-                        <button type="submit" className="btn btn-leeuwen btn-full btn-lg" style={{height: '34px'}}> 
+                        <button type="submit" className="btn btn-sm btn-block btn-leeuwen"> 
                             <span><FontAwesomeIcon icon={loggingIn ? "spinner" : "sign-in-alt"} className={loggingIn ? "fa-pulse fa fa-fw mr-2" : "fa mr-2"}/>Login</span>
                         </button>
-                        <NavLink to={{ pathname: "/requestpwd" }} className="btn btn-link" tag="a">Forgot your password?</NavLink>
+                        <NavLink to={{ pathname: "/requestpwd" }} className="btn btn-link btn-sm" tag="a">Forgot your password?</NavLink>
                         <br />
                         {alert.message && (<div className={`alert ${alert.type}`}>{alert.message}</div>)}
                     </form>
