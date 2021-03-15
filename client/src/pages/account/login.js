@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { NavLink, Redirect } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { history } from "../../_helpers";
 import { sidemenuActions } from "../../_actions";
@@ -50,7 +50,7 @@ export default class Login extends React.Component{
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
                 };
-                return fetch(`/server/user/login`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/user/login`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                     loggingIn: false,

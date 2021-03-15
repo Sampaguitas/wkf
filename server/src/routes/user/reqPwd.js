@@ -5,15 +5,14 @@ const Rpwd = require("../../models/Rpwd"); //
 const crypto = require("crypto");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
-const keys = require("../../config/keys");
 
 let transporter = nodemailer.createTransport({
-    host: keys.mailerHost,
-    port: keys.mailerPort,
+    host: process.env.MAILER_HOST,
+    port: process.env.MAILER_PORT,
     secure: false,
     auth: {
-      user: keys.mailerAuthUser, 
-      pass: keys.mailerAuthPass
+      user: process.env.MAILER_AUTH_USER, 
+      pass: process.env.MAILER_AUTH_PASS
     }
 });
 
@@ -37,7 +36,7 @@ router.post("/", (req, res) => {
                         return res.status(400).json({message: "Error generating hashed token."});
                     } else {
                         let mailOptions = {
-                            from: "Timothee Desurmont" + " <" + keys.mailerAuthUser + ">",
+                            from: "Timothee Desurmont" + " <" + process.env.MAILER_AUTH_USER + ">",
                             to: user.email,
                             subject: "Reset your account password",
                             html: "<h2>Reconciliation Database (RDB)</h2>" +

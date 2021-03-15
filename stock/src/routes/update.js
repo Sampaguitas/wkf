@@ -14,7 +14,7 @@ router.post("/", upload.single("file"), function(req, res) {
     let nUpserted = 0;
     let rejections = [];
     
-    if (pwd !== require("../config/keys").curlPwd) {
+    if (pwd !== process.env.CURL_PWD) {
         res.status(401).send("Unauthorized");
     } else if (!loc || !file) {
         res.status(400).json({ message: "location not specified or file is missing." });

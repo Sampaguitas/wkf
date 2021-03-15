@@ -1,5 +1,2 @@
 # dependencies
 /node_modules
-
-# config file
-/src/config/keys_dev.js

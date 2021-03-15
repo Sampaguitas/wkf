@@ -4,6 +4,6 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 module.exports = passport => {
     passport.use(new JwtStrategy({
         "jwtFromRequest": ExtractJwt.fromAuthHeaderAsBearerToken(),
-        "secretOrKey": require("./keys").secret
+        "secretOrKey": process.env.SECRET
     }, (jwt_payload, done) => done(null, jwt_payload)));
 };
