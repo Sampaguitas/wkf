@@ -1,17 +1,16 @@
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const app = require("express")();
-const express = require("express");
-const router = express.Router();
 
 app.use(require("cors")());
 
 //bodyParser middleware
-app.use(bodyParser.urlencoded({ extended: true, limit: '13mb' }));
-app.use(bodyParser.json({limit: '13mb'}));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //Passport config file
 app.use(passport.initialize());
+require("./models/index.js");
 require("./config/passport")(passport);
 
 // Connect to MongoDB
@@ -22,7 +21,9 @@ require("mongoose")
 .catch(err => console.log(err));
 
 // Listen on port
-const port = process.env.PORT || 5020;
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.use("/update", passport.authenticate("jwt", { session: false }), require("./routes/update"));
+//user
+app.use("/login", require("./routes/login"));
+app.use("/reqPwd", require("./routes/reqPwd"));

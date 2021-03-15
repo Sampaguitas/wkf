@@ -15,7 +15,7 @@ require("mongoose")
 .catch(err => console.log(err));
 
 // Listen on port
-const port = process.env.PORT || 5003;
+const port = process.env.PORT || 5030;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
 app.use("/update", require("./routes/update"));

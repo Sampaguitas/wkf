@@ -1,5 +1,5 @@
 # base image
-FROM node:14.4.0
+FROM node:14.4.0-alpine
 
 # path to working directory
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN npm install
 # add our source code into the image
 COPY . .
 
-EXPOSE 5003
+EXPOSE 5030
 
 # command to start the app
 CMD ["npm", "run", "start"]

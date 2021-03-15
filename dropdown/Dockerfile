@@ -14,7 +14,5 @@ RUN npm install
 # add our source code into the image
 COPY . .
 
-EXPOSE 5020
-
 # command to start the app
 CMD ["npm", "run", "start"]

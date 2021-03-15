@@ -70,7 +70,7 @@ export default class ResetPwd extends React.Component {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         };
-        return fetch(`${process.env.REACT_APP_API_URI}/server/user/resetPwd`, requestOptions)
+        return fetch(`${process.env.REACT_APP_API_URI}/account/resetPwd`, requestOptions)
         .then(response => response.text().then(text => {
           this.setState({
             resetting: false,

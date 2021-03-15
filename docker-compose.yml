@@ -4,6 +4,9 @@ services:
     depends_on:
       - client
       - server
+      - account
+      - dropdown_1
+      - dropdown_2
       - param
       - stock
     build:
@@ -36,6 +39,51 @@ services:
       - "./server/src:/app/src"
     env_file:
       - ./env/server.env
+  account:
+    build:
+      context: ./account
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000" #nginx:container
+    restart: on-failure
+    container_name: account
+    volumes:
+      - /app/node_modules
+      - "./account/src:/app/src"
+    env_file:
+      - ./env/server.env
+    environment:
+      - PORT=5000
+  dropdown_1:
+    build:
+      context: ./dropdown
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5001:5001" #nginx:container
+    restart: on-failure
+    container_name: dropdown_1
+    volumes:
+      - /app/node_modules
+      - "./dropdown/src:/app/src"
+    env_file:
+      - ./env/server.env
+    environment:
+      - PORT=5001"
+  dropdown_2:
+    build:
+      context: ./dropdown
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5002:5002" #nginx:container
+    restart: on-failure
+    container_name: dropdown_2
+    volumes:
+      - /app/node_modules
+      - "./dropdown/src:/app/src"
+    env_file:
+      - ./env/server.env
+    environment:
+      - PORT=5002"
   param:
     build:
       context: ./param
