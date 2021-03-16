@@ -1,0 +1,61 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+      {
+        "name": "nginx",
+        "image": "timotheedesurmont/wkf-nginx",
+        "hostname": "nginx",
+        "essential": true,
+        "portMappings": [
+          {
+            "hostPort": 80,
+            "containerPort": 80
+          }
+        ],
+        "links": ["client", "server", "account", "dropdown", "param", "stock"],
+        "memory": 100
+      },
+      {
+        "name": "client",
+        "image": "timotheedesurmont/wkf-client",
+        "hostname": "client",
+        "essential": false,
+        "memory": 300
+      },
+      {
+        "name": "stock",
+        "image": "timotheedesurmont/wkf-stock",
+        "hostname": "stock",
+        "essential": false,
+        "memory": 100
+      },
+      {
+        "name": "param",
+        "image": "timotheedesurmont/wkf-param",
+        "hostname": "param",
+        "essential": false,
+        "memory": 100
+      },
+      {
+        "name": "dropdown",
+        "image": "timotheedesurmont/wkf-dropdown",
+        "hostname": "dropdown",
+        "essential": false,
+        "memory": 100
+      },
+      {
+        "name": "account",
+        "image": "timotheedesurmont/wkf-account",
+        "hostname": "account",
+        "essential": false,
+        "memory": 100
+      },
+      {
+        "name": "server",
+        "image": "timotheedesurmont/wkf-server",
+        "hostname": "server",
+        "essential": false,
+        "memory": 100
+      }
+    ]
+}

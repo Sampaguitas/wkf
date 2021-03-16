@@ -1,0 +1,90 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 20
+  pre_build:
+    commands:
+      # Install Snyk
+      - echo Install Snyk
+      - curl -Lo ./snyk "https://github.com/snyk/snyk/releases/download/v1.210.0/snyk-linux"
+      - chmod -R +x ./snyk
+      # Snyk auth
+      # - ./snyk config set api="$SNYK_AUTH_TOKEN"
+      # Build Docker image for testing
+      - echo Build client and backend docker images for testing...
+      - docker build -t timotheedesurmont/client-test -f ./client/Dockerfile.dev ./client
+      - docker build -t timotheedesurmont/stock-test -f ./stock/Dockerfile.dev ./stock
+      - docker build -t timotheedesurmont/param-test -f ./param/Dockerfile.dev ./param
+      - docker build -t timotheedesurmont/dropdown-test -f ./dropdown/Dockerfile.dev ./dropdown
+      - docker build -t timotheedesurmont/account-test -f ./account/Dockerfile.dev ./account
+      - docker build -t timotheedesurmont/server-test -f ./server/Dockerfile.dev ./server
+  build:
+    commands:
+      - echo Build started on `date`
+      # Run tests with built Docker images
+      - echo Run client tests...
+      - docker run -e CI=true timotheedesurmont/client-test
+      - echo Run stock tests...
+      - docker run -e CI=true timotheedesurmont/stock-test
+      - echo Run param tests...
+      - docker run -e CI=true timotheedesurmont/param-test
+      - echo Run dropdown tests...
+      - docker run -e CI=true timotheedesurmont/dropdown-test
+      - echo Run account tests...
+      - docker run -e CI=true timotheedesurmont/account-test
+      - echo Run server tests...
+      - docker run -e CI=true timotheedesurmont/server-test
+      # Scan Docker image with Snyk
+      ## Client
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/client-test:latest --file=./client/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/client-test:latest --file=./client/Dockerfile.dev
+      ## Stock
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/stock-test:latest --file=./stock/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/stock-test:latest --file=./stock/Dockerfile.dev
+      ## Param
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/param-test:latest --file=./param/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/param-test:latest --file=./param/Dockerfile.dev
+      ## Dropdown
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/dropdown-test:latest --file=./dropdown/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/dropdown-test:latest --file=./dropdown/Dockerfile.dev
+      ## Account
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/account-test:latest --file=./account/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/account-test:latest --file=./account/Dockerfile.dev
+      ## Server
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
+      # Build the Docker images
+      - echo Building the production Docker image...
+      - docker build -t timotheedesurmont/wkf-client ./client
+      - docker build -t timotheedesurmont/wkf-stock ./stock
+      - docker build -t timotheedesurmont/wkf-param ./param
+      - docker build -t timotheedesurmont/wkf-dropdown ./dropdown
+      - docker build -t timotheedesurmont/wkf-account ./account
+      - docker build -t timotheedesurmont/wkf-server ./server
+      - docker build -t timotheedesurmont/wkf-nginx ./nginx
+      # Log in to the Docker CLI
+      - echo "$DOCKER_PW" | docker login -u "$DOCKER_ID" --password-stdin
+  post_build:
+    commands:
+      # Take these images and push them to Docker hub
+      - echo Pushing the Docker images...
+      - docker push timotheedesurmont/wkf-client
+      - docker push timotheedesurmont/wkf-stock
+      - docker push timotheedesurmont/wkf-param
+      - docker push timotheedesurmont/wkf-dropdown
+      - docker push timotheedesurmont/wkf-account
+      - docker push timotheedesurmont/wkf-server
+      - docker push timotheedesurmont/wkf-nginx
