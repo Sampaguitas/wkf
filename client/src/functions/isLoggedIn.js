@@ -1,0 +1,1 @@
+module.exports = () => localStorage.getItem("user") !== null;

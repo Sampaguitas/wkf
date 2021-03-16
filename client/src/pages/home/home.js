@@ -1,11 +1,13 @@
 import React from "react";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 
 
 class Home extends React.Component{
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            menuItem: "Home"
+        }
     }
 
     render() {

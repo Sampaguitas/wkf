@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-class InputIcon extends Component {
+export default class InputIcon extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -53,5 +53,3 @@ class InputIcon extends Component {
         
     }
 };
-
-export default InputIcon;
