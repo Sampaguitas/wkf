@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url" : "https://github.com/Sampaguitas/wkf/tree/master/stock"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/stock"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -23,8 +23,5 @@
     "express": "^4.17.1",
     "mongoose": "^5.11.15",
     "multer": "^1.4.1"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.7"
   }
 }
