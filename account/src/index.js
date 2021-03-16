@@ -24,6 +24,6 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-//user
 app.use("/login", require("./routes/login"));
 app.use("/reqPwd", require("./routes/reqPwd"));
+app.use("/resetPwd", require("./routes/resetPwd"));
