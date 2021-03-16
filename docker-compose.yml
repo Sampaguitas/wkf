@@ -21,7 +21,6 @@ services:
       args:
         NPM_TOKEN: $NPM_TOKEN
     restart: on-failure
-    container_name: client
     volumes:
       - /app/node_modules
       - "./client/src:/app/src"
@@ -32,7 +31,6 @@ services:
       context: ./server
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: server
     volumes:
       - /app/node_modules
       - "./server/src:/app/src"
@@ -42,10 +40,7 @@ services:
     build:
       context: ./account
       dockerfile: Dockerfile.dev
-    expose:
-      - "5000"
     restart: on-failure
-    # container_name: account
     volumes:
       - /app/node_modules
       - "./account/src:/app/src"
@@ -55,10 +50,7 @@ services:
     build:
       context: ./dropdown
       dockerfile: Dockerfile.dev
-    expose:
-      - "5001"
     restart: on-failure
-    # container_name: dropdown
     volumes:
       - /app/node_modules
       - "./dropdown/src:/app/src"
@@ -69,7 +61,6 @@ services:
       context: ./param
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: param
     volumes:
       - /app/node_modules
       - "./param/src:/app/src"
@@ -80,7 +71,6 @@ services:
       context: ./stock
       dockerfile: Dockerfile.dev
     restart: on-failure
-    container_name: stock
     volumes:
       - /app/node_modules
       - "./stock/src:/app/src"

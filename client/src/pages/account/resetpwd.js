@@ -3,10 +3,9 @@ import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 import queryString from "query-string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import config from "config";
 import { sidemenuActions } from "../../_actions";
 import InputIcon from "../../components/input-icon";
-import logo from "../../assets/logo.jpg"; //logo.svg
+import logo from "../../assets/logo.jpg";
 import rdb from "../../assets/rdb.svg";
 
 export default class ResetPwd extends React.Component {
@@ -19,7 +18,6 @@ export default class ResetPwd extends React.Component {
             newPassword: "",
         },
         resetting: false,
-        menuItem: "",
         alert: {
           type: "",
           message: ""
@@ -60,7 +58,6 @@ export default class ResetPwd extends React.Component {
   handleReset(event) {
     event.preventDefault();
     const { user, resetting } = this.state;
-    // const { dispatch } = this.props;
     if (!!user.userId && !!user.token && !!user.newPassword && !resetting) {
       this.setState({
         resetting: true
@@ -78,9 +75,8 @@ export default class ResetPwd extends React.Component {
             const data = text && JSON.parse(text);
             const resMsg = (data && data.message) || response.statusText;
             if (response.status === 401) {
-              // Unauthorized
               localStorage.removeItem("user");
-              location.reload(true);
+              window.location.reload();
             } else {
               this.setState({
                 alert: {
@@ -90,17 +86,13 @@ export default class ResetPwd extends React.Component {
               });
             }
           });
-        }).catch( () => {
-          localStorage.removeItem("user");
-          location.reload(true);
         }));
       });
     }
   }
 
   render() {
-    const { sidemenu } = this.props;
-    const { user, menuItem, resetting } = this.state;
+    const { user, resetting } = this.state;
     const alert = this.state.alert.message ? this.state.alert : this.props.alert;
     return (
       <div
@@ -117,6 +109,7 @@ export default class ResetPwd extends React.Component {
               <br />
               <img src={rdb} className="img-fluid mt-2" alt="Reconciliation Database" />
               <hr />
+              <p>Type you new password.</p>
               <form
                   name="form"
                   onSubmit={this.handleReset}
@@ -134,7 +127,7 @@ export default class ResetPwd extends React.Component {
                       required
                   />
                   <hr />
-                  <button type="submit" className="btn btn-leeuwen btn-full btn-lg">
+                  <button type="submit" className="btn btn-sm btn-block btn-leeuwen">
                     <span><FontAwesomeIcon icon={resetting ? "spinner" : "hand-point-right"} className={resetting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Reset</span>
                   </button>
                   <NavLink to={{ pathname: "/login" }} className="btn btn-link" tag="a">Go back to login page</NavLink>

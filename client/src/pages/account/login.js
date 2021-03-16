@@ -15,7 +15,6 @@ export default class Login extends React.Component{
           email: "",
           password: "",
           loggingIn: false,
-          menuItem: "",
           alert: {
             type: "",
             message: ""
@@ -117,7 +116,7 @@ export default class Login extends React.Component{
                         <button type="submit" className="btn btn-sm btn-block btn-leeuwen"> 
                             <span><FontAwesomeIcon icon={loggingIn ? "spinner" : "sign-in-alt"} className={loggingIn ? "fa-pulse fa fa-fw mr-2" : "fa mr-2"}/>Login</span>
                         </button>
-                        <NavLink to={{ pathname: "/requestpwd" }} className="btn btn-link btn-sm" tag="a">Forgot your password?</NavLink>
+                        <NavLink to={{ pathname: "/reqpwd" }} className="btn btn-link btn-sm" tag="a">Forgot your password?</NavLink>
                         <br />
                         {alert.message && (<div className={`alert ${alert.type}`}>{alert.message}</div>)}
                     </form>

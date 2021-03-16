@@ -37,9 +37,9 @@ router.post("/", (req, res) => {
                             from: "Timothee Desurmont" + " <" + process.env.MAILER_AUTH_USER + ">",
                             to: user.email,
                             subject: "Reset your account password",
-                            html: "<h2>Reconciliation Database (RDB)</h2>" +
+                            html: "<h2>Capex work file</h2>" +
                             "<p>Hi,</p>" +
-                            `<p>Please click on the following <a href=/server/resetpwd?id=${user._id}&token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
+                            `<p>Please click on the following <a href=${process.env.REACT_APP_API_URI}/account/resetpwd?id=${user._id}&token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
                             "<p>Thanks,</p>" +
                             "<br/>" +
                             "<p>Global Project Organisation</p>" +

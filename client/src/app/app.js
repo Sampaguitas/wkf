@@ -8,9 +8,9 @@ import { alertActions } from "../_actions";
 
 import {Login} from "../pages/account/login";
 import {ReqPwd} from "../pages/account/reqpwd";
+import {ResetPwd} from "../pages/account/resetpwd";
 import {Home} from "../pages/home/home";
 import {NotFound} from "../pages/account/notfound";
-
 
 //Icons
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -18,8 +18,6 @@ import { fas } from "@fortawesome/pro-solid-svg-icons";
 import { far } from "@fortawesome/pro-regular-svg-icons";
 import { fal } from "@fortawesome/pro-light-svg-icons";
 library.add(fas, far, fal);
-
-
 
 class App extends React.Component {
   
@@ -38,6 +36,7 @@ class App extends React.Component {
           <Switch>
               <Route path="/login" component={Login} user={user} />
               <Route path="/reqpwd" component={ReqPwd} user={user} />
+              <Route path="/resetpwd" component={ResetPwd} user={user} />
               <PrivateRoute exact path="/" component={Home} user={user} />
               <Route path="*" user={user} component={NotFound} />
           </Switch>
