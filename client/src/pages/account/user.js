@@ -143,7 +143,7 @@ export default class User extends React.Component {
                                 <div className="card-header">Profile Info</div>
                                 <div className="card-body" style={{height: "118.719px"}}>
                                     <address style={{fontSize: "14px"}}>
-                                        <strong>{!user.hasOwnProperty("name") ?  <Skeleton/> : `${user.name}(${user.userName})`} </strong>
+                                        <strong>{!user.hasOwnProperty("name") ?  <Skeleton/> : `${user.name}`} </strong>
                                         <br/>
                                         {!user.hasOwnProperty("email") ? <Skeleton/> : <a href={`mailto:${user.email}`}>{user.email}</a>}
                                         <br/>

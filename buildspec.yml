@@ -18,7 +18,7 @@ phases:
       - docker build -t timotheedesurmont/param-test -f ./param/Dockerfile.dev ./param
       - docker build -t timotheedesurmont/dropdown-test -f ./dropdown/Dockerfile.dev ./dropdown
       - docker build -t timotheedesurmont/account-test -f ./account/Dockerfile.dev ./account
-      - docker build -t timotheedesurmont/server-test -f ./server/Dockerfile.dev ./server
+      - docker build -t timotheedesurmont/search-test -f ./search/Dockerfile.dev ./search
   build:
     commands:
       - echo Build started on `date`
@@ -33,8 +33,8 @@ phases:
       - docker run -e CI=true timotheedesurmont/dropdown-test
       - echo Run account tests...
       - docker run -e CI=true timotheedesurmont/account-test
-      - echo Run server tests...
-      - docker run -e CI=true timotheedesurmont/server-test
+      - echo Run search tests...
+      - docker run -e CI=true timotheedesurmont/search-test
       # Scan Docker image with Snyk
       ## Client
       ## Run test for security vulernabilities
@@ -63,9 +63,9 @@ phases:
       # - ./snyk monitor --docker timotheedesurmont/account-test:latest --file=./account/Dockerfile.dev
       ## Server
       ## Run test for security vulernabilities
-      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/search-test:latest --file=./search/Dockerfile.dev
       ## Setup continuous monitoring
-      # - ./snyk monitor --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
+      # - ./snyk monitor --docker timotheedesurmont/search-test:latest --file=./search/Dockerfile.dev
       # Build the Docker images
       - echo Building the production Docker image...
       - docker build -t timotheedesurmont/wkf-client ./client
@@ -73,7 +73,7 @@ phases:
       - docker build -t timotheedesurmont/wkf-param ./param
       - docker build -t timotheedesurmont/wkf-dropdown ./dropdown
       - docker build -t timotheedesurmont/wkf-account ./account
-      - docker build -t timotheedesurmont/wkf-server ./server
+      - docker build -t timotheedesurmont/wkf-search ./search
       - docker build -t timotheedesurmont/wkf-nginx ./nginx
       # Log in to the Docker CLI
       - echo "$DOCKER_PW" | docker login -u "$DOCKER_ID" --password-stdin
@@ -86,5 +86,5 @@ phases:
       - docker push timotheedesurmont/wkf-param
       - docker push timotheedesurmont/wkf-dropdown
       - docker push timotheedesurmont/wkf-account
-      - docker push timotheedesurmont/wkf-server
+      - docker push timotheedesurmont/wkf-search
       - docker push timotheedesurmont/wkf-nginx

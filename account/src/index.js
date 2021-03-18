@@ -29,3 +29,4 @@ app.use("/login", require("./routes/login"));
 app.use("/reqPwd", require("./routes/reqPwd"));
 app.use("/resetPwd", require("./routes/resetPwd"));
 app.use("/updatePwd", passport.authenticate("jwt", { session: false }), require("./routes/updatePwd"));
+app.use("/upsert", passport.authenticate("jwt", { session: false }), require("./routes/upsert"));
