@@ -1,59 +1,79 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
-
-//Redux
-import { connect } from "react-redux";
-import { history } from "../_helpers";
-import { alertActions } from "../_actions";
-
-import {Login} from "../pages/account/login";
-import {ReqPwd} from "../pages/account/reqpwd";
-import {ResetPwd} from "../pages/account/resetpwd";
-import {Home} from "../pages/home/home";
-import {NotFound} from "../pages/account/notfound";
-
-//Icons
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/pro-solid-svg-icons";
 import { far } from "@fortawesome/pro-regular-svg-icons";
 import { fal } from "@fortawesome/pro-light-svg-icons";
+
+import Login from "../pages/account/login";
+import ReqPwd from "../pages/account/reqpwd";
+import ResetPwd from "../pages/account/resetpwd";
+import NotFound from "../pages/account/notfound";
+// import Settings from "../pages/account/settings";
+import User from "../pages/account/user";
+import Stock from "../pages/home/stock";
+import BuyOut from "../pages/home/buyout";
+
 library.add(fas, far, fal);
 
-class App extends React.Component {
+export default class App extends React.Component {
   
   constructor(props) {
     super(props);
-    const { dispatch } = this.props;
-    history.listen((location, action) => {
-        dispatch(alertActions.clear());
-    });
+    this.state = {
+      collapsed: true
+    }
+    this.toggleCollapse = this.toggleCollapse.bind(this);
   }
 
+  toggleCollapse() {
+    const { collapsed } = this.state;
+    this.setState({ collapsed: !collapsed });
+  }
+  
   render() {
     let user = localStorage.getItem("user");
+    let {collapsed} = this.state;
     return (
       <Router>
           <Switch>
-              <Route path="/login" component={Login} user={user} />
-              <Route path="/reqpwd" component={ReqPwd} user={user} />
-              <Route path="/resetpwd" component={ResetPwd} user={user} />
-              <PrivateRoute exact path="/" component={Home} user={user} />
-              <Route path="*" user={user} component={NotFound} />
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/reqpwd">
+                <ReqPwd />
+              </Route>
+              <Route path="/resetpwd">
+                <ResetPwd />
+              </Route>
+              <PrivateRoute exact path="/" user={user}>
+                <Stock user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/buyout" user={user}>
+                <BuyOut user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/user" user={user}>
+                <User user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              {/* <PrivateRoute exact path="/settings" user={user}>
+                <Settings user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute> */}
+              <Route path="*">
+                <NotFound />
+              </Route>
           </Switch>
       </Router>
     );
   }
 }
 
-function PrivateRoute({ component: Component, user: User, ...rest }) {
-  
-  //source: https://reactrouter.com/web
+function PrivateRoute({ children, user, ...rest }) {
   return (
     <Route
       {...rest}
       render={props =>
-        User ? (
-          <Component {...props} />
+        user ? (
+          children
         ) : (
           <Redirect
             to={{
@@ -66,14 +86,3 @@ function PrivateRoute({ component: Component, user: User, ...rest }) {
     />
   ); 
 }
-
-function mapStateToProps(state) {
-  const { alert } = state;
-  return {
-      alert
-  };
-}
-
-const connectedApp = connect(mapStateToProps)(App);
-export { connectedApp as App };
-

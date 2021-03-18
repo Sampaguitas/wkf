@@ -1,4 +1,4 @@
-html, body, #app, #app>div {
+html, body, #root, #root>div {
   height: 100% !important;
 }
 
@@ -14,11 +14,6 @@ p {
 .content {
   padding-top: 15px;
   padding-bottom: 15px;
-}
-
-.btn-round {
-  border-radius: 50%;
-  padding: 0px;
 }
 
 .btn-warning {
@@ -131,13 +126,6 @@ label {
 }
 #headerbar.collapsed {
   margin-left: 50px;
-}
-
-footer { 
-    height: 50px;
-    line-height: 50px;
-    background-color: #f5f5f5;
-    z-index: 998 !important;
 }
 
 body {
@@ -313,62 +301,6 @@ h5 {
 
   /* //////////// Header Bar Menu ////////////*/
 
-  .header-button {
-    margin-left: 10px;
-    height: 40px;
-    width: 40px;
-}
-.navbar {
-    padding-left: 15px;
-    padding-right: 15px;
-    height:50px !important;
-    margin-bottom:0px !important;
-}
-/* .menu-item {
-    margin-left: 15px;
-    color: #A8052C;
-} */
-.icon {
-    position: relative;
-    height: 40px;
-    width: 40px;
-}
-.navbars {
-    transition: 0.3s transform;
-    color: #A8052C;
-    cursor: pointer;
-}
-.navbars.collapsed {
-    transform: rotate(90deg);
-}
-
-.icon svg {
-    position: absolute;
-    top:0;
-    bottom:0;
-    right:0;
-    left:0;
-    margin:auto;
-    color: #A8052C;
-}
-.icon:hover {
-    cursor: pointer;
-    background-color: #2a2a2a;
-    color: #A8052C
-}
-.bordered {
-    border: 1px solid #A8052C;
-}
-
-.header-bar-menu {
-transition: 0.3s margin-left;
-margin-left: 350px;
-}
-
-.header-bar-menu.collapsed {
-margin-left: 50px;
-}
-
 #dropdownMenuButton{
  height: 40px;
  width: 60px;
@@ -450,12 +382,12 @@ ol.breadcrumb {
 
 .main-section {
   /* breadcrumb: 28.5px */
-  height: calc(100% - 28.5px);
+  height: 100%;
 }
 
 .main-section-alert {
   /* breadcrumb: 28.5px, alert: 42.5px */
-  height: calc(100% - 71px);
+  height: calc(100% - 42.5px);
 }
 
 .action-row {

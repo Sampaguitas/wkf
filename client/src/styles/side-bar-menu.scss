@@ -46,7 +46,7 @@ $textColor: #fff;
 
 #sidebar-menu .sidebar-logo {
   background-color: #f8f9fa!important;
-  padding: 20px 0px 20px 0px;
+  // padding: 20px 0px 20px 0px;
   text-align: center;
   cursor: pointer;
   height: 50px;
@@ -55,7 +55,7 @@ $textColor: #fff;
 
 #sidebar-menu.collapsed .sidebar-logo {
   background-color: #f8f9fa!important;
-  padding: 20px 0px 20px 0px;
+  // padding: 20px 0px 20px 0px;
   text-align: center;
   cursor: pointer;
   height: 50px;
@@ -97,7 +97,7 @@ $textColor: #fff;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 2px;
   background: $primaryColor;
   z-index: 22;
 }

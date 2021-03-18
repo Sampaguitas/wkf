@@ -1,11 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import logo from "../../assets/logo.jpg"; //logo.svg
-import icon from "../../assets/icon.svg";
-import Item from "./item.js"
-import "./side-bar-menu.scss"
-import _ from "lodash";
+import logo from "../assets/logo.jpg";//logo.svg
+import icon from "../assets/icon.svg";
+import Item from "./side-bar-item.js"
+import "../styles/side-bar-menu.scss"
 
 export default class SideBarMenu extends React.Component {
     
@@ -15,7 +14,7 @@ export default class SideBarMenu extends React.Component {
             show: "",
             listMenu: [
                 { id: 0, title: "Stock", href: "/", icon: "warehouse" },
-                { id: 1, title: "Buy Out", href: "/buy_out", icon: "shopping-cart" }
+                { id: 1, title: "Buy Out", href: "/buyout", icon: "shopping-cart" }
             ]
         }
         this.handleItemOver = this.handleItemOver.bind(this);
@@ -28,12 +27,12 @@ export default class SideBarMenu extends React.Component {
 
     generateMenu() {
         const { listMenu, show } = this.state;
-        const { menuItem, sidemenu } = this.props;
+        const { menuItem } = this.props;
         let tempArray = []
 
         listMenu.map(item => {
-            tempArray.push(
-                <Item item={item} key={item.id} menuItem={menuItem} sidemenu={sidemenu} show={show} handleItemOver={this.handleItemOver}/>
+            return tempArray.push(
+                <Item item={item} key={item.id} menuItem={menuItem} show={show} handleItemOver={this.handleItemOver}/>
             );
         });
         
@@ -41,13 +40,13 @@ export default class SideBarMenu extends React.Component {
     }
 
     render() {
-        const { sidemenu } = this.props;
+        const { collapsed } = this.props;
         return (
             <div>
                 {localStorage.getItem("user") !== null && 
-                    <div id="sidebar-menu" className={sidemenu.collapsed ? "collapsed" : undefined}>
+                    <div id="sidebar-menu" className={collapsed ? "collapsed" : undefined}>
                         <NavLink to={{ pathname: "/" }} tag="div" className="sidebar-logo">
-                            <img src={sidemenu.collapsed ? icon : logo} />
+                            <img alt="logo" src={collapsed ? icon : logo} />
                         </NavLink>
                         <ul className="default-list menu-list">
                             {this.generateMenu()}

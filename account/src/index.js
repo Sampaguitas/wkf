@@ -24,6 +24,8 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
+app.use("/findOne", passport.authenticate("jwt", { session: false }), require("./routes/findOne"));
 app.use("/login", require("./routes/login"));
 app.use("/reqPwd", require("./routes/reqPwd"));
 app.use("/resetPwd", require("./routes/resetPwd"));
+app.use("/updatePwd", passport.authenticate("jwt", { session: false }), require("./routes/updatePwd"));

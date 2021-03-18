@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../styles/header-bar-menu.css"
 
 export default class HeaderBarMenu extends React.Component {
     render() {
@@ -8,28 +9,30 @@ export default class HeaderBarMenu extends React.Component {
         try{
             isAdmin = JSON.parse(localStorage.getItem("user")).isAdmin;
         } catch(e){}
-        const { sidemenu } = this.props;
+        const { collapsed } = this.props;
         return (
             <div>
-                <div className = { sidemenu.collapsed ? "header-bar-menu collapsed" : "header-bar-menu" } >
-                    <nav className={sidemenu.collapsed ? "navbar navbar-expand-lg navbar-light bg-light sticky-top collapsed" : "navbar navbar-expand-lg navbar-light bg-light sticky-top"} >
-                        <span className={sidemenu.collapsed ? "navbars collapsed" : "navbars"} onClick={this.props.toggleCollapse} >
-                            <span><FontAwesomeIcon icon="bars" className="fa-2x"/></span>
+                <div className = { collapsed ? "header-bar-menu collapsed" : "header-bar-menu" } >
+                    <nav className={collapsed ? "navbar navbar-expand-lg navbar-light bg-light sticky-top collapsed" : "navbar navbar-expand-lg navbar-light bg-light sticky-top"} >
+                        <span className={collapsed ? "navbars collapsed" : "navbars"} onClick={this.props.toggleCollapse} >
+                            <span><FontAwesomeIcon icon="bars" className="fa-lg"/></span>
                         </span>
                         <form className="form-inline ml-auto pull-right">
                             <NavLink to="/user">
-                                <button className="btn btn-outline-leeuwen-blue btn-round header-button" title="User-Page">
-                                    <span><FontAwesomeIcon icon="user" className="fa-2x"/></span>
+                                <button className="btn btn-outline-leeuwen-blue btn-round" title="User-Page">
+                                    <span><FontAwesomeIcon icon="user" className="fa-lg"/></span>
                                 </button>
                             </NavLink>
-                            <NavLink to="/settings">
-                                <button className={isAdmin ? "btn btn-outline-leeuwen-blue btn-round header-button" : "hidden"} title="Settings">
-                                    <span><FontAwesomeIcon icon="cog" className="fa-2x"/></span>
-                                </button>
-                            </NavLink>
+                            {isAdmin &&
+                                <NavLink to="/settings">
+                                    <button className={"btn btn-outline-leeuwen-blue btn-round"} title="Settings">
+                                        <span><FontAwesomeIcon icon="cog" className="fa-lg"/></span>
+                                    </button>
+                                </NavLink>
+                            }
                             <NavLink to="/login">
-                                <button className="btn btn-outline-leeuwen btn-round header-button" title="Log-Out">
-                                    <span><FontAwesomeIcon icon="sign-out-alt" className="fa-2x"/></span>
+                                <button className="btn btn-outline-leeuwen btn-round" title="Log-Out">
+                                    <span><FontAwesomeIcon icon="sign-out-alt" className="fa-lg"/></span>
                                 </button>
                             </NavLink>
                         </form>

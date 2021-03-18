@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 router.post("/", (req, res) => {
     const email = req.body.email.toLowerCase();
     const password = decodeURI(req.body.password);
-    require("../models/User").findOne({ email }, { password:1, name: 1 })
+    require("../models/User").findOne({ email }, { password:1, name: 1, isAdmin: 1 })
     .then(user => {
         if (!user) {
             return res.status(400).json({ message: "Wrong email or password." });
@@ -16,8 +16,10 @@ router.post("/", (req, res) => {
                     return res.status(400).json({ message: "Wrong email or password." });
                 } else {                       
                     const payload = { 
-                        "id": user.id,
-                        "name": user.name
+                        "_id": user._id,
+                        "name": user.name,
+                        "email": user.email,
+                        "isAdmin": user.isAdmin
                     };
                     jwt.sign(
                         payload,
@@ -30,6 +32,7 @@ router.post("/", (req, res) => {
                                 res.json({
                                     success: true,
                                     token: "Bearer " + token,
+                                    isAdmin: payload.isAdmin,
                                 });
                             }
                         }

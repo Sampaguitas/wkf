@@ -1,5 +1,4 @@
 import { useLocation } from "react-router-dom";
-import { connect } from 'react-redux';
 
 export default function NotFound() {
     let location = useLocation();
@@ -12,11 +11,3 @@ export default function NotFound() {
         </article>
     );
 }
-
-function mapStateToProps(state) {
-    const { alert, sidemenu } = state;
-    return { alert, sidemenu };
-}
-
-const connectedNotFound = connect(mapStateToProps)(NotFound);
-export { connectedNotFound as NotFound };

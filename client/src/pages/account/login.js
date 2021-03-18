@@ -1,9 +1,7 @@
 import React from "react";
-import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { history } from "../../_helpers";
-import { sidemenuActions } from "../../_actions";
+import history from "../../helpers/history";
 import InputIcon from "../../components/input-icon";
 import logo from "../../assets/logo.jpg";
 import rdb from "../../assets/rdb.svg";
@@ -25,9 +23,7 @@ export default class Login extends React.Component{
     }
 
     componentDidMount() {
-        const { dispatch } = this.props;
         localStorage.removeItem("user");
-        dispatch(sidemenuActions.restore());
     }
     
     handleChange(event) {
@@ -79,8 +75,7 @@ export default class Login extends React.Component{
     }
 
     render() {
-        const { email, password, loggingIn } = this.state;
-        let alert = this.state.alert.message ? this.state.alert : this.props.alert;
+        const { alert, email, password, loggingIn } = this.state;
         return(
             <div id="login-card" className="row justify-content-center align-self-center">
                 <div className="card card-login">
@@ -126,11 +121,3 @@ export default class Login extends React.Component{
         );
     }
 }
-
-function mapStateToProps(state) {
-    const { alert, sidemenu } = state;
-    return { alert, sidemenu };
-}
-  
-const connectedLogin = connect(mapStateToProps)(Login);
-export { connectedLogin as Login };

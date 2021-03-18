@@ -1,9 +1,7 @@
 import React from "react";
-import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 import queryString from "query-string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { sidemenuActions } from "../../_actions";
 import InputIcon from "../../components/input-icon";
 import logo from "../../assets/logo.jpg";
 import rdb from "../../assets/rdb.svg";
@@ -28,7 +26,7 @@ export default class ResetPwd extends React.Component {
   }
 
   componentDidMount() {
-    const { location, dispatch } = this.props;
+    const { location } = this.props;
     const { user } = this.state;
     var qs = queryString.parse(location.search);
     if (qs.id && qs.token) {
@@ -41,7 +39,6 @@ export default class ResetPwd extends React.Component {
         });
     }
     localStorage.removeItem("user");
-    dispatch(sidemenuActions.restore());
   }
 
   handleChange(event) {
@@ -92,8 +89,7 @@ export default class ResetPwd extends React.Component {
   }
 
   render() {
-    const { user, resetting } = this.state;
-    const alert = this.state.alert.message ? this.state.alert : this.props.alert;
+    const { alert, user, resetting } = this.state;
     return (
       <div
         id="resetpwd-card"
@@ -140,11 +136,3 @@ export default class ResetPwd extends React.Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  const { alert, sidemenu } = state;
-  return { alert, sidemenu };
-}
-
-const connectedResetPwd = connect(mapStateToProps)(ResetPwd);
-export { connectedResetPwd as ResetPwd };

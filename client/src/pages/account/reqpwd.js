@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { sidemenuActions } from "../../_actions";
 import InputIcon from "../../components/input-icon";
 import logo from "../../assets/logo.jpg"; //logo.svg
 import rdb from "../../assets/rdb.svg";
@@ -24,9 +22,7 @@ export default class ReqPwd extends Component {
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
     localStorage.removeItem("user");
-    dispatch(sidemenuActions.restore());
   }
 
   handleChange(event) {
@@ -73,8 +69,7 @@ export default class ReqPwd extends Component {
   }
 
   render() {
-    const { email, requesting } = this.state;
-    const alert = this.state.alert.message ? this.state.alert : this.props.alert;
+    const { alert, email, requesting } = this.state;
     return (
       <div
         id="requestpwd-card"
@@ -120,11 +115,3 @@ export default class ReqPwd extends Component {
     );
   }
 }
-
-function mapStateToProps(state) {
-  const { alert, sidemenu } = state;
-  return { alert, sidemenu };
-}
-
-const connectedReqPwd = connect(mapStateToProps)(ReqPwd);
-export { connectedReqPwd as ReqPwd };
