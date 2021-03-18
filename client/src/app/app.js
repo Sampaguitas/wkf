@@ -9,7 +9,7 @@ import Login from "../pages/account/login";
 import ReqPwd from "../pages/account/reqpwd";
 import ResetPwd from "../pages/account/resetpwd";
 import NotFound from "../pages/account/notfound";
-// import Settings from "../pages/account/settings";
+import Settings from "../pages/account/settings";
 import User from "../pages/account/user";
 import Stock from "../pages/home/stock";
 import BuyOut from "../pages/home/buyout";
@@ -55,9 +55,9 @@ export default class App extends React.Component {
               <PrivateRoute exact path="/user" user={user}>
                 <User user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
-              {/* <PrivateRoute exact path="/settings" user={user}>
+              <PrivateRoute exact path="/settings" user={user}>
                 <Settings user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
-              </PrivateRoute> */}
+              </PrivateRoute>
               <Route path="*">
                 <NotFound />
               </Route>

@@ -185,7 +185,6 @@ export default class User extends React.Component {
                                                 <span><FontAwesomeIcon icon={updating ? "spinner" : "hand-point-right"} className={updating ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Submit</span>
                                             </button>
                                         </div>
-                                        
                                     </form>
                                 </div>
                             </div>
