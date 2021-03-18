@@ -29,7 +29,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        NPM_TOKEN: $NPM_TOKEN
+        NPM_TOKEN: ${NPM_TOKEN}
     restart: on-failure
     volumes:
       - /app/node_modules

@@ -6,6 +6,7 @@ WORKDIR /app
 
 # add npm env variable
 ARG NPM_TOKEN
+
 COPY .npmrc .npmrc
 
 # copy package.json into our working directory

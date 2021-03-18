@@ -24,5 +24,6 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.use("/stocks", passport.authenticate("jwt", { session: false }), require("./routes/stocks"));
 app.use("/article", passport.authenticate("jwt", { session: false }), require("./routes/article"));
+app.use("/stocks", passport.authenticate("jwt", { session: false }), require("./routes/stocks"));
+app.use("/users", passport.authenticate("jwt", { session: false }), require("./routes/users"));
