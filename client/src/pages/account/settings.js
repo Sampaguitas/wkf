@@ -1,5 +1,4 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
 import authHeader from "../../helpers/auth-header";
@@ -14,25 +13,6 @@ import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import _ from "lodash";
-
-function upsertUser(user, create) {
-    return new Promise(function (resolve) {
-        const requestOptions = {
-            method: create ? "POST" : "PUT",
-            headers: { ...authHeader(), "Content-Type": "application/json" },
-            body: JSON.stringify(user)
-        };
-        return fetch(`${process.env.REACT_APP_API_URI}/account/${create ? "create" : "update"}`, requestOptions)
-            .then(response => response.text().then(text => {
-                const data = text && JSON.parse(text);
-                const resMsg = (data && data.message) || response.statusText;
-                resolve({
-                    status: response.status,
-                    message: resMsg
-                });
-            }));
-    });
-}
 
 export default class Settings extends React.Component {
     constructor(props) {
@@ -109,7 +89,6 @@ export default class Settings extends React.Component {
             localStorage.removeItem("user");
             window.location.reload(true);
         }
-
     }
 
     resize() {
@@ -125,7 +104,7 @@ export default class Settings extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { sort, filter, paginate } = this.state;
-        if (sort != prevState.sort || filter != prevState.filter || (paginate.pageSize != prevState.paginate.pageSize && prevState.paginate.pageSize != 0)) {
+        if (sort !== prevState.sort || filter !== prevState.filter || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
     }
@@ -152,7 +131,7 @@ export default class Settings extends React.Component {
     toggleSort(event, name) {
         event.preventDefault();
         const { sort } = this.state;
-        if (sort.name != name) {
+        if (sort.name !== name) {
             this.setState({
                 sort: {
                     name: name,
@@ -235,47 +214,43 @@ export default class Settings extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/search/users`, requestOptions)
-                    .then(response => response.text().then(text => {
-                        this.setState({
-                            retrieving: false,
-                        }, () => {
-                            const data = text && JSON.parse(text);
-                            const resMsg = (data && data.message) || response.statusText;
-                            if (response.status === 401) {
-                                // Unauthorized
-                                localStorage.removeItem("user");
-                                window.location.reload(true);
-                            } else if (response.status != 200) {
-                                this.setState({
-                                    alert: {
-                                        type: "alert-danger",
-                                        message: resMsg
-                                    }
-                                });
-                            } else {
-                                this.setState({
-                                    users: data.users,
-                                    paginate: {
-                                        ...paginate,
-                                        currentPage: data.currentPage,
-                                        firstItem: data.firstItem,
-                                        lastItem: data.lastItem,
-                                        pageItems: data.pageItems,
-                                        pageLast: data.pageLast,
-                                        totalItems: data.totalItems,
-                                        first: data.first,
-                                        second: data.second,
-                                        third: data.third
-                                    }
-                                });
-                            }
-                        });
-                    }))
-                    .catch(() => {
-                        localStorage.removeItem("user");
-                        window.location.reload(true);
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/getAll`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        retrieving: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else if (response.status !== 200) {
+                            this.setState({
+                                alert: {
+                                    type: "alert-danger",
+                                    message: resMsg
+                                }
+                            });
+                        } else {
+                            this.setState({
+                                users: data.users,
+                                paginate: {
+                                    ...paginate,
+                                    currentPage: data.currentPage,
+                                    firstItem: data.firstItem,
+                                    lastItem: data.lastItem,
+                                    pageItems: data.pageItems,
+                                    pageLast: data.pageLast,
+                                    totalItems: data.totalItems,
+                                    first: data.first,
+                                    second: data.second,
+                                    third: data.third
+                                }
+                            });
+                        }
                     });
+                }));
             });
         }
     }
@@ -287,39 +262,42 @@ export default class Settings extends React.Component {
             this.setState({
                 upserting: true,
             }, () => {
-                upsertUser(user, user.id ? false : true).then(response => {
-                    this.setState({
-                        upserting: false
-                    }, () => {
-                        if (response.status === 401) {
-                            // Unauthorized
-                            localStorage.removeItem("user");
-                            window.location.reload(true);
-                        } else {
-                            this.setState({
-                                alert: {
-                                    type: response.status != 200 ? "alert-danger" : "alert-success",
-                                    message: response.message
-                                }
-                            }, () => {
-                                this.getDocuments();
-                                this.hideModal();
-                            });
-                        }
-                    });
-                })
-                    .catch(() => {
+                const requestOptions = {
+                    method: !!user._id ? "PUT" : "POST",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: user.name,
+                        email: user.email
+                    })
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/${user._id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    const data = text && JSON.parse(text);
+                    const resMsg = (data && data.message) || response.statusText;
+                    if (response.status === 401) {
+                        // Unauthorized
                         localStorage.removeItem("user");
                         window.location.reload(true);
-                    });
+                    } else {
+                        this.setState({
+                            alert: {
+                                type: response.status !== 200 ? "alert-danger" : "alert-success",
+                                message: response.message
+                            }
+                        }, () => {
+                            this.getDocuments();
+                            this.hideModal();
+                        });
+                    }
+                }));
             });
         }
     }
 
-    handleDelete(event, id) {
+    handleDelete(event, _id) {
         event.preventDefault();
         const { deleting } = this.state;
-        if (!!id && !deleting) {
+        if (!!_id && !deleting) {
             this.setState({
                 deleting: true
             }, () => {
@@ -327,46 +305,42 @@ export default class Settings extends React.Component {
                     method: "DELETE",
                     headers: authHeader()
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/account/delete?id=${id}`, requestOptions)
-                    .then(response => response.text().then(text => {
-                        this.setState({
-                            deleting: false,
-                        }, () => {
-                            const data = text && JSON.parse(text);
-                            const resMsg = (data && data.message) || response.statusText;
-                            if (response.status === 401) {
-                                // Unauthorized
-                                localStorage.removeItem("user");
-                                window.location.reload(true);
-                            } else {
-                                this.setState({
-                                    alert: {
-                                        type: response.status != 200 ? "alert-danger" : "alert-success",
-                                        message: resMsg
-                                    }
-                                }, () => {
-                                    this.getDocuments();
-                                    this.hideModal();
-                                });
-                            }
-                        });
-                    }))
-                    .catch(() => {
-                        localStorage.removeItem("user");
-                        window.location.reload(true);
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/${_id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        deleting: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else {
+                            this.setState({
+                                alert: {
+                                    type: response.status !== 200 ? "alert-danger" : "alert-success",
+                                    message: resMsg
+                                }
+                            }, () => {
+                                this.getDocuments();
+                                this.hideModal();
+                            });
+                        }
                     });
+                }));
             });
         }
     }
 
-    handleOnclick(event, id) {
+    handleOnclick(event, _id) {
         event.preventDefault();
         const { users, currentUser } = this.state;
-        let found = users.find(element => _.isEqual(element._id, id));
+        let found = users.find(element => _.isEqual(element._id, _id));
         if (!_.isUndefined(found) && !!currentUser.isAdmin) {
             this.setState({
                 user: {
-                    id: found._id,
+                    _id: found._id,
                     name: found.name,
                     email: found.email,
                 },
@@ -421,11 +395,11 @@ export default class Settings extends React.Component {
                         <TableData colIndex="0" value={user.email} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
                         <td data-type="checkbox">
                             <TableCheckBoxAdmin
-                                id={user._id}
+                                _id={user._id}
                                 checked={user.isAdmin || false}
                                 refreshStore={this.getDocuments}
                                 setAlert={this.setAlert}
-                                disabled={_.isEqual(currentUser.id, user.id) || !currentUser.isAdmin ? true : false}
+                                disabled={_.isEqual(currentUser._id, user._id) || !currentUser.isAdmin ? true : false}
                                 data-type="checkbox"
                             />
                         </td>
@@ -460,17 +434,9 @@ export default class Settings extends React.Component {
                         </button>
                     </div>
                 }
-                <nav aria-label="breadcrumb">
-                    <ol className="breadcrumb">
-                        <li className="breadcrumb-item">
-                            <NavLink to={{ pathname: "/" }} tag="a">Home</NavLink>
-                        </li>
-                        <li className="breadcrumb-item active" aria-current="page">Settings</li>
-                    </ol>
-                </nav>
                 <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Create User" className="btn btn-leeuwen-blue btn-lg" onClick={this.showModal}> {/* style={{height: "34px"}} */}
+                        <button title="Create User" className="btn btn-sm btn-leeuwen-blue" onClick={this.showModal}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create User</span>
                         </button>
                     </div>
@@ -548,7 +514,7 @@ export default class Settings extends React.Component {
                     <Modal
                         show={showUser}
                         hideModal={this.hideModal}
-                        title={this.state.user.id ? "Update user" : "Add user"}
+                        title={this.state.user._id ? "Update user" : "Add user"}
                     >
                         <div className="col-12">
                             <form
@@ -574,9 +540,9 @@ export default class Settings extends React.Component {
                                     required={true}
                                 />
                                 <div className="modal-footer">
-                                    {this.state.user.id ?
+                                    {this.state.user._id ?
                                         <div className="row">
-                                            <button className="btn btn-leeuwen btn-lg" onClick={(event) => { this.handleDelete(event, this.state.user.id) }}>
+                                            <button className="btn btn-leeuwen btn-lg" onClick={(event) => { this.handleDelete(event, this.state.user._id) }}>
                                                 <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
                                             </button>
                                             <button type="submit" className="btn btn-leeuwen-blue btn-lg">

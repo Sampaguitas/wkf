@@ -45,7 +45,7 @@ export default class Login extends React.Component{
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/account/login`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/login`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                     loggingIn: false,

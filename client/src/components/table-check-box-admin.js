@@ -22,7 +22,7 @@ export default class TableCheckBoxAdmin extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         const { checked } = this.props;
-        if (checked != prevProps.checked) {
+        if (checked !== prevProps.checked) {
             this.setState({ checked: checked });
         }
     }
@@ -30,16 +30,16 @@ export default class TableCheckBoxAdmin extends Component {
     handleChange(event) {
         event.preventDefault();
         const { checked } = this.state;
-        const { id, refreshStore, setAlert } = this.props;
+        const { _id, refreshStore, setAlert } = this.props;
         this.setState({
             updating: true,
         }, () => {
             const requestOptions = {
                 method: "PUT",
                 headers: { ...authHeader(), "Content-Type": "application/json" },
-                body: JSON.stringify({ id: id, isAdmin: !checked })
+                // body: JSON.stringify({ id: id, isAdmin: !checked })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/account/setAdmin`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/api/users/setAdmin/${_id}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     updating: false,
@@ -52,9 +52,9 @@ export default class TableCheckBoxAdmin extends Component {
                         window.location.reload(true);
                     } else {
                         this.setState({
-                            checked: response.status != 200 ? checked : !checked, 
+                            checked: response.status !== 200 ? checked : !checked, 
                         }, () => {
-                            setAlert(response.status != 200 ? "alert-danger" : "alert-success", resMsg);
+                            setAlert(response.status !== 200 ? "alert-danger" : "alert-success", resMsg);
                             refreshStore();
                         });
                     }

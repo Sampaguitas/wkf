@@ -13,7 +13,7 @@ export default class ResetPwd extends React.Component {
         user: {
             userId: "",
             token: "",
-            newPassword: "",
+            newPwd: "",
         },
         resetting: false,
         alert: {
@@ -55,16 +55,19 @@ export default class ResetPwd extends React.Component {
   handleReset(event) {
     event.preventDefault();
     const { user, resetting } = this.state;
-    if (!!user.userId && !!user.token && !!user.newPassword && !resetting) {
+    if (!!user.userId && !!user.token && !!user.newPwd && !resetting) {
       this.setState({
         resetting: true
       }, () => {
         const requestOptions = {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user)
+          body: JSON.stringify({
+            token: user.token,
+            newPwd: user.newPwd
+          })
         };
-        return fetch(`${process.env.REACT_APP_API_URI}/account/resetPwd`, requestOptions)
+        return fetch(`${process.env.REACT_APP_API_URI}/api/users/resetPwd/${user.userId}`, requestOptions)
         .then(response => response.text().then(text => {
           this.setState({
             resetting: false,
@@ -112,9 +115,9 @@ export default class ResetPwd extends React.Component {
               >
                   <InputIcon
                       title="New Password"
-                      name="newPassword"
+                      name="newPwd"
                       type="password"
-                      value={user.newPassword}
+                      value={user.newPwd}
                       onChange={this.handleChange}
                       placeholder="New Password"
                       icon="lock"

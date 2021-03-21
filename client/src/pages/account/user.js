@@ -9,7 +9,7 @@ export default class User extends React.Component {
         super(props);
         this.state = {
             user: {},
-            newPassword: "",
+            newPwd: "",
             alert: {
                 type: "",
                 message: ""
@@ -26,41 +26,47 @@ export default class User extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({
-            loading: true
-        }, () => {
-            const requestOptions = {
-                method: "GET",
-                headers: {...authHeader(), "Content-Type": "application/json"},
-            };
-            return fetch(`${process.env.REACT_APP_API_URI}/account/findOne`, requestOptions)
-            .then(response => response.text().then(text => {
-                this.setState({
-                    loading: false,
-                }, () => {
-                    const data = text && JSON.parse(text);
-                    const resMsg = (data && data.message) || response.statusText;
-                    if (response.status === 401) {
+        let user = JSON.parse(localStorage.getItem('user'));
+        if (!!user && !!user._id) {
+            this.setState({
+                loading: true
+            }, () => {
+                const requestOptions = {
+                    method: "GET",
+                    headers: {...authHeader(), "Content-Type": "application/json"},
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/${user._id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        loading: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                        localStorage.removeItem("user");
+                        window.location.reload(true);
+                            } else if (response.status !== 200) {
+                            this.setState({
+                                alert: {
+                                    type: "alert-danger",
+                                    message: resMsg
+                                }
+                            });
+                        } else {
+                            this.setState({
+                                user: data.user
+                            });
+                        }
+                    });
+                }).catch( () => {
                     localStorage.removeItem("user");
                     window.location.reload(true);
-                        } else if (response.status !== 200) {
-                        this.setState({
-                            alert: {
-                                type: "alert-danger",
-                                message: resMsg
-                            }
-                        });
-                    } else {
-                        this.setState({
-                            user: data.user
-                        });
-                    }
-                });
-            }).catch( () => {
-                localStorage.removeItem("user");
-                window.location.reload(true);
-            }));
-        });
+                }));
+            });
+        } else {
+            localStorage.removeItem("user");
+            window.location.reload(true);
+        }
     }
 
     handleClearAlert(event){
@@ -86,17 +92,17 @@ export default class User extends React.Component {
 
     handleSubmit(event){
         event.preventDefault();
-        const { newPassword } = this.state
-        if (newPassword) {
+        const { newPwd } = this.state
+        if (newPwd) {
             this.setState({
                 updating: true
                 }, () => {
                 const requestOptions = {
                     method: "PUT",
                     headers: {...authHeader(), "Content-Type": "application/json"},
-                    body: JSON.stringify({ newPassword: newPassword })
+                    body: JSON.stringify({ newPwd })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/account/updatePwd`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/users/updatePwd`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({ updating: false }, () => {
                         const data = text && JSON.parse(text);
@@ -107,7 +113,7 @@ export default class User extends React.Component {
                             window.location.reload(true);
                         } else {
                             this.setState({
-                                newPassword: "",
+                                newPwd: "",
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
                                     message: resMsg
@@ -126,7 +132,7 @@ export default class User extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, user, updating, menuItem, newPassword, show } = this.state;
+        const { alert, user, updating, menuItem, newPwd, show } = this.state;
         return (
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
                 {alert.message && 
@@ -164,10 +170,10 @@ export default class User extends React.Component {
                                             <div className="input-group input-group-lg input-group-sm">
                                                 <input
                                                     className="form-control"
-                                                    id="newPassword"
-                                                    name="newPassword"
+                                                    id="newPwd"
+                                                    name="newPwd"
                                                     type={show ? "text" : "password"}
-                                                    value={newPassword}
+                                                    value={newPwd}
                                                     onChange={this.handleChange}
                                                     placeholder="New Password"
                                                     required={true}

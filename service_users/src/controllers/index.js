@@ -8,26 +8,21 @@ const _ = require("lodash");
 const User = require("../models/User");
 const Rpwd = require("../models/Rpwd");
 
-const get = (req, res, next) => {
+const getAll = (req, res, next) => {
+    
+    const { filter, sort, pageSize } = req.body;
+    const nextPage = req.body.nextPage || 1;
 
-    let pageSize = decodeURI(req.query.pageSize);
-    let sortName = decodeURI(req.query.sortName);
-    let sortAscending = decodeURI(req.query.sortAscending);
-    let filterName = decodeURI(req.query.filterName);
-    let filterEmail = decodeURI(req.query.filterEmail);
-    let filterAdmin = decodeURI(req.query.filterAdmin);
-
-    let nextPage = req.body.nextPage || 1;
     if (!pageSize) {
         res.status(400).json({message: "Page size should be greater than 0."});
     } else {
         User.find({
-            name : { $regex: new RegExp(require("../functions/escape")(filterName),"i") },
-            email : { $regex: new RegExp(require("../functions/escape")(filterEmail),"i") },
-            isAdmin: { $in: require("../functions/filterBool")(filterAdmin)},
+            name : { $regex: new RegExp(require("../functions/escape")(filter.name),"i") },
+            email : { $regex: new RegExp(require("../functions/escape")(filter.email),"i") },
+            isAdmin: { $in: require("../functions/filterBool")(filter.isAdmin)},
         })
         .sort({
-            [!!sortName ? sortName : "name"]: sortAscending === false ? -1 : 1
+            [!!sort.name ? sort.name : "name"]: sort.isAdmin === false ? -1 : 1
         })
         // .skip((nextPage - 1) * pageSize)
         // .limit(pageSize)
@@ -76,7 +71,7 @@ const getById = (req, res, next) => {
 const login = (req, res, next) => {
     
     const email = req.body.email.toLowerCase();
-    const password = decodeURI(req.body.password);
+    const {password} = req.body;
 
     User.findOne({ email }, { password:1, name: 1, isAdmin: 1 })
     .then(user => {
@@ -104,6 +99,7 @@ const login = (req, res, next) => {
                                 res.json({
                                     success: true,
                                     token: "Bearer " + token,
+                                    _id: user._id,
                                     isAdmin: payload.isAdmin,
                                 });
                             }
@@ -152,7 +148,7 @@ const reqPwd = (req, res, next) => {
                             subject: "Reset your account password",
                             html: "<h2>Capex work file</h2>" +
                             "<p>Hi,</p>" +
-                            `<p>Please click on the following <a href=${process.env.REACT_APP_API_URI}/account/resetpwd?id=${user._id}&token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
+                            `<p>Please click on the following <a href=${process.env.REACT_APP_API_URI}/api/users/resetPwd/${user._id}?token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
                             "<p>Thanks,</p>" +
                             "<br/>" +
                             "<p>Global Project Organisation (GPO)</p>" +
@@ -175,7 +171,7 @@ const reqPwd = (req, res, next) => {
 const resetPwd = (req, res, next) => {
 
     const {userId} = req.params;
-    const {token, newPassword} = req.body;
+    const {token, newPwd} = req.body;
 
     let query = {userId, token, status: 0 , expire: { $gte: new Date() }}
     let update = { $set: {status: 1} }
@@ -191,7 +187,7 @@ const resetPwd = (req, res, next) => {
                 if (errSalt || !salt) {
                     res.status(400).json({ message: "Error generating salt." });
                 } else {
-                    bcrypt.hash(newPassword, salt, (errHash, hash) => {
+                    bcrypt.hash(newPwd, salt, (errHash, hash) => {
                         if (errHash || !hash) {
                             res.status(400).json({ message: "Error generating hash." });                            
                         } else {
@@ -298,6 +294,34 @@ const update = (req, res, next) => {
     }
 }
 
+const setAdmin = (req, res, next) => {
+    
+    const user = req.user;
+    const {userId} = req.params;
+
+    if (!user.isAdmin) {
+        res.status(400).json({message: "You do not have the permission to update user information."})
+    } else if (!userId) {
+        res.status(400).json({message: "User ID is missing."});
+    } else if (userId === user._id) {
+        res.status(400).json({message: "You do not have the permission to update your own role."})
+    } else {
+        let update = { 
+            "$bit": { 
+                "isAdmin": { "xor": NumberInt(1) } 
+            }
+        };
+        let options = { "new": true };
+        User.findByIdAndUpdate(userId, update, options, function (errUser, user) {
+            if (!!errUser || !user) {
+                res.status(400).json({message: "User could not be updated." });
+            } else {
+                res.status(200).json({message: "User has successfuly been updated." });
+            }
+        });
+    }
+}
+
 const _delete = (req, res, next) => {
         
     const user = req.user;
@@ -319,7 +343,7 @@ const _delete = (req, res, next) => {
 }
 
 const userController = {
-    get,
+    getAll,
     getById,
     login,
     reqPwd,
@@ -327,6 +351,7 @@ const userController = {
     updatePwd,
     create,
     update,
+    setAdmin,
     _delete,
 };
   
