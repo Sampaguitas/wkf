@@ -2,7 +2,7 @@ version: "3.3"
 services:
   nginx:
     depends_on:
-      - account
+      - service_users
       - client
       - dropdown
       - param
@@ -14,14 +14,14 @@ services:
     restart: always
     ports:
       - '80:80'
-  account:
+  service_users:
     build:
-      context: ./account
+      context: ./service_users
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./account/src:/app/src"
+      - "./service_users/src:/app/src"
     env_file:
       - ./env/server.env
   client:

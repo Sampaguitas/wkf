@@ -1,11 +1,11 @@
 {
-  "name": "account",
+  "name": "service_users",
   "version": "1.0.0",
   "description": "microservice",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/account"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/user"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
     "moment": "^2.27.0",
     "mongoose": "^5.11.15",
     "nodemailer": "^6.4.11",
