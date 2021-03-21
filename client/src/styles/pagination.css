@@ -1,0 +1,30 @@
+.pagination-row {
+    height: 31.5px;
+    margin-top: 10px;
+}
+
+.pagination-col {
+    height: 31.5px;
+    padding: 0px;
+}
+
+.pagination-nav {
+    height: 31.5px;
+}
+
+.pagination-ul {
+    margin: 0px;
+    height: 31.5px;
+}
+  
+.page-link {
+    height: 31.5px;
+    padding: 6px 12px 6px 12px;
+    font-size: 12px;
+}
+
+.displaying {
+    height: 31.5px;
+    padding: 0px;
+    font-size: 12px;
+}

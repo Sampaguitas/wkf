@@ -57,5 +57,10 @@ $font-family-base: $font-family-sans-serif;
 $enable-shadows: false;
 $enable-gradients: true;
 
+// .card-header {
+//   height: 45px;
+//   font-size: 16px;
+// }
+
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';

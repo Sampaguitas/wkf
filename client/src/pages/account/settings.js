@@ -12,6 +12,7 @@ import TableCheckBoxAdmin from "../../components/table-check-box-admin";
 import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
+import Pagination from "../../components/pagination";
 import _ from "lodash";
 
 export default class Settings extends React.Component {
@@ -491,24 +492,18 @@ export default class Settings extends React.Component {
                                 </table>
                             </div>
                         </div>
-                        <div className="row ml-1 mr-1" style={{ height: "31.5px", marginTop: "10px" }}>
-                            <div className="col" style={{ height: "31.5px", padding: "0px" }}>
-                                <nav aria-label="Page navigation" style={{ height: "31.5px" }}>
-                                    <ul className="pagination">
-                                        <li className={currentPage === 1 ? "page-item disabled" : "page-item"}>
-                                            <button className="page-link" onClick={event => this.changePage(event, currentPage - 1)}>Previous</button>
-                                        </li>
-                                        <li className={`page-item${currentPage === first && " active"}`}><button className="page-link" onClick={event => this.changePage(event, first)}>{first}</button></li>
-                                        <li className={`page-item${currentPage === second ? " active" : pageLast < 2 && " disabled"}`}><button className="page-link" onClick={event => this.changePage(event, second)}>{second}</button></li>
-                                        <li className={`page-item${currentPage === third ? " active" : pageLast < 3 && " disabled"}`}><button className="page-link" onClick={event => this.changePage(event, third)}>{third}</button></li>
-                                        <li className={currentPage === pageLast ? "page-item disabled" : "page-item"}>
-                                            <button className="page-link" onClick={event => this.changePage(event, currentPage + 1)}>Next</button>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                            <div className="col text-right" style={{ height: "31.5px", padding: "0px" }}>Displaying<b> {firstItem} - {lastItem} </b><i>({pageItems})</i> entries out of {totalItems}</div>
-                        </div>
+                        <Pagination
+                            currentPage={currentPage}
+                            pageLast={pageLast}
+                            first={first}
+                            second={second}
+                            third={third}
+                            firstItem={firstItem}
+                            lastItem={lastItem}
+                            pageItems={pageItems}
+                            totalItems={totalItems}
+                            changePage={this.changePage}
+                        />
                     </div>
 
                     <Modal
@@ -542,15 +537,15 @@ export default class Settings extends React.Component {
                                 <div className="modal-footer">
                                     {this.state.user._id ?
                                         <div className="row">
-                                            <button className="btn btn-leeuwen btn-lg" onClick={(event) => { this.handleDelete(event, this.state.user._id) }}>
+                                            <button className="btn btn-sm btn-leeuwen" onClick={(event) => { this.handleDelete(event, this.state.user._id) }}>
                                                 <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
                                             </button>
-                                            <button type="submit" className="btn btn-leeuwen-blue btn-lg">
+                                            <button type="submit" className="btn btn-sm btn-leeuwen-blue ml-2">
                                                 <span><FontAwesomeIcon icon={upserting ? "spinner" : "edit"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Update</span>
                                             </button>
                                         </div>
                                         :
-                                        <button type="submit" className="btn btn-leeuwen-blue btn-lg btn-full">
+                                        <button type="submit" className="btn btn-sm btn-leeuwen-blue btn-full">
                                             <span><FontAwesomeIcon icon={upserting ? "spinner" : "plus"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Create</span>
                                         </button>
                                     }
