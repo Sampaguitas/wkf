@@ -442,7 +442,7 @@ export default class Settings extends React.Component {
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 41.5px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 40px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>

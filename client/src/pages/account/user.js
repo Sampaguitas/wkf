@@ -159,10 +159,10 @@ export default class User extends React.Component {
                             </div>
                         </div>
 
-                        <div className="col-lg-6 col-md-12"> 
+                        <div className="col-lg-6 col-md-12 mb-3"> 
                             <div className="card">
                                 <div className="card-header">Change Password</div>
-                                <div className="card-body" style={{height: "118.719px"}}> {/* style={{height: "98px"}} */}
+                                <div className="card-body" style={{height: "118.719px"}}>
                                     <form
                                         onSubmit={this.handleSubmit}
                                     >
