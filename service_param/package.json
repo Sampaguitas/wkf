@@ -1,11 +1,13 @@
 {
-  "name": "stock",
+  "name": "service_param",
   "version": "1.0.0",
   "description": "microservice",
+  "author": "Timothee Desurmont",
+  "license": "ISC",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/stock"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/service_param"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -15,13 +17,12 @@
   "engines": {
     "node": "14.4.0"
   },
-  "author": "Timothee Desurmont",
-  "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongoose": "^5.11.15",
-    "multer": "^1.4.1"
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0"
   }
 }

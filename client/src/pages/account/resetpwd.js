@@ -67,7 +67,7 @@ export default class ResetPwd extends React.Component {
             newPwd: user.newPwd
           })
         };
-        return fetch(`${process.env.REACT_APP_API_URI}/api/users/resetPwd/${user.userId}`, requestOptions)
+        return fetch(`${process.env.REACT_APP_API_URI}/api/user/resetPwd/${user.userId}`, requestOptions)
         .then(response => response.text().then(text => {
           this.setState({
             resetting: false,

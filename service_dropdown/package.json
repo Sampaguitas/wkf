@@ -1,11 +1,11 @@
 {
-  "name": "search",
+  "name": "service_dropdown",
   "version": "1.0.0",
   "description": "microservice",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/server"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/service_dropdown"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -21,7 +21,6 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "lodash": "^4.17.21",
     "mongoose": "^5.11.15",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0"

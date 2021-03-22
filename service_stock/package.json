@@ -1,11 +1,11 @@
 {
-  "name": "dropdown",
+  "name": "service_stock",
   "version": "1.0.0",
   "description": "microservice",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/dropdown"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/service_stock"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -22,7 +22,6 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongoose": "^5.11.15",
-    "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0"
+    "multer": "^1.4.1"
   }
 }

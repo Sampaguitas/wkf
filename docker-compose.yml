@@ -2,28 +2,18 @@ version: "3.3"
 services:
   nginx:
     depends_on:
-      - service_users
       - client
-      - dropdown
-      - param
-      - search
-      - stock
+      - service_dropdown
+      - service_param
+      - service_search
+      - service_stock
+      - service_user
     build:
       context: ./nginx
       dockerfile: Dockerfile
     restart: always
     ports:
       - '80:80'
-  service_users:
-    build:
-      context: ./service_users
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    volumes:
-      - /app/node_modules
-      - "./service_users/src:/app/src"
-    env_file:
-      - ./env/server.env
   client:
     build:
       context: ./client
@@ -36,43 +26,53 @@ services:
       - "./client/src:/app/src"
     env_file:
       - ./env/client.env
-  dropdown:
+  service_dropdown:
     build:
-      context: ./dropdown
+      context: ./service_dropdown
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./dropdown/src:/app/src"
+      - "./service_dropdown/src:/app/src"
     env_file:
       - ./env/server.env
-  param:
+  service_param:
     build:
-      context: ./param
+      context: ./service_param
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./param/src:/app/src"
-    env_file:
-      - ./env/server.env    
-  search:
-    build:
-      context: ./search
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    volumes:
-      - /app/node_modules
-      - "./search/src:/app/src"
+      - "./service_param/src:/app/src"
     env_file:
       - ./env/server.env
-  stock:
+  service_search:
     build:
-      context: ./stock
+      context: ./service_search
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./stock/src:/app/src"
+      - "./service_search/src:/app/src"
+    env_file:
+      - ./env/server.env
+  service_stock:
+    build:
+      context: ./service_stock
+      dockerfile: Dockerfile.dev
+    restart: on-failure
+    volumes:
+      - /app/node_modules
+      - "./service_stock/src:/app/src"
+    env_file:
+      - ./env/server.env
+  service_user:
+    build:
+      context: ./service_user
+      dockerfile: Dockerfile.dev
+    restart: on-failure
+    volumes:
+      - /app/node_modules
+      - "./service_user/src:/app/src"
     env_file:
       - ./env/server.env

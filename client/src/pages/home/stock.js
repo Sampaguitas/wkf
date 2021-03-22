@@ -213,7 +213,7 @@ export default class Stock extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/users/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/user/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
