@@ -1,6 +1,8 @@
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const app = require("express")();
+var stocks = require("./routes/stocks");
+
 
 app.use(require("cors")());
 
@@ -24,6 +26,6 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.use("/article", passport.authenticate("jwt", { session: false }), require("./routes/article"));
-app.use("/stocks", passport.authenticate("jwt", { session: false }), require("./routes/stocks"));
-app.use("/users", passport.authenticate("jwt", { session: false }), require("./routes/users"));
+// app.use("/article", require("./routes/article"));
+app.use("/stocks", require("./routes/stocks"));
+// app.use("/users", passport.authenticate("jwt", { session: false }), require("./routes/users"));

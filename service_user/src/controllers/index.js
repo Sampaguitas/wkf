@@ -171,7 +171,7 @@ const reqPwd = (req, res, next) => {
 const resetPwd = (req, res, next) => {
 
     const {userId} = req.params;
-    const {token, newPwd} = req.body;
+    const {id, token, newPwd} = req.body;
 
     let query = {userId, token, status: 0 , expire: { $gte: new Date() }}
     let update = { $set: {status: 1} }
@@ -191,7 +191,7 @@ const resetPwd = (req, res, next) => {
                         if (errHash || !hash) {
                             res.status(400).json({ message: "Error generating hash." });                            
                         } else {
-                            User.findByIdAndUpdate({_id: userId}, { $set: {password: hash} }, function (errUser, resUser) {
+                            User.findByIdAndUpdate(userId, { $set: {password: hash} }, function (errUser, resUser) {
                                 if (!!errUser || !resUser) {
                                     res.status(400).json({ message: "Error updating password." });
                                 } else {
@@ -207,6 +207,7 @@ const resetPwd = (req, res, next) => {
 }
 
 const updatePwd = (req, res, next) => {
+    const user = req.user;
     const { newPwd } = req.body;
 
     if (!newPwd) {
@@ -220,7 +221,7 @@ const updatePwd = (req, res, next) => {
                     if (errHash || !hash) {
                         res.status(400).json({ message: "Error generating hash." });                            
                     } else {
-                        require("../models/User").findByIdAndUpdate({_id: req.user._id}, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
+                        require("../models/User").findByIdAndUpdate(user._id, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
                             if (errUser || !resUser) {
                                 res.status(400).json({ message: "Your password could not be updated." });
                             } else {
@@ -284,7 +285,7 @@ const update = (req, res, next) => {
     } else {
         let update = { "name": name, "email": email.toLowerCase() };
         let options = { "new": true };
-        User.findByIdAndUpdate(_id, update, options, function(errUser, user) {
+        User.findByIdAndUpdate(userId, update, options, function(errUser, user) {
             if (!!errUser || !user) {
                 res.status(400).json({message: "User could not be updated." });
             } else {
