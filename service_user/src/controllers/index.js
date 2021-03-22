@@ -329,7 +329,7 @@ const _delete = (req, res, next) => {
     } else if (!userId) {
         res.status(400).json({message: "User ID is missing."});
     } else {
-        User.findByIdAndDelete(_id, function(errUser, user) {
+        User.findByIdAndDelete(userId, function(errUser, user) {
             if (!!errUser || !user) {
                 res.status(400).json({message: "User could not be deleted." });
             } else {
