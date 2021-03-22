@@ -1,12 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, withRouter } from "react-router-dom";
 import queryString from "query-string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import InputIcon from "../../components/input-icon";
 import logo from "../../assets/logo.jpg";
 import rdb from "../../assets/rdb.svg";
 
-export default class ResetPwd extends React.Component {
+class ResetPwd extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,6 +28,7 @@ export default class ResetPwd extends React.Component {
   componentDidMount() {
     const { location } = this.props;
     const { user } = this.state;
+    console.log(location.search);
     var qs = queryString.parse(location.search);
     if (qs.id && qs.token) {
         this.setState({
@@ -55,7 +56,12 @@ export default class ResetPwd extends React.Component {
   handleReset(event) {
     event.preventDefault();
     const { user, resetting } = this.state;
+    console.log("user.userId:", user.userId);
+    console.log("user.token:", user.token);
+    console.log("user.newPwd:", user.newPwd);
+    console.log("resetting:", resetting);
     if (!!user.userId && !!user.token && !!user.newPwd && !resetting) {
+      
       this.setState({
         resetting: true
       }, () => {
@@ -139,3 +145,5 @@ export default class ResetPwd extends React.Component {
     );
   }
 }
+
+export default withRouter(ResetPwd);
