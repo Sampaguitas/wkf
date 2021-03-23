@@ -215,7 +215,7 @@ export default class Settings extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -235,18 +235,10 @@ export default class Settings extends React.Component {
                             });
                         } else {
                             this.setState({
-                                users: data.users,
+                                users: data[0].data,
                                 paginate: {
                                     ...paginate,
-                                    currentPage: data.currentPage,
-                                    firstItem: data.firstItem,
-                                    lastItem: data.lastItem,
-                                    pageItems: data.pageItems,
-                                    pageLast: data.pageLast,
-                                    totalItems: data.totalItems,
-                                    first: data.first,
-                                    second: data.second,
-                                    third: data.third
+                                    ...data[0].paginate.currentPage,
                                 }
                             });
                         }

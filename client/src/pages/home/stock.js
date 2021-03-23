@@ -5,14 +5,12 @@ import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
 
-import TableHeaderCheckBox from "../../components/table-header-check-box";
 import TableHeaderInput from "../../components/table-header-input";
 import TableData from "../../components/table-data";
-import TableCheckBoxAdmin from "../../components/table-check-box-admin";
-import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
+import Param from '../../components/param';
 import _ from "lodash";
 
 export default class Stock extends React.Component {
@@ -20,16 +18,51 @@ export default class Stock extends React.Component {
         super(props);
         this.state = {
             currentUser: {},
-            user: {},
-            users: [],
+            stock: {},
+            stocks: [],
             filter: {
-                name: "",
-                email: "",
-                isAdmin: 0,
+                opco:"",
+                artNr:"",
+                description: "",
+                qty: "",
+                uom: "",
+                firstInStock: "",
+                deliveryDate: "",
+                weight: "",
+                gip: "",
+                currency: "",
+                rv: ""
             },
             sort: {
                 name: "",
                 isAscending: true,
+            },
+            dropdown: {
+                pffType: "",
+                steelType: "",
+                sizeOne: "",
+                sizeTwo: "",
+                wallOne: "",
+                wallTwo: "",
+                type: "",
+                grade: "",
+                length: "",
+                end: "",
+                surface: ""
+            },
+            params: {
+                pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
+                steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "" },
+                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
+                type: { value: "", placeholder: "Article type", options: [], hover: "" },
+                spec: { value: "", placeholder: "Specification", options: [], hover: "" },
+                grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
+                length: { value: "", placeholder: "Length", options: [], hover: "" },
+                end: { value: "", placeholder: "Ends", options: [], hover: "" },
+                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
             },
             alert: {
                 type: "",
@@ -39,7 +72,7 @@ export default class Stock extends React.Component {
             upserting: false,
             loaded: false,
             submitted: false,
-            showUser: false,
+            showSearch: false,
             menuItem: "Stock",
             settingsColWidth: {},
             paginate: {
@@ -60,9 +93,7 @@ export default class Stock extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        this.showModal = this.showModal.bind(this);
-        this.hideModal = this.hideModal.bind(this);
-        this.handleChangeUser = this.handleChangeUser.bind(this);
+        this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.handleOnclick = this.handleOnclick.bind(this);
@@ -70,10 +101,18 @@ export default class Stock extends React.Component {
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
         this.generateBody = this.generateBody.bind(this);
+        //dropdown
+        this.handleClearFields = this.handleClearFields.bind(this);
+        this.getDropdownOptions = this.getDropdownOptions.bind(this);
+        this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
+        this.handleSelectDropdown = this.handleSelectDropdown.bind(this);
+        this.onFocusDropdown = this.onFocusDropdown.bind(this);
+        this.onHoverDropdown = this.onHoverDropdown.bind(this);
+        this.toggleDropDown = this.toggleDropDown.bind(this);
     }
 
     componentDidMount() {
-        const { menuItem, paginate } = this.state;
+        const { paginate, params } = this.state;
         let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
         if (!!currentUser) {
@@ -88,6 +127,128 @@ export default class Stock extends React.Component {
             localStorage.removeItem("user");
             window.location.reload(true);
         }
+
+        // const fields = document.getElementById('fields');
+        // fields.addEventListener("keydown", event => {
+        //     if (Object.keys(params).includes(event.target.id)) {
+        //         let name = event.target.id;
+        //         switch(event.key) {
+        //             case "ArrowDown":
+        //                 if (!_.isEmpty(this.state.params[name].options)) {
+        //                     let selectedIndex = this.state.params[name].options.findIndex(element => _.isEqual(element, this.state.params[name].hover));
+        //                     if (selectedIndex === -1) {
+        //                         this.setState({
+        //                             params: {
+        //                                 ...this.state.params,
+        //                                 [name]: {
+        //                                     ...this.state.params[name],
+        //                                     hover: this.state.params[name].options[0]
+        //                                 }
+        //                             },
+        //                             dropdown: {
+        //                                 ...this.state.dropdown,
+        //                                 [name]: this.state.params[name].options[0],
+        //                             }
+        //                         });
+        //                     } else if (selectedIndex < this.state.params[name].options.length - 1) {
+        //                         this.setState({
+        //                             params: {
+        //                                 ...this.state.params,
+        //                                 [name]: {
+        //                                     ...this.state.params[name],
+        //                                     hover: this.state.params[name].options[selectedIndex + 1]
+        //                                 }
+        //                             },
+        //                             dropdown: {
+        //                                 ...this.state.dropdown,
+        //                                 [name]: this.state.params[name].options[selectedIndex + 1]
+        //                             }
+        //                         });
+        //                     }
+        //                 }
+        //                 break;
+        //             case "ArrowUp":
+        //                 if (!_.isEmpty(this.state.params[name].options)) {
+        //                     let selectedIndex = this.state.params[name].options.findIndex(element => _.isEqual(element, this.state.params[name].hover));
+        //                 if (selectedIndex > 0) {
+        //                         this.setState({
+        //                             params: {
+        //                                 ...this.state.params,
+        //                                 [name]: {
+        //                                     ...this.state.params[name],
+        //                                     hover: this.state.params[name].options[selectedIndex - 1]
+        //                                 }
+        //                             },
+        //                             dropdown: {
+        //                                 ...this.state.dropdown,
+        //                                 [name]: this.state.params[name].options[selectedIndex - 1]
+        //                             }
+        //                         });
+        //                     }
+        //                 }
+        //                 break;
+        //             case "Enter":
+        //                 let selected = this.state.params[name].options.find(element => _.isEqual(element, this.state.params[name].hover));
+        //                 if (!_.isUndefined(selected)) {
+        //                     this.setState({
+        //                         params: {
+        //                             ...this.state.params,
+        //                             [name]: {
+        //                                 ...this.state.params[name],
+        //                                 options: [],
+        //                                 value: '',
+        //                                 hover: ''
+        //                             }
+        //                         },
+        //                         dropdown: {
+        //                             ...this.state.dropdown,
+        //                             [name]: selected._id,
+        //                         },
+        //                         focused: '',
+        //                     });
+        //                     let myInput = document.getElementById(name);
+        //                     myInput.blur();
+        //                 }
+        //                 break;
+        //             case "Escape":
+        //                 this.setState({
+        //                     params: {
+        //                         ...this.state.params,
+        //                         [name]: {
+        //                             ...this.state.params[name],
+        //                             options: [],
+        //                             value: '',
+        //                             hover: '',
+        //                         }
+        //                     },
+        //                     dropdown: {
+        //                         ...this.state.dropdown,
+        //                         [name]: "",
+        //                     },
+        //                     focused: '',
+        //                 });
+        //                 let myInput = document.getElementById(name);
+        //                 myInput.blur();
+        //                 break;
+        //             default: // do nothing;
+        //                 break;
+        //         }
+        //     }
+        // });
+
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
+        if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo");
+        if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne");
+        if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo");
+        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type");
+        if (this.state.params.spec.value !== prevState.params.spec.value) this.getDropdownOptions("spec");
+        if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade");
+        if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
+        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
+        if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
     }
 
     resize() {
@@ -102,8 +263,8 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, filter, paginate } = this.state;
-        if (sort !== prevState.sort || filter !== prevState.filter || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
+        const { sort, filter, dropdown, paginate } = this.state;
+        if (sort !== prevState.sort || filter !== prevState.filter || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
     }
@@ -154,35 +315,10 @@ export default class Stock extends React.Component {
         }
     }
 
-    showModal() {
+    toggleModalSearch() {
+        const { showSearch } = this.state;
         this.setState({
-            user: {
-                name: "",
-                email: ""
-            },
-            showUser: true
-        });
-    }
-
-    hideModal() {
-        this.setState({
-            user: {
-                name: "",
-                email: ""
-            },
-            submitted: false,
-            showUser: false
-        });
-    }
-
-    handleChangeUser(event) {
-        const { name, value } = event.target;
-        const { user } = this.state;
-        this.setState({
-            user: {
-                ...user,
-                [name]: value
-            }
+            showSearch: !showSearch
         });
     }
 
@@ -198,7 +334,7 @@ export default class Stock extends React.Component {
     }
 
     getDocuments(nextPage) {
-        const { filter, sort, paginate } = this.state;
+        const { filter, sort, dropdown, paginate } = this.state;
         if (!!paginate.pageSize) {
             this.setState({
                 retrieving: true
@@ -209,11 +345,12 @@ export default class Stock extends React.Component {
                     body: JSON.stringify({
                         filter: filter,
                         sort: sort,
+                        dropdown: dropdown,
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -233,18 +370,10 @@ export default class Stock extends React.Component {
                             });
                         } else {
                             this.setState({
-                                users: data.users,
+                                stocks: data[0].data,
                                 paginate: {
                                     ...paginate,
-                                    currentPage: data.currentPage,
-                                    firstItem: data.firstItem,
-                                    lastItem: data.lastItem,
-                                    pageItems: data.pageItems,
-                                    pageLast: data.pageLast,
-                                    totalItems: data.totalItems,
-                                    first: data.first,
-                                    second: data.second,
-                                    third: data.third
+                                    ...data[0].paginate,
                                 }
                             });
                         }
@@ -256,18 +385,18 @@ export default class Stock extends React.Component {
 
     handleOnclick(event, _id) {
         event.preventDefault();
-        const { users, currentUser } = this.state;
-        let found = users.find(element => _.isEqual(element._id, _id));
-        if (!_.isUndefined(found) && !!currentUser.isAdmin) {
-            this.setState({
-                user: {
-                    _id: found._id,
-                    name: found.name,
-                    email: found.email,
-                },
-                showUser: true
-            });
-        }
+        // const { stocks } = this.state;
+        // let found = stocks.find(element => _.isEqual(element._id, _id));
+        // if (!_.isUndefined(found)) {
+        //     this.setState({
+        //         user: {
+        //             _id: found._id,
+        //             name: found.name,
+        //             email: found.email,
+        //         },
+        //         showSearch: true
+        //     });
+        // }
     }
 
     colDoubleClick(event, index) {
@@ -306,24 +435,23 @@ export default class Stock extends React.Component {
     }
 
     generateBody() {
-        const { users, retrieving, currentUser, paginate, settingsColWidth } = this.state;
+        const { stocks, retrieving, currentUser, paginate, settingsColWidth } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(users) || !retrieving) {
-            users.map((user) => {
+        if (!_.isEmpty(stocks) || !retrieving) {
+            stocks.map((stock) => {
                 tempRows.push(
-                    <tr key={user._id}>
-                        <TableData colIndex="0" value={user.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
-                        <TableData colIndex="0" value={user.email} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
-                        <td data-type="checkbox">
-                            <TableCheckBoxAdmin
-                                _id={user._id}
-                                checked={user.isAdmin || false}
-                                refreshStore={this.getDocuments}
-                                setAlert={this.setAlert}
-                                disabled={_.isEqual(currentUser._id, user._id) || !currentUser.isAdmin ? true : false}
-                                data-type="checkbox"
-                            />
-                        </td>
+                    <tr key={stock._id}>
+                        <TableData colIndex="0" value={stock.opco} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="1" value={stock.artNr} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="6" value={stock.deliveryDate} type="date" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="7" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="8" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="9" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="10" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                     </tr>
                 );
             });
@@ -334,6 +462,14 @@ export default class Stock extends React.Component {
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
                     </tr>
                 );
             }
@@ -341,9 +477,213 @@ export default class Stock extends React.Component {
         return tempRows;
     }
 
+    handleClearFields(event) {
+        event.preventDefault();
+        this.setState({
+            filter: {
+                opco:"",
+                artNr:"",
+                description: "",
+                qty: "",
+                uom: "",
+                firstInStock: "",
+                deliveryDate: "",
+                weight: "",
+                gip: "",
+                currency: "",
+                rv: ""
+            },
+            sort: {
+                name: "",
+                isAscending: true,
+            },
+            dropdown: {
+                pffType: "",
+                steelType: "",
+                sizeOne: "",
+                sizeTwo: "",
+                wallOne: "",
+                wallTwo: "",
+                type: "",
+                grade: "",
+                length: "",
+                end: "",
+                surface: ""
+            },
+            params: {
+                pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
+                steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "" },
+                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
+                type: { value: "", placeholder: "Article type", options: [], hover: "" },
+                spec: { value: "", placeholder: "Specification", options: [], hover: "" },
+                grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
+                length: { value: "", placeholder: "Length", options: [], hover: "" },
+                end: { value: "", placeholder: "Ends", options: [], hover: "" },
+                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
+            },
+            focused: "",
+        });
+    }
+
+    getDropdownOptions(key) {
+        const { focused } = this.state;
+        this.setState({
+            loading: true
+        }, () => {
+            const requestOptions = {
+                method: "GET",
+                headers: {"Content-Type": "application/json"},
+            };
+            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].name)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&isComplete=false&isMultiple=true`, requestOptions)
+            .then(response => response.text().then(text => {
+                this.setState({
+                    loading: false,
+                }, () => {
+                    const data = text && JSON.parse(text);
+                    if (response.status === 200 && data.hasOwnProperty("options")) {
+                        this.setState({
+                            params: {
+                                ...this.state.params,
+                                [key]: {
+                                    ...this.state.params[key],
+                                    options: key !== focused ? [] : data,
+                                }
+                            }
+                        });
+                    }
+                });
+            }));
+        });
+    }
+
+    handleChangeDropdown(event) {
+        event.preventDefault();
+        const { name, value } = event.target;
+
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: value,
+                }
+            },
+            dropdown: {
+                ...this.state.dropdown,
+                [name]: ""
+            }
+        });
+    }
+
+    handleSelectDropdown(event, name, selection) {
+        event.preventDefault();
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: "",
+                    options: [],
+                    hover: "",
+                }
+            },
+            dropdown: {
+                ...this.state.dropdown,
+                [name]: selection
+            },
+            focused: ""
+        })
+        let myInput = document.getElementById(name);
+        myInput.blur();
+    }
+
+    onFocusDropdown(event) {
+        const { name } = event.target;
+        const { focused } = this.state;
+        if (!!focused) {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        options: [],
+                        value: this.state.dropdown[name],
+                        hover: ""
+                    },
+                    [focused]: {
+                       ...this.state.params[focused],
+                       options: [],
+                       value: "",
+                       hover: ""
+                    },
+                },
+                focused: name, //
+            }, () => this.getDropdownOptions(name));
+        } else {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        options: [],
+                        value: this.state.dropdown[name],
+                        hover: ""
+                    }
+                },
+                focused: name,
+            }, () => this.getDropdownOptions(name));
+        }
+    }
+
+    onHoverDropdown(event, name, _id) {
+        event.preventDefault();
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    hover: _id
+                }
+            }
+        });
+    }
+
+    toggleDropDown(event, name) {
+        event.preventDefault();
+        const { params, dropdown, focused } = this.state;
+        if (!!_.isEqual(focused, name) || !!dropdown[name]) {
+            this.setState({
+                params: {
+                    ...params,
+                    [name]: {
+                        ...params[name],
+                        options: [],
+                        value: "",
+                        hover: ""
+                    }
+                },
+                dropdown: {
+                    ...dropdown,
+                    [name]: ""
+                },
+                focused: "",
+            });
+            let myInput = document.getElementById(name);
+            myInput.blur();
+        } else {
+            let myInput = document.getElementById(name);
+            myInput.focus();
+            myInput.select();
+        }
+    }
+
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, user, filter, sort, showUser, settingsColWidth, upserting, deleting } = this.state;
+        const { alert, menuItem, stock, filter, sort, showSearch, settingsColWidth, upserting, deleting } = this.state;
+        const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -356,6 +696,11 @@ export default class Stock extends React.Component {
                     </div>
                 }
                 <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
+                    <div className="action-row row">
+                        <button title="Create User" className="btn btn-sm btn-leeuwen-blue" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        </button>
+                    </div>
                     <div className="body-section">
                         <div className="row ml-1 mr-1" style={{ height: "calc(100% - 40px)" }}>
                             <div id="table-container" className="table-responsive custom-table-container" >
@@ -364,11 +709,23 @@ export default class Stock extends React.Component {
                                         <tr>
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Name"
-                                                name="name"
-                                                value={filter.name}
+                                                title="opco"
+                                                name="opco"
+                                                value={filter.opco}
                                                 onChange={this.handleChangeHeader}
-                                                width="30%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="0"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="artNr"
+                                                name="artNr"
+                                                value={filter.artNr}
+                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="1"
@@ -378,11 +735,10 @@ export default class Stock extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Email"
-                                                name="email"
-                                                value={filter.email}
+                                                title="description"
+                                                name="description"
+                                                value={filter.description}
                                                 onChange={this.handleChangeHeader}
-                                                width="30%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
@@ -390,14 +746,109 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderCheckBox
-                                                title="Admin"
-                                                name="isAdmin"
-                                                value={filter.isAdmin}
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="qty"
+                                                name="qty"
+                                                value={filter.qty}
                                                 onChange={this.handleChangeHeader}
-                                                width="10%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
+                                                index="3"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="uom"
+                                                name="uom"
+                                                value={filter.uom}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="4"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="fis"
+                                                name="firstInStock"
+                                                value={filter.firstInStock}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="5"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="eta"
+                                                name="deliveryDate"
+                                                value={filter.deliveryDate}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="6"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="weight"
+                                                name="weight"
+                                                value={filter.weight}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="7"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="gip"
+                                                name="gip"
+                                                value={filter.gip}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="8"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="curr"
+                                                name="currency"
+                                                value={filter.currency}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="9"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="rv"
+                                                name="rv"
+                                                value={filter.rv}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="10"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
                                             />
                                         </tr>
                                     </thead>
@@ -420,6 +871,36 @@ export default class Stock extends React.Component {
                             changePage={this.changePage}
                         />
                     </div>
+                    <Modal
+                        show={showSearch}
+                        hideModal={this.toggleModalSearch}
+                        title="Search"
+                        size="modal-lg"
+                    >
+                        <section id="fields" className="drop-section">
+                            {/* <div type="button" className="drop-button-left" onClick={this.handleClearFields}>Clear</div> */}
+                            <div className="row row-cols-1 row-cols-md-2">
+                                {Object.keys(params).map(key => 
+                                    <Param
+                                        key={key}
+                                        name={key}
+                                        isFocused={params[key].isFocused}
+                                        focused={focused}
+                                        value={params[key].value}
+                                        placeholder={params[key].placeholder}
+                                        selection={dropdown[key]}
+                                        options={params[key].options}
+                                        hover={this.state.params[key].hover}
+                                        onChange={this.handleChangeDropdown}
+                                        handleSelect={this.handleSelectDropdown}
+                                        onFocus={this.onFocusDropdown}
+                                        onHover={this.onHoverDropdown}
+                                        toggleDropDown={this.toggleDropDown}
+                                    />
+                                )}
+                            </div>
+                        </section>
+                    </Modal>
                 </div>
             </Layout>
         );
