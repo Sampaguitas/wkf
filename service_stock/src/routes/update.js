@@ -20,7 +20,7 @@ router.post("/", upload.single("file"), function(req, res) {
         res.status(400).json({ message: "location not specified or file is missing." });
     } else {
         require("../functions/processRefresh")().then( () => {
-            require("../functions/processCheck")("update stocks").then( () => {
+            // require("../functions/processCheck")("update stocks").then( () => {
                 const rows = file.buffer.toString().replace(/\r*/g,"").split("\n");
                 let rowsLength = rows.length;
                 if (rowsLength < 3) {
@@ -56,7 +56,7 @@ router.post("/", upload.single("file"), function(req, res) {
                                     myPromises.push(deleteStock(row, processId, i, rowsLength));
                                 }  else {
                                     myPromises.push(updateStock(row, processId, i, rowsLength));
-                                    myPromises.push(updateParam(row));
+                                    // myPromises.push(updateParam(row));
                                 }
                             }
                         }
@@ -77,7 +77,7 @@ router.post("/", upload.single("file"), function(req, res) {
                         });
                     }).catch(errCreate => res.status(400).json({ "message": errCreate.message }));
                 }
-            }).catch(errCheck => res.status(400).json({"message": errCheck.message }));
+            // }).catch(errCheck => res.status(400).json({"message": errCheck.message }));
         });
     }
 });
@@ -90,6 +90,10 @@ function updateStock(row, processId, index, length) {
             let options = { new: true, upsert: true }
             let update = {
                 $set: {
+                    "description": require("../functions/getString")(row[3]),
+                    "vlunar": require("../functions/getString")(row[1]),
+                    "weight": require("../functions/getWeight")(uom, Number(row[8])),
+                    "uom": require("../functions/getUom")(uom),
                     "qty": require("../functions/getQty")(uom, Number(row[4])),
                     "price": {
                         "gip": require("../functions/getPrice")(uom, Number(row[5]), 1),
@@ -149,25 +153,25 @@ function deleteStock(row, processId, index, length) {
     });
 }
 
-function updateParam(row) {
-    return new Promise(function(resolve) {
-        let uom = require("../functions/getString")(row[10]);
-        let filter = { artNr: require("../functions/getString")(row[2]) }
-        let options = { new: true, upsert: true }
-        let update = {
-            $set: {
-                "description": require("../functions/getString")(row[3]),
-                "weight": require("../functions/getWeight")(uom, Number(row[8])),
-                "uom": require("../functions/getUom")(uom),
-            }
-        }
-        require("../models/Param").findOneAndUpdate(filter, update, options, () => {
-            resolve({
-                isRejected: false,
-                isUpserted: false
-            });
-        });
-    });
-}
+// function updateParam(row) {
+//     return new Promise(function(resolve) {
+//         let uom = require("../functions/getString")(row[10]);
+//         let filter = { artNr: require("../functions/getString")(row[2]) }
+//         let options = { new: true, upsert: true }
+//         let update = {
+//             $set: {
+//                 "description": require("../functions/getString")(row[3]),
+//                 "weight": require("../functions/getWeight")(uom, Number(row[8])),
+//                 "uom": require("../functions/getUom")(uom),
+//             }
+//         }
+//         require("../models/Param").findOneAndUpdate(filter, update, options, () => {
+//             resolve({
+//                 isRejected: false,
+//                 isUpserted: false
+//             });
+//         });
+//     });
+// }
 
 module.exports = router;

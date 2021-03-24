@@ -39,7 +39,7 @@ router.post("/", (req, res) => {
                     let end = !!ends[index] ? ends[index] : "";
                     let surface = !!surfaces[index] ? surfaces[index] : "";
 
-                    myPromises.push(updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, artNrs.length));
+                    myPromises.push(updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, artNrs.length));
                 }
         
                 Promise.all(myPromises).then(myResults => {
@@ -63,7 +63,7 @@ router.post("/", (req, res) => {
 
 module.exports = router;
 
-function updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, length) {
+function updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, length) {
     return new Promise(function(resolve) {
         require("../functions/processUpdate")(processId, index, length).then( () => {
             if (!artNr || !sizeOne || !type || !grade) {
@@ -75,18 +75,19 @@ function updateParam(artNr, itemDesc, sizeOne, sizeTwo, sizeThree, wallOne, wall
             } else {
                 require("../functions/getParam")(sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface)
                 .then(parameters => {
-                    require("../models/Param").findOneAndUpdate({
+                    require("../models/Stock").updateMany({
                         "artNr": artNr
                     },
                     {
-                        "description": !!itemDesc ? itemDesc : require("../functions/getDesc")(parameters),
-                        "vlunar": require("../functions/getVlunar")(parameters),
+                        // "description": !!itemDesc ? itemDesc : require("../functions/getDesc")(parameters),
+                        // "vlunar": require("../functions/getVlunar")(parameters),
                         "parameters": parameters
                     },
-                    {
-                        new: true, upsert: true 
-                    }, function(errUpdate, resUpdate) {
-                        if (!!errUpdate || !resUpdate) {
+                    // {
+                    //     new: true, upsert: true 
+                    // },
+                    function(errUpdate, docs) {
+                        if (!!errUpdate) {
                             resolve({
                                 "isRejected": true,
                                 "row": index + 1,
