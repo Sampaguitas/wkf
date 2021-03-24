@@ -58,7 +58,6 @@ export default class Stock extends React.Component {
                 wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
                 wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
                 type: { value: "", placeholder: "Article type", options: [], hover: "" },
-                spec: { value: "", placeholder: "Specification", options: [], hover: "" },
                 grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
                 length: { value: "", placeholder: "Length", options: [], hover: "" },
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
@@ -239,12 +238,13 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
+        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
         if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
         if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo");
         if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne");
         if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo");
         if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type");
-        if (this.state.params.spec.value !== prevState.params.spec.value) this.getDropdownOptions("spec");
         if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade");
         if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
         if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
@@ -518,7 +518,6 @@ export default class Stock extends React.Component {
                 wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
                 wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
                 type: { value: "", placeholder: "Article type", options: [], hover: "" },
-                spec: { value: "", placeholder: "Specification", options: [], hover: "" },
                 grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
                 length: { value: "", placeholder: "Length", options: [], hover: "" },
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
@@ -530,20 +529,22 @@ export default class Stock extends React.Component {
 
     getDropdownOptions(key) {
         const { focused } = this.state;
+        console.log("getDropdownOptions(",key,")");
         this.setState({
             loading: true
         }, () => {
             const requestOptions = {
                 method: "GET",
-                headers: {"Content-Type": "application/json"},
+                headers: { ...authHeader(), "Content-Type": "application/json" },
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].name)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&isComplete=false&isMultiple=true`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&isComplete=false&isMultiple=true`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
                 }, () => {
                     const data = text && JSON.parse(text);
-                    if (response.status === 200 && data.hasOwnProperty("options")) {
+                    console.log(data);
+                    if (response.status === 200) {
                         this.setState({
                             params: {
                                 ...this.state.params,
@@ -562,7 +563,6 @@ export default class Stock extends React.Component {
     handleChangeDropdown(event) {
         event.preventDefault();
         const { name, value } = event.target;
-
         this.setState({
             params: {
                 ...this.state.params,
@@ -575,7 +575,7 @@ export default class Stock extends React.Component {
                 ...this.state.dropdown,
                 [name]: ""
             }
-        });
+        }, () => this.getDropdownOptions(name));
     }
 
     handleSelectDropdown(event, name, selection) {
