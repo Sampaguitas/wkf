@@ -9,7 +9,7 @@ const getAll = (req, res, next) => {
     const system = req.body.system || "METRIC";
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    const {opco, artNr, description, qty, uom, firstInStock, deliveryDate, weight, gip, currency, rv} = filter;
+    const {opco, artNr, description, qty, uom, supplier, gip, currency, rv} = filter;
     const { sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
 
     getMatch(sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface).then(myMatch => {
@@ -24,9 +24,6 @@ const getAll = (req, res, next) => {
                         {
                             "$addFields": {
                                 "qtyX": { "$toString": "$qty" },
-                                "firstInStockX": { "$toString": "$firstInStock" },
-                                "deliveryDateX": { "$dateToString": { format, "date": "$deliveryDate" } },
-                                "weightX": { "$toString": "$weight" },
                                 "gipX": { "$toString": "$gip" },
                                 "rvX": { "$toString": "$rv" },
                             }
@@ -38,15 +35,13 @@ const getAll = (req, res, next) => {
                                 "description": { "$regex": new RegExp(require("../functions/escape")(description),"i") },
                                 "qtyX": { "$regex": new RegExp(require("../functions/escape")(qty),"i") },
                                 "uom": { "$regex": new RegExp(require("../functions/escape")(uom),"i") },
-                                "firstInStockX": { "$regex": new RegExp(require("../functions/escape")(firstInStock),"i") },
-                                "deliveryDateX": !filter.deliveryDate ? { $exists: true } : { "$regex": new RegExp(require("../functions/escape")(filter.deliveryDate),'i') },
-                                "weightX": { "$regex": new RegExp(require("../functions/escape")(weight),"i") },
+                                "supplier": { "$regex": new RegExp(require("../functions/escape")(supplier),"i") },
                                 "gipX": { "$regex": new RegExp(require("../functions/escape")(gip),"i") },
                                 "currency": { "$regex": new RegExp(require("../functions/escape")(currency),"i") },
                                 "rvX": { "$regex": new RegExp(require("../functions/escape")(rv),"i") },
                             },
                         },
-                        { "$project": { "qtyX": 0, "firstInStockX": 0, "deliveryDateX": 0, "weightX": 0, "gipX": 0, "rvX": 0, } },
+                        { "$project": { "qtyX": 0, "gipX": 0, "rvX": 0, } },
                         { "$sort": { [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1 } },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize }
@@ -59,9 +54,6 @@ const getAll = (req, res, next) => {
                         {
                             "$addFields": {
                                 "qtyX": { "$toString": "$qty" },
-                                "firstInStockX": { "$toString": "$firstInStock" },
-                                "deliveryDateX": { "$dateToString": { format, "date": "$deliveryDate" } },
-                                "weightX": { "$toString": "$weight" },
                                 "gipX": { "$toString": "$gip" },
                                 "rvX": { "$toString": "$rv" },
                             }
@@ -73,15 +65,13 @@ const getAll = (req, res, next) => {
                                 "description": { "$regex": new RegExp(require("../functions/escape")(description),"i") },
                                 "qtyX": { "$regex": new RegExp(require("../functions/escape")(qty),"i") },
                                 "uom": { "$regex": new RegExp(require("../functions/escape")(uom),"i") },
-                                "firstInStockX": { "$regex": new RegExp(require("../functions/escape")(firstInStock),"i") },
-                                "deliveryDateX": !filter.deliveryDate ? { $exists: true } : { "$regex": new RegExp(require("../functions/escape")(filter.deliveryDate),'i') },
-                                "weightX": { "$regex": new RegExp(require("../functions/escape")(weight),"i") },
+                                "supplier": { "$regex": new RegExp(require("../functions/escape")(supplier),"i") },
                                 "gipX": { "$regex": new RegExp(require("../functions/escape")(gip),"i") },
                                 "currency": { "$regex": new RegExp(require("../functions/escape")(currency),"i") },
                                 "rvX": { "$regex": new RegExp(require("../functions/escape")(rv),"i") },
                             },
                         },
-                        { "$project": { "qtyX": 0, "firstInStockX": 0, "deliveryDateX": 0, "weightX": 0, "gipX": 0, "rvX": 0, } },
+                        { "$project": { "qtyX": 0, "gipX": 0, "rvX": 0, } },
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -217,37 +207,31 @@ function project(system) {
                 "$uom"
             ],
         },
-        "firstInStock": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$stocks.purchase.firstInStock", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$stocks.purchase.firstInStock", 3.28084 ] } }
-                        ],
-                        "default": "$stocks.purchase.firstInStock"
-                    }
-                },
-                "$stocks.purchase.firstInStock"
-            ],
-        },
-        "deliveryDate": "$stocks.purchase.deliveryDate",
-        "weight": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$weight", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$weight", 0.671969 ] } }
-                        ],
-                        default: "$weight"
-                    }
-                },
-                "$weight"
-            ],
-        },
+        "supplier": { "$arrayElemAt": ["$stocks.supplier.names", 0] },
+        // "suppliers": {
+        //     "$reduce": {
+        //         "input": "$stocks.supplier.names",
+        //         "initialValue": "",
+        //         "in": {
+        //           "$concat": [
+        //             "$$value",
+        //             {
+        //               "$cond": {
+        //                 "if": {
+        //                     "$or": [
+        //                         { "$eq": [ "$$value", "" ] },
+        //                         { "$eq": [ "$$this", "" ] },
+        //                     ],
+        //                 },
+        //                 "then": "",
+        //                 "else": ", "
+        //               }
+        //             },
+        //             "$$this"
+        //           ]
+        //         }
+        //     }
+        // },
         "gip": {
             "$cond": [
                 { "$eq": [ system, "IMPERIAL" ] },

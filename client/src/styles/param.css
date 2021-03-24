@@ -186,7 +186,8 @@
 }
 
 .drop-label {
-    /* font-size: 15px;  ----------------------------------------- */
+    font-size: 12px;
+    font-weight: normal;
     z-index:0;
     pointer-events:none;
     position:absolute;

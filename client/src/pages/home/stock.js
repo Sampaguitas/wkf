@@ -26,9 +26,7 @@ export default class Stock extends React.Component {
                 description: "",
                 qty: "",
                 uom: "",
-                firstInStock: "",
-                deliveryDate: "",
-                weight: "",
+                supplier: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -378,7 +376,11 @@ export default class Stock extends React.Component {
                             });
                         }
                     });
-                }));
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
             });
         }
     }
@@ -446,12 +448,10 @@ export default class Stock extends React.Component {
                         <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                         <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                         <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="6" value={stock.deliveryDate} type="date" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="7" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="8" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="9" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="10" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="5" value={stock.supplier} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="6" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="7" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="8" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                     </tr>
                 );
             });
@@ -459,8 +459,6 @@ export default class Stock extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
-                        <td className="no-select"><Skeleton /></td>
-                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -486,9 +484,7 @@ export default class Stock extends React.Component {
                 description: "",
                 qty: "",
                 uom: "",
-                firstInStock: "",
-                deliveryDate: "",
-                weight: "",
+                supplier: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -556,7 +552,11 @@ export default class Stock extends React.Component {
                         });
                     }
                 });
-            }));
+            }))
+            .catch( () => {
+                localStorage.removeItem("user");
+                window.location.reload(true);
+            });
         });
     }
 
@@ -774,39 +774,13 @@ export default class Stock extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="fis"
-                                                name="firstInStock"
-                                                value={filter.firstInStock}
+                                                title="supplier"
+                                                name="supplier"
+                                                value={filter.supplier}
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="5"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
-                                                title="eta"
-                                                name="deliveryDate"
-                                                value={filter.deliveryDate}
-                                                onChange={this.handleChangeHeader}
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="6"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
-                                                title="weight"
-                                                name="weight"
-                                                value={filter.weight}
-                                                onChange={this.handleChangeHeader}
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="7"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -819,7 +793,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="8"
+                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -832,7 +806,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="9"
+                                                index="7"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -845,7 +819,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="10"
+                                                index="8"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -878,7 +852,6 @@ export default class Stock extends React.Component {
                         size="modal-lg"
                     >
                         <section id="fields" className="drop-section">
-                            {/* <div type="button" className="drop-button-left" onClick={this.handleClearFields}>Clear</div> */}
                             <div className="row row-cols-1 row-cols-md-2">
                                 {Object.keys(params).map(key => 
                                     <Param
@@ -900,6 +873,16 @@ export default class Stock extends React.Component {
                                 )}
                             </div>
                         </section>
+                        <div className="modal-footer">
+                            <div className="row">
+                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
+                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
+                                </button>
+                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
+                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
+                                </button>
+                            </div>
+                        </div>
                     </Modal>
                 </div>
             </Layout>

@@ -243,7 +243,11 @@ export default class Settings extends React.Component {
                             });
                         }
                     });
-                }));
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
             });
         }
     }
@@ -282,7 +286,11 @@ export default class Settings extends React.Component {
                             this.hideModal();
                         });
                     }
-                }));
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
             });
         }
     }
