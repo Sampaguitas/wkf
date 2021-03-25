@@ -1,6 +1,21 @@
 const Stock = require("../models/Stock");
 const projectionResult = require("../projections/projection_result");
 
+const getById = (req, res, next) => {
+
+    const {articleId} = req.params;
+
+    Stock.findById(articleId, function (err, article) {
+        if (!!err) {
+            res.status(400).json({ message: "An error has occured."})
+        } if (!article) {
+            res.status(400).json({ message: "Could not retrieve article information." });
+        } else {
+            res.json({article: article});
+        }
+    });
+}
+
 const getAll = (req, res, next) => {
     
     const { filter, sort, dropdown } = req.body;
@@ -423,7 +438,8 @@ function project(system) {
 // }
 
 const stockController = {
-    getAll
+    getAll,
+    getById
 };
 
 module.exports = stockController;

@@ -1,9 +1,10 @@
-var express = require('express');
+var express = require("express");
+const passport = require("passport");
 var router = express.Router();
 
 const stockController = require("../controllers/stock_controller");
-const passport = require("passport");
 
 router.post("/getAll", passport.authenticate("jwt", { session: false }), stockController.getAll);
+router.get("/:articleId", passport.authenticate("jwt", { session: false }), stockController.getById);
 
 module.exports = router;

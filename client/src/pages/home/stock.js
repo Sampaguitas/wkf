@@ -18,7 +18,7 @@ export default class Stock extends React.Component {
         super(props);
         this.state = {
             currentUser: {},
-            stock: {},
+            article: {},
             stocks: [],
             filter: {
                 opco:"",
@@ -70,11 +70,13 @@ export default class Stock extends React.Component {
                 type: "",
                 message: ""
             },
-            retrieving: false,
+            retrievingStocks: false,
+            retrievingArticle: false,
             upserting: false,
             loaded: false,
             submitted: false,
             showSearch: false,
+            showArticle: false,
             menuItem: "Stock",
             settingsColWidth: {},
             paginate: {
@@ -98,7 +100,6 @@ export default class Stock extends React.Component {
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
-        this.handleOnclick = this.handleOnclick.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
@@ -111,6 +112,9 @@ export default class Stock extends React.Component {
         this.onFocusDropdown = this.onFocusDropdown.bind(this);
         this.onHoverDropdown = this.onHoverDropdown.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
+        //article
+        this.getArticle = this.getArticle.bind(this);
+        this.toggleModalArticle = this.toggleModalArticle.bind(this);
     }
 
     componentDidMount() {
@@ -342,7 +346,7 @@ export default class Stock extends React.Component {
         const { filter, sort, dropdown, paginate } = this.state;
         if (!!paginate.pageSize) {
             this.setState({
-                retrieving: true
+                retrievingStocks: true
             }, () => {
                 const requestOptions = {
                     method: "POST",
@@ -358,7 +362,7 @@ export default class Stock extends React.Component {
                 return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
-                        retrieving: false,
+                        retrievingStocks: false,
                     }, () => {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
@@ -392,13 +396,18 @@ export default class Stock extends React.Component {
         }
     }
 
-    handleOnclick(event, _id) {
+    getArticle(event, _id) {
         event.preventDefault();
+        this.setState({
+            article: {},
+            retrievingArticle: false,
+            showArticle: true
+        });
         // const { stocks } = this.state;
         // let found = stocks.find(element => _.isEqual(element._id, _id));
         // if (!_.isUndefined(found)) {
         //     this.setState({
-        //         user: {
+        //         atr: {
         //             _id: found._id,
         //             name: found.name,
         //             email: found.email,
@@ -406,6 +415,16 @@ export default class Stock extends React.Component {
         //         showSearch: true
         //     });
         // }
+    }
+
+    toggleModalArticle(event) {
+        event.preventDefault();
+        const {showArticle} = this.state;
+        this.setState({
+            article: {},
+            retrievingArticle: false,
+            showArticle: !showArticle
+        });
     }
 
     colDoubleClick(event, index) {
@@ -444,22 +463,22 @@ export default class Stock extends React.Component {
     }
 
     generateBody() {
-        const { stocks, retrieving, currentUser, paginate, settingsColWidth } = this.state;
+        const { stocks, retrievingStocks, currentUser, paginate, settingsColWidth } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(stocks) || !retrieving) {
+        if (!_.isEmpty(stocks) || !retrievingStocks) {
             stocks.map((stock) => {
                 tempRows.push(
                     <tr key={stock._id}>
-                        <TableData colIndex="0" value={stock.opco} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="1" value={stock.artNr} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="6" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="7" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="8" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="9" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="0" value={stock.opco} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="1" value={stock.artNr} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="6" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="7" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="8" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="9" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                     </tr>
                 );
             });
@@ -696,7 +715,7 @@ export default class Stock extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, stock, filter, sort, showSearch, settingsColWidth, upserting, deleting } = this.state;
+        const { alert, menuItem, stock, filter, sort, showSearch, settingsColWidth, upserting, deleting, showArticle } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -906,6 +925,88 @@ export default class Stock extends React.Component {
                                     <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
                                 </button>
                                 <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
+                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
+                    <Modal
+                        show={showArticle}
+                        hideModal={this.toggleModalArticle}
+                        title="Article"
+                        size="modal-lg"
+                    >
+                        <dl className="row">
+
+                            <dt className="col-sm-2">stock</dt>
+                            <dd className="col-sm-10">
+                                <dl className="row">
+                                    <dt className="col-sm-6">opco</dt>
+                                    <dd className="col-sm-6">SE</dd>
+
+                                    <dt className="col-sm-6">artNr</dt>
+                                    <dd className="col-sm-6">14500009</dd>
+
+                                    <dt className="col-sm-6">qty</dt>
+                                    <dd className="col-sm-6">0<span> M</span></dd>
+
+                                    <dt className="col-sm-6">weight</dt>
+                                    <dd className="col-sm-6">42.56</dd>
+
+                                </dl>
+                            </dd>
+
+                            <dt className="col-sm-2">suppliers</dt>
+                            <dd className="col-sm-10">
+                                <dl className="row">
+                                    <dt className="col-sm-6">vallourec</dt>
+                                    <dd className="col-sm-6">1000<span> M</span></dd>
+
+                                    <dt className="col-sm-6">Tenaris</dt>
+                                    <dd className="col-sm-6">1000<span> M</span></dd>
+
+                                    <dt className="col-sm-6">TPCO</dt>
+                                    <dd className="col-sm-6">1000<span> M</span></dd>
+                                </dl>
+                            </dd>
+                            
+                            <dt className="col-sm-2">purchase</dt>
+                            <dd className="col-sm-10">
+                                <dl className="row">
+                                    <dt className="col-sm-6">supplier</dt>
+                                    <dd className="col-sm-6">vallourec</dd>
+
+                                    <dt className="col-sm-6">qty</dt>
+                                    <dd className="col-sm-6">1000<span> M</span></dd>
+
+                                    <dt className="col-sm-6">firstInStock</dt>
+                                    <dd className="col-sm-6">500<span> M</span></dd>
+
+                                    <dt className="col-sm-6">deliveryDate</dt>
+                                    <dd className="col-sm-6">19/12/1985</dd>
+                                </dl>
+                            </dd>
+
+                            <dt className="col-sm-2">price</dt>
+                            <dd className="col-sm-10">
+                                <dl className="row">
+                                    <dt className="col-sm-6">gip</dt>
+                                    <dd className="col-sm-6">1.3<span> EUR</span></dd>
+
+                                    <dt className="col-sm-6">rv</dt>
+                                    <dd className="col-sm-6">1.4<span> EUR</span></dd>
+                                </dl>
+                            </dd>
+
+                            <dt className="col-sm-2">description</dt>
+                            <dd className="col-sm-10">
+                                <p>6" XS/S80 SMLS PIPE ASTM A106/API5LGR.B 6M/DRL BE PIPE SMLS Carbon A106 / API5L B</p>
+                            </dd>
+
+                        </dl>
+                        <div className="modal-footer">
+                            <div className="row">
+                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalArticle}>
                                     <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
                                 </button>
                             </div>
