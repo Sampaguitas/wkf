@@ -4,6 +4,8 @@ import Skeleton from "react-loading-skeleton";
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
+import typeToString from "../../functions/typeToString";
+import getDateFormat from "../../functions/getDateFormat";
 
 import TableHeaderInput from "../../components/table-header-input";
 import TableData from "../../components/table-data";
@@ -18,7 +20,29 @@ export default class Stock extends React.Component {
         super(props);
         this.state = {
             currentUser: {},
-            article: {},
+            article: {
+                price: {
+                    gip: 0,
+                    rv: 0
+                },
+                purchase: {
+                    supplier: "",
+                    qty: 0,
+                    firstInStock: 0,
+                    deliveryDate: null
+                },
+                supplier: {
+                    names: [ "", "", "", "" ],
+                    qtys: [ 0, 0, 0, 0 ]
+                },
+                artNr: "",
+                opco: "",
+                qty: 0,
+                description: "",
+                uom: "",
+                vlunar: "",
+                weight: 0
+            },
             stocks: [],
             filter: {
                 opco:"",
@@ -399,29 +423,93 @@ export default class Stock extends React.Component {
     getArticle(event, _id) {
         event.preventDefault();
         this.setState({
-            article: {},
-            retrievingArticle: false,
+            article: {
+                price: {
+                    gip: 0,
+                    rv: 0
+                },
+                purchase: {
+                    supplier: "",
+                    qty: 0,
+                    firstInStock: 0,
+                    deliveryDate: null
+                },
+                supplier: {
+                    names: [ "", "", "", "" ],
+                    qtys: [ 0, 0, 0, 0 ]
+                },
+                artNr: "",
+                opco: "",
+                qty: 0,
+                description: "",
+                uom: "",
+                vlunar: "",
+                weight: 0
+            },
+            retrievingArticle: true,
             showArticle: true
+        }, () => {
+            const requestOptions = {
+                method: "GET",
+                headers: { ...authHeader(), "Content-Type": "application/json" },
+            };
+            return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/${_id}`, requestOptions)
+            .then(response => response.text().then(text => {
+                const data = text && JSON.parse(text);
+                const resMsg = (data && data.message) || response.statusText;
+                if (response.status === 401) {
+                    // Unauthorized
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                } else if (response.status !== 200) {
+                    this.setState({
+                        alert: {
+                            type: "alert-danger",
+                            message: resMsg,
+                            retrievingArticle: false,
+                        }
+                    });
+                } else {
+                    this.setState({
+                        article: data.article,
+                        retrievingArticle: false,
+                    });
+                }
+            }))
+            .catch( () => {
+                localStorage.removeItem("user");
+                window.location.reload(true);
+            });
         });
-        // const { stocks } = this.state;
-        // let found = stocks.find(element => _.isEqual(element._id, _id));
-        // if (!_.isUndefined(found)) {
-        //     this.setState({
-        //         atr: {
-        //             _id: found._id,
-        //             name: found.name,
-        //             email: found.email,
-        //         },
-        //         showSearch: true
-        //     });
-        // }
     }
 
     toggleModalArticle(event) {
         event.preventDefault();
         const {showArticle} = this.state;
         this.setState({
-            article: {},
+            article: {
+                price: {
+                    gip: 0,
+                    rv: 0
+                },
+                purchase: {
+                    supplier: "",
+                    qty: 0,
+                    firstInStock: 0,
+                    deliveryDate: null
+                },
+                supplier: {
+                    names: [ "", "", "", "" ],
+                    qtys: [ 0, 0, 0, 0 ]
+                },
+                artNr: "",
+                opco: "",
+                qty: 0,
+                description: "",
+                uom: "",
+                vlunar: "",
+                weight: 0
+            },
             retrievingArticle: false,
             showArticle: !showArticle
         });
@@ -715,7 +803,7 @@ export default class Stock extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, stock, filter, sort, showSearch, settingsColWidth, upserting, deleting, showArticle } = this.state;
+        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, upserting, deleting, showArticle } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -933,77 +1021,99 @@ export default class Stock extends React.Component {
                     <Modal
                         show={showArticle}
                         hideModal={this.toggleModalArticle}
-                        title="Article"
+                        title={article.description ? article.description : "Article"}
                         size="modal-lg"
                     >
-                        <dl className="row">
-
-                            <dt className="col-sm-2">stock</dt>
-                            <dd className="col-sm-10">
-                                <dl className="row">
-                                    <dt className="col-sm-6">opco</dt>
-                                    <dd className="col-sm-6">SE</dd>
-
-                                    <dt className="col-sm-6">artNr</dt>
-                                    <dd className="col-sm-6">14500009</dd>
-
-                                    <dt className="col-sm-6">qty</dt>
-                                    <dd className="col-sm-6">0<span> M</span></dd>
-
-                                    <dt className="col-sm-6">weight</dt>
-                                    <dd className="col-sm-6">42.56</dd>
-
-                                </dl>
-                            </dd>
-
-                            <dt className="col-sm-2">suppliers</dt>
-                            <dd className="col-sm-10">
-                                <dl className="row">
-                                    <dt className="col-sm-6">vallourec</dt>
-                                    <dd className="col-sm-6">1000<span> M</span></dd>
-
-                                    <dt className="col-sm-6">Tenaris</dt>
-                                    <dd className="col-sm-6">1000<span> M</span></dd>
-
-                                    <dt className="col-sm-6">TPCO</dt>
-                                    <dd className="col-sm-6">1000<span> M</span></dd>
-                                </dl>
-                            </dd>
-                            
-                            <dt className="col-sm-2">purchase</dt>
-                            <dd className="col-sm-10">
-                                <dl className="row">
-                                    <dt className="col-sm-6">supplier</dt>
-                                    <dd className="col-sm-6">vallourec</dd>
-
-                                    <dt className="col-sm-6">qty</dt>
-                                    <dd className="col-sm-6">1000<span> M</span></dd>
-
-                                    <dt className="col-sm-6">firstInStock</dt>
-                                    <dd className="col-sm-6">500<span> M</span></dd>
-
-                                    <dt className="col-sm-6">deliveryDate</dt>
-                                    <dd className="col-sm-6">19/12/1985</dd>
-                                </dl>
-                            </dd>
-
-                            <dt className="col-sm-2">price</dt>
-                            <dd className="col-sm-10">
-                                <dl className="row">
-                                    <dt className="col-sm-6">gip</dt>
-                                    <dd className="col-sm-6">1.3<span> EUR</span></dd>
-
-                                    <dt className="col-sm-6">rv</dt>
-                                    <dd className="col-sm-6">1.4<span> EUR</span></dd>
-                                </dl>
-                            </dd>
-
-                            <dt className="col-sm-2">description</dt>
-                            <dd className="col-sm-10">
-                                <p>6" XS/S80 SMLS PIPE ASTM A106/API5LGR.B 6M/DRL BE PIPE SMLS Carbon A106 / API5L B</p>
-                            </dd>
-
-                        </dl>
+                        <div>
+                            <section className="mb-3">
+                                <label htmlFor="stock_info" className="mb-2">Stock Info</label>
+                                <div className="table-responsive" id="stock_info">
+                                    <table className="table table-hover">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "vLunar"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.vlunar}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "artNr"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.artNr}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "opco"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.opco}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.qty, "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "weight"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.weight, "number", getDateFormat())} KG`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "gip"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.gip, "number", getDateFormat())} EUR`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "rv"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.rv, "number", getDateFormat())} EUR`}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section className="mb-3">
+                                <label htmlFor="supplier_info" className="mb-2">Suppliers</label>
+                                <div className="table-responsive" id="supplier_info">
+                                    <table className="table table-hover">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[0]}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[0], "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[1]}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[1], "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[2]}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[2], "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[3]}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[3], "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section className="mb-3">
+                                <label htmlFor="purchase_info" className="mb-2">Pruchase</label>
+                                <div className="table-responsive" id="purchase_info">
+                                    <table className="table table-hover">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "supplier"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.purchase.supplier}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.qty, "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "firstInStock"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.firstInStock, "number", getDateFormat())} ${article.uom}`}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "deliveryDate"}</th>
+                                                <td className="w-60">{retrievingArticle? <Skeleton /> : typeToString(article.purchase.deliveryDate, "date", getDateFormat())}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                        
                         <div className="modal-footer">
                             <div className="row">
                                 <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalArticle}>
