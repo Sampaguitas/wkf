@@ -26,7 +26,8 @@ export default class Stock extends React.Component {
                 description: "",
                 qty: "",
                 uom: "",
-                supplier: "",
+                firstInStock: "",
+                weight: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -36,6 +37,8 @@ export default class Stock extends React.Component {
                 isAscending: true,
             },
             dropdown: {
+                opco: "",
+                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -49,6 +52,8 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
+                artNr: { value: "", placeholder: "Article number", options: [], hover: "" },
                 pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
                 steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
                 sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
@@ -236,6 +241,8 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
+        if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr");
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
         if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
@@ -448,10 +455,11 @@ export default class Stock extends React.Component {
                         <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                         <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                         <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="5" value={stock.supplier} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="6" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="7" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
-                        <TableData colIndex="8" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="6" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="7" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="8" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
+                        <TableData colIndex="9" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={stock._id} />
                     </tr>
                 );
             });
@@ -459,6 +467,7 @@ export default class Stock extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -484,7 +493,8 @@ export default class Stock extends React.Component {
                 description: "",
                 qty: "",
                 uom: "",
-                supplier: "",
+                firstInStock: "",
+                weight: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -494,6 +504,8 @@ export default class Stock extends React.Component {
                 isAscending: true,
             },
             dropdown: {
+                opco: "",
+                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -507,6 +519,8 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
+                artNr: { value: "", placeholder: "Art number", options: [], hover: "" },
                 pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
                 steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
                 sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
@@ -533,7 +547,7 @@ export default class Stock extends React.Component {
                 method: "GET",
                 headers: { ...authHeader(), "Content-Type": "application/json" },
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&isComplete=false&isMultiple=true`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&opco=${encodeURI(this.state.dropdown.opco)}&isComplete=false&isMultiple=false`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -774,13 +788,26 @@ export default class Stock extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="supplier"
-                                                name="supplier"
-                                                value={filter.supplier}
+                                                title="firstInStock"
+                                                name="firstInStock"
+                                                value={filter.firstInStock}
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="5"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="weight"
+                                                name="weight"
+                                                value={filter.weight}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -793,7 +820,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="6"
+                                                index="7"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -806,7 +833,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="7"
+                                                index="8"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -819,7 +846,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="8"
+                                                index="9"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}

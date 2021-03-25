@@ -9,10 +9,10 @@ const getAll = (req, res, next) => {
     const system = req.body.system || "METRIC";
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     // let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    const {opco, artNr, description, qty, uom, supplier, gip, currency, rv} = filter;
-    const { pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
+    // const {opco, artNr, description, qty, uom, firstInStock, weight, gip, currency, rv} = filter;
+    // const { opco, artNr, pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
     
-    matchDropdown(pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         Stock.aggregate([
             {
                 $facet: {
@@ -22,12 +22,14 @@ const getAll = (req, res, next) => {
                         {
                             "$addFields": {
                                 "qtyX": { "$toString": "$qty" },
+                                "firstInStockX": { "$toString": "$firstInStock" },
+                                "weightX": { "$toString": "$weight" },
                                 "gipX": { "$toString": "$gip" },
                                 "rvX": { "$toString": "$rv" },
                             }
                         },
-                        { "$match": matchFilter(opco, artNr, description, qty, uom, supplier, gip, currency, rv) },
-                        { "$project": { "qtyX": 0, "gipX": 0, "rvX": 0, } },
+                        { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
+                        { "$project": { "qtyX": 0, "firstInStockX": 0, "gipX": 0, "rvX": 0, } },
                         { "$sort": { [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1 } },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize }
@@ -39,11 +41,13 @@ const getAll = (req, res, next) => {
                             "$addFields": {
                                 "qtyX": { "$toString": "$qty" },
                                 "gipX": { "$toString": "$gip" },
+                                "firstInStockX": { "$toString": "$firstInStock" },
+                                "weightX": { "$toString": "$weight" },
                                 "rvX": { "$toString": "$rv" },
                             }
                         },
-                        { "$match": matchFilter(opco, artNr, description, qty, uom, supplier, gip, currency, rv) },
-                        { "$project": { "qtyX": 0, "gipX": 0, "rvX": 0, } },
+                        { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
+                        { "$project": { "qtyX": 0, "firstInStockX": 0, "gipX": 0, "rvX": 0, } },
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -72,9 +76,9 @@ const getAll = (req, res, next) => {
 
 function matchFilter() {
     let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "uom", "supplier", "gip", "currency", "rv"].reduce(function(acc, cur, index) {
+    return(["opco", "artNr", "description", "qty", "uom", "firstInStock", "weight", "gip", "currency", "rv"].reduce(function(acc, cur, index) {
         if (!!myArgs[index]) {
-            if(["qty", "gip", "rv"].includes(cur)) {
+            if(["qty", "firstInStock", "weight", "gip", "rv"].includes(cur)) {
                 acc[`${cur}X`] = { "$regex": new RegExp(require("../functions/escape")(myArgs[index]),"i") };
             } else {
                 acc[`${cur}`] = { "$regex": new RegExp(require("../functions/escape")(myArgs[index]),"i") };
@@ -89,11 +93,13 @@ function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
             let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
-            if (regexOutlet.test(myArgs[6])) {
-                require("../functions/getSizeMm")(myArgs[3]).then(mm => {
-                    resolve(["pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+            if (regexOutlet.test(myArgs[8])) {
+                require("../functions/getSizeMm")(myArgs[5]).then(mm => {
+                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                         if (!!myArgs[index]) {
-                            if (cur === "pffType") {
+                            if (cur === "opco" || cur === "artNr") {
+                                acc[`${cur}`] = myArgs[index];
+                            } else if (cur === "pffType") {
                                 acc[`parameters.type.pffType`] = myArgs[index];
                             } else if (cur === "steelType") {
                                 acc[`parameters.grade.steelType`] = myArgs[index];
@@ -108,9 +114,11 @@ function matchDropdown() {
                     },{}));
                 });
             } else {
-                resolve(["pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                     if (!!myArgs[index]) {
-                        if (cur === "pffType") {
+                        if (cur === "opco" || cur === "artNr") {
+                            acc[`${cur}`] = myArgs[index];
+                        } else if (cur === "pffType") {
                             acc[`parameters.type.pffType`] = myArgs[index];
                         } else if (cur === "steelType") {
                             acc[`parameters.grade.steelType`] = myArgs[index];
@@ -162,31 +170,36 @@ function project(system) {
                 "$uom"
             ],
         },
-        "supplier": { "$arrayElemAt": ["$supplier.names", 0] },
-        // "suppliers": {
-        //     "$reduce": {
-        //         "input": "$stocks.supplier.names",
-        //         "initialValue": "",
-        //         "in": {
-        //           "$concat": [
-        //             "$$value",
-        //             {
-        //               "$cond": {
-        //                 "if": {
-        //                     "$or": [
-        //                         { "$eq": [ "$$value", "" ] },
-        //                         { "$eq": [ "$$this", "" ] },
-        //                     ],
-        //                 },
-        //                 "then": "",
-        //                 "else": ", "
-        //               }
-        //             },
-        //             "$$this"
-        //           ]
-        //         }
-        //     }
-        // },
+        "firstInStock": {
+            "$cond": [
+                { "$eq": [system, "IMPERIAL" ] },
+                {
+                    "$switch": {
+                        "branches": [
+                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
+                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
+                        ],
+                        "default": "$purchase.firstInStock"
+                    }
+                },
+                "$purchase.firstInStock"
+            ],
+        },
+        "weight": {
+            "$cond": [
+                { "$eq": [system, "IMPERIAL" ] },
+                {
+                    "$switch": {
+                        "branches": [
+                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$weight", 2.204623 ] } },
+                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$weight", 0.671969 ] } }
+                        ],
+                        "default": "$weight"
+                    }
+                },
+                "$weight"
+            ],
+        },
         "gip": {
             "$cond": [
                 { "$eq": [ system, "IMPERIAL" ] },

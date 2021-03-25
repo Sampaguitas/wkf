@@ -56,7 +56,6 @@ router.post("/", upload.single("file"), function(req, res) {
                                     myPromises.push(deleteStock(row, processId, i, rowsLength));
                                 }  else {
                                     myPromises.push(updateStock(row, processId, i, rowsLength));
-                                    // myPromises.push(updateParam(row));
                                 }
                             }
                         }
@@ -152,26 +151,5 @@ function deleteStock(row, processId, index, length) {
         });
     });
 }
-
-// function updateParam(row) {
-//     return new Promise(function(resolve) {
-//         let uom = require("../functions/getString")(row[10]);
-//         let filter = { artNr: require("../functions/getString")(row[2]) }
-//         let options = { new: true, upsert: true }
-//         let update = {
-//             $set: {
-//                 "description": require("../functions/getString")(row[3]),
-//                 "weight": require("../functions/getWeight")(uom, Number(row[8])),
-//                 "uom": require("../functions/getUom")(uom),
-//             }
-//         }
-//         require("../models/Param").findOneAndUpdate(filter, update, options, () => {
-//             resolve({
-//                 isRejected: false,
-//                 isUpserted: false
-//             });
-//         });
-//     });
-// }
 
 module.exports = router;

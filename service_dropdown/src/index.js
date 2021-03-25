@@ -24,10 +24,12 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
+app.use("/artNr", passport.authenticate("jwt", { session: false }), require("./routes/artNr"));
 app.use("/currency", passport.authenticate("jwt", { session: false }), require("./routes/currency"));
 app.use("/end", passport.authenticate("jwt", { session: false }), require("./routes/end"));
 app.use("/grade", passport.authenticate("jwt", { session: false }), require("./routes/grade"));
 app.use("/length", passport.authenticate("jwt", { session: false }), require("./routes/length"));
+app.use("/opco", passport.authenticate("jwt", { session: false }), require("./routes/opco"));
 app.use("/pffType", passport.authenticate("jwt", { session: false }), require("./routes/pffType"));
 app.use("/sizeOne", passport.authenticate("jwt", { session: false }), require("./routes/sizeOne"));
 app.use("/sizeThree", passport.authenticate("jwt", { session: false }), require("./routes/sizeThree"));

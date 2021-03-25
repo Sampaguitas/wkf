@@ -2,7 +2,6 @@
 require("./End");
 require("./Grade");
 require("./Length");
-require("./Param");
 require("./Pff");
 require("./Size");
 require("./Steel");
