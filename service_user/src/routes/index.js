@@ -2,8 +2,6 @@ const userController = require("../controllers");
 const passport = require("passport");
 
 const routes = app => {
-    app.post("/getAll", passport.authenticate("jwt", { session: false }), userController.getAll);
-    app.get("/:userId", passport.authenticate("jwt", { session: false }), userController.getById);
     app.post("/login", userController.login);
     app.post("/reqPwd", userController.reqPwd);
     app.put("/resetPwd/:userId", userController.resetPwd);

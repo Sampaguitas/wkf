@@ -111,7 +111,7 @@ const getAll = (req, res, next) => {
     // const {opco, artNr, description, qty, uom, firstInStock, weight, gip, currency, rv} = filter;
     // const { opco, artNr, pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
     
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         Stock.aggregate([
             {
                 $facet: {
@@ -194,9 +194,9 @@ function matchDropdown() {
             let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
             if (regexOutlet.test(myArgs[8])) {
                 require("../functions/getSizeMm")(myArgs[5]).then(mm => {
-                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                    resolve(["opco", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                         if (!!myArgs[index]) {
-                            if (cur === "opco" || cur === "artNr") {
+                            if (cur === "opco") {
                                 acc[`${cur}`] = myArgs[index];
                             } else if (cur === "pffType") {
                                 acc[`parameters.type.pffType`] = myArgs[index];
@@ -213,9 +213,9 @@ function matchDropdown() {
                     },{}));
                 });
             } else {
-                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                resolve(["opco", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                     if (!!myArgs[index]) {
-                        if (cur === "opco" || cur === "artNr") {
+                        if (cur === "opco") {
                             acc[`${cur}`] = myArgs[index];
                         } else if (cur === "pffType") {
                             acc[`parameters.type.pffType`] = myArgs[index];

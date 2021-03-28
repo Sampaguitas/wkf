@@ -4,28 +4,28 @@ import Skeleton from "react-loading-skeleton";
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
+import typeToString from "../../functions/typeToString";
+import getDateFormat from "../../functions/getDateFormat";
 
-import TableHeaderCheckBox from "../../components/table-header-check-box";
 import TableHeaderInput from "../../components/table-header-input";
 import TableData from "../../components/table-data";
-import TableCheckBoxAdmin from "../../components/table-check-box-admin";
 import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
 import _ from "lodash";
 
-export default class Settings extends React.Component {
+export default class Process extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentUser: {},
             user: {},
-            users: [],
+            processes: [],
             filter: {
-                name: "",
-                email: "",
-                isAdmin: 0,
+                user:"",
+                processType:"",
+                createdAt: "",
+                message:""
             },
             sort: {
                 name: "",
@@ -39,7 +39,6 @@ export default class Settings extends React.Component {
             upserting: false,
             loaded: false,
             submitted: false,
-            showUser: false,
             menuItem: "",
             settingsColWidth: {},
             paginate: {
@@ -60,14 +59,8 @@ export default class Settings extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        this.showModal = this.showModal.bind(this);
-        this.hideModal = this.hideModal.bind(this);
-        this.handleChangeUser = this.handleChangeUser.bind(this);
         this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
-        this.handleOnclick = this.handleOnclick.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
@@ -75,21 +68,14 @@ export default class Settings extends React.Component {
     }
 
     componentDidMount() {
-        const { menuItem, paginate } = this.state;
-        let currentUser = JSON.parse(localStorage.getItem("user"));
+        const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
-        if (!!currentUser) {
-            this.setState({
-                currentUser: currentUser,
-                paginate: {
-                    ...paginate,
-                    pageSize: getPageSize(tableContainer.clientHeight)
-                }
-            }, () => this.getDocuments());
-        } else {
-            localStorage.removeItem("user");
-            window.location.reload(true);
-        }
+        this.setState({
+            paginate: {
+                ...paginate,
+                pageSize: getPageSize(tableContainer.clientHeight)
+            }
+        }, () => this.getDocuments());
     }
 
     resize() {
@@ -156,38 +142,6 @@ export default class Settings extends React.Component {
         }
     }
 
-    showModal() {
-        this.setState({
-            user: {
-                name: "",
-                email: ""
-            },
-            showUser: true
-        });
-    }
-
-    hideModal() {
-        this.setState({
-            user: {
-                name: "",
-                email: ""
-            },
-            submitted: false,
-            showUser: false
-        });
-    }
-
-    handleChangeUser(event) {
-        const { name, value } = event.target;
-        const { user } = this.state;
-        this.setState({
-            user: {
-                ...user,
-                [name]: value
-            }
-        });
-    }
-
     handleChangeHeader(event) {
         const { filter } = this.state;
         const { name, value } = event.target;
@@ -215,7 +169,7 @@ export default class Settings extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/search/processes/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -235,7 +189,7 @@ export default class Settings extends React.Component {
                             });
                         } else {
                             this.setState({
-                                users: data[0].data,
+                                processes: data[0].data,
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -248,104 +202,6 @@ export default class Settings extends React.Component {
                     localStorage.removeItem("user");
                     window.location.reload(true);
                 });
-            });
-        }
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-        const { user, upserting } = this.state;
-        if (!!user.name && !!user.email && !upserting) {
-            this.setState({
-                upserting: true,
-            }, () => {
-                const requestOptions = {
-                    method: !!user._id ? "PUT" : "POST",
-                    headers: { ...authHeader(), "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        name: user.name,
-                        email: user.email
-                    })
-                };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/${user._id}`, requestOptions)
-                .then(response => response.text().then(text => {
-                    const data = text && JSON.parse(text);
-                    const resMsg = (data && data.message) || response.statusText;
-                    if (response.status === 401) {
-                        // Unauthorized
-                        localStorage.removeItem("user");
-                        window.location.reload(true);
-                    } else {
-                        this.setState({
-                            alert: {
-                                type: response.status !== 200 ? "alert-danger" : "alert-success",
-                                message: response.message
-                            }
-                        }, () => {
-                            this.getDocuments();
-                            this.hideModal();
-                        });
-                    }
-                }))
-                .catch( () => {
-                    localStorage.removeItem("user");
-                    window.location.reload(true);
-                });
-            });
-        }
-    }
-
-    handleDelete(event, _id) {
-        event.preventDefault();
-        const { deleting } = this.state;
-        if (!!_id && !deleting) {
-            this.setState({
-                deleting: true
-            }, () => {
-                const requestOptions = {
-                    method: "DELETE",
-                    headers: authHeader()
-                };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/${_id}`, requestOptions)
-                .then(response => response.text().then(text => {
-                    this.setState({
-                        deleting: false,
-                    }, () => {
-                        const data = text && JSON.parse(text);
-                        const resMsg = (data && data.message) || response.statusText;
-                        if (response.status === 401) {
-                            // Unauthorized
-                            localStorage.removeItem("user");
-                            window.location.reload(true);
-                        } else {
-                            this.setState({
-                                alert: {
-                                    type: response.status !== 200 ? "alert-danger" : "alert-success",
-                                    message: resMsg
-                                }
-                            }, () => {
-                                this.getDocuments();
-                                this.hideModal();
-                            });
-                        }
-                    });
-                }));
-            });
-        }
-    }
-
-    handleOnclick(event, _id) {
-        event.preventDefault();
-        const { users, currentUser } = this.state;
-        let found = users.find(element => _.isEqual(element._id, _id));
-        if (!_.isUndefined(found) && !!currentUser.isAdmin) {
-            this.setState({
-                user: {
-                    _id: found._id,
-                    name: found.name,
-                    email: found.email,
-                },
-                showUser: true
             });
         }
     }
@@ -386,24 +242,17 @@ export default class Settings extends React.Component {
     }
 
     generateBody() {
-        const { users, retrieving, currentUser, paginate, settingsColWidth } = this.state;
+        const { processes, retrieving, paginate, settingsColWidth } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(users) || !retrieving) {
-            users.map((user) => {
+        if (!_.isEmpty(processes) || !retrieving) {
+            processes.map((process) => {
                 tempRows.push(
-                    <tr key={user._id}>
-                        <TableData colIndex="0" value={user.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
-                        <TableData colIndex="0" value={user.email} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
-                        <td data-type="checkbox">
-                            <TableCheckBoxAdmin
-                                _id={user._id}
-                                checked={user.isAdmin || false}
-                                refreshStore={this.getDocuments}
-                                setAlert={this.setAlert}
-                                disabled={_.isEqual(currentUser._id, user._id) || !currentUser.isAdmin ? true : false}
-                                data-type="checkbox"
-                            />
-                        </td>
+                    <tr key={process._id}>
+                        
+                        <TableData colIndex="0" value={process.processType} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="1" value={process.message} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="3" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="2" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                     </tr>
                 );
             });
@@ -411,6 +260,7 @@ export default class Settings extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -423,7 +273,7 @@ export default class Settings extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, user, filter, sort, showUser, settingsColWidth, upserting, deleting } = this.state;
+        const { alert, menuItem, filter, sort, settingsColWidth } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -436,11 +286,6 @@ export default class Settings extends React.Component {
                     </div>
                 }
                 <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
-                    <div className="action-row row">
-                        <button title="Create User" className="btn btn-sm btn-leeuwen-blue" onClick={this.showModal}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create User</span>
-                        </button>
-                    </div>
                     <div className="body-section">
                         <div className="row ml-1 mr-1" style={{ height: "calc(100% - 40px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container" >
@@ -449,9 +294,37 @@ export default class Settings extends React.Component {
                                         <tr>
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Name"
-                                                name="name"
-                                                value={filter.name}
+                                                title="processType"
+                                                name="processType"
+                                                value={filter.processType}
+                                                onChange={this.handleChangeHeader}
+                                                width="30%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="2"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="message"
+                                                name="message"
+                                                value={filter.message}
+                                                onChange={this.handleChangeHeader}
+                                                width="30%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="2"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="Created by"
+                                                name="user"
+                                                value={filter.user}
                                                 onChange={this.handleChangeHeader}
                                                 width="30%"
                                                 sort={sort}
@@ -463,9 +336,9 @@ export default class Settings extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Email"
-                                                name="email"
-                                                value={filter.email}
+                                                title="Created at"
+                                                name="createdAt"
+                                                value={filter.createdAt}
                                                 onChange={this.handleChangeHeader}
                                                 width="30%"
                                                 sort={sort}
@@ -475,15 +348,7 @@ export default class Settings extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderCheckBox
-                                                title="Admin"
-                                                name="isAdmin"
-                                                value={filter.isAdmin}
-                                                onChange={this.handleChangeHeader}
-                                                width="10%"
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                            />
+                                            
                                         </tr>
                                     </thead>
                                     <tbody className="full-height">
@@ -505,54 +370,6 @@ export default class Settings extends React.Component {
                             changePage={this.changePage}
                         />
                     </div>
-
-                    <Modal
-                        show={showUser}
-                        hideModal={this.hideModal}
-                        title={this.state.user._id ? "Update user" : "Add user"}
-                    >
-                        <div className="col-12">
-                            <form
-                                name="form"
-                                onSubmit={this.handleSubmit}
-                            >
-                                <Input
-                                    title="Full Name"
-                                    name="name"
-                                    type="text"
-                                    value={user.name}
-                                    onChange={this.handleChangeUser}
-                                    inline={false}
-                                    required={true}
-                                />
-                                <Input
-                                    title="Email"
-                                    name="email"
-                                    type="email"
-                                    value={user.email}
-                                    onChange={this.handleChangeUser}
-                                    inline={false}
-                                    required={true}
-                                />
-                                <div className="modal-footer">
-                                    {this.state.user._id ?
-                                        <div className="row">
-                                            <button className="btn btn-sm btn-leeuwen" onClick={(event) => { this.handleDelete(event, this.state.user._id) }}>
-                                                <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
-                                            </button>
-                                            <button type="submit" className="btn btn-sm btn-leeuwen-blue ml-2">
-                                                <span><FontAwesomeIcon icon={upserting ? "spinner" : "edit"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Update</span>
-                                            </button>
-                                        </div>
-                                        :
-                                        <button type="submit" className="btn btn-sm btn-leeuwen-blue btn-full">
-                                            <span><FontAwesomeIcon icon={upserting ? "spinner" : "plus"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Create</span>
-                                        </button>
-                                    }
-                                </div>
-                            </form>
-                        </div>
-                    </Modal>
                 </div>
             </Layout>
         );

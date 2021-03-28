@@ -108,7 +108,6 @@ export default class Stock extends React.Component {
             },
             dropdown: {
                 opco: "",
-                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -122,8 +121,6 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
-                artNr: { value: "", placeholder: "Article number", options: [], hover: "" },
                 pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
                 steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
                 sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
@@ -135,6 +132,7 @@ export default class Stock extends React.Component {
                 length: { value: "", placeholder: "Length", options: [], hover: "" },
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
                 surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
             },
             alert: {
                 type: "",
@@ -351,8 +349,6 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
-        if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr");
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
         if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
@@ -364,6 +360,7 @@ export default class Stock extends React.Component {
         if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
         if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
+        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
     }
 
     resize() {
@@ -778,7 +775,6 @@ export default class Stock extends React.Component {
             },
             dropdown: {
                 opco: "",
-                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -792,8 +788,6 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
-                artNr: { value: "", placeholder: "Art number", options: [], hover: "" },
                 pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
                 steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
                 sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
@@ -805,6 +799,7 @@ export default class Stock extends React.Component {
                 length: { value: "", placeholder: "Length", options: [], hover: "" },
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
                 surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
             },
             focused: "",
         });

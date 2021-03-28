@@ -8,66 +8,6 @@ const _ = require("lodash");
 const User = require("../models/User");
 const Rpwd = require("../models/Rpwd");
 
-const getAll = (req, res, next) => {
-    
-    const { filter, sort, pageSize } = req.body;
-    const nextPage = req.body.nextPage || 1;
-
-    if (!pageSize) {
-        res.status(400).json({message: "Page size should be greater than 0."});
-    } else {
-        User.find({
-            name : { $regex: new RegExp(require("../functions/escape")(filter.name),"i") },
-            email : { $regex: new RegExp(require("../functions/escape")(filter.email),"i") },
-            isAdmin: { $in: require("../functions/filterBool")(filter.isAdmin)},
-        })
-        .sort({
-            [!!sort.name ? sort.name : "name"]: sort.isAdmin === false ? -1 : 1
-        })
-        // .skip((nextPage - 1) * pageSize)
-        // .limit(pageSize)
-        .exec(function (err, users) {
-            if (!!err) {
-                res.status(400).json({ message: "An error has occured." });
-            } else {
-                
-                let pageLast = Math.ceil(users.length / pageSize) || 1;
-                let sliced = users.slice((nextPage - 1) * pageSize, ((nextPage - 1) * pageSize) + pageSize);
-                let firstItem = !_.isEmpty(sliced) ? ((nextPage - 1) * pageSize) + 1 : 0;
-                let lastItem = !_.isEmpty(sliced) ? firstItem + sliced.length - 1 : 0;
-                
-                res.json({
-                    users: sliced,
-                    currentPage: nextPage,
-                    firstItem: firstItem,
-                    lastItem: lastItem,
-                    pageItems: sliced.length,
-                    pageLast: pageLast,
-                    totalItems: users.length,
-                    first: nextPage < 4 ? 1 : (nextPage === pageLast) ? nextPage - 2 : nextPage - 1,
-                    second: nextPage < 4 ? 2 : (nextPage === pageLast) ? nextPage - 1 : nextPage,
-                    third: nextPage < 4 ? 3 : (nextPage === pageLast) ? nextPage : nextPage + 1,
-                });
-            }
-        });
-    } 
-}
-
-const getById = (req, res, next) => {
-
-    const {userId} = req.params;
-
-    User.findById(userId, function (err, user) {
-        if (!!err) {
-            res.status(400).json({ message: "An error has occured."})
-        } if (!user) {
-            res.status(400).json({ message: "Could not retrieve user information." });
-        } else {
-            res.json({user: user});
-        }
-    });
-}
-
 const login = (req, res, next) => {
     
     const email = req.body.email.toLowerCase();
@@ -341,8 +281,6 @@ const _delete = (req, res, next) => {
 }
 
 const userController = {
-    getAll,
-    getById,
     login,
     reqPwd,
     resetPwd,

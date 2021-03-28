@@ -35,7 +35,7 @@ export default class User extends React.Component {
                     method: "GET",
                     headers: {...authHeader(), "Content-Type": "application/json"},
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/${user._id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/${user._id}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         loading: false,

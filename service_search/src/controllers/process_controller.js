@@ -1,15 +1,15 @@
-const User = require("../models/User");
+const Process = require("../models/Process");
 const projectionResult = require("../projections/projection_result");
 
 const getById = (req, res, next) => {
 
-    const {userId} = req.params;
+    const {processId} = req.params;
 
-    User.findById(userId, function (err, user) {
+    Process.findById(processId, function (err, user) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!user) {
-            res.status(400).json({ message: "Could not retrieve user information." });
+            res.status(400).json({ message: "Could not retrieve process information." });
         } else {
             res.json({user: user});
         }
@@ -23,24 +23,30 @@ const getAll = (req, res, next) => {
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
 
-    User.aggregate([
+    const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
+    let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
+
+    Process.aggregate([
             {
                 $facet: {
                     "data": [
+                        { "$addFields": { "createdAtX": { "$dateToString": { format, "date": "$createdAt" } }  } },
                         { "$match": myMatch(filter) },
-                        { "$sort": { [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1 } },
+                        { "$sort": { [!!sort.name ? sort.name : "createdAt"]: sort.isAscending === false ? -1 : 1 } },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize },
                         {
                             "$project": {
                                 "_id": "$_id",
-                                "name": "$name",
-                                "email": "$email",
-                                "isAdmin": "$isAdmin",
+                                "user": "$user",
+                                "processType": "$processType",
+                                "createdAt": "$createdAt",
+                                "message": "$message",
                             }
                         }
                     ],
                     "pagination": [
+                        { "$addFields": { "createdAtX": { "$dateToString": { format, "date": "$createdAt" } }  } },
                         { "$match": myMatch(filter) },
                         { "$count": "totalItems" },
                         {
@@ -67,10 +73,11 @@ const getAll = (req, res, next) => {
 
 function myMatch(filter) {
     return {
-        "name" : { $regex: new RegExp(require("../functions/escape")(filter.name),"i") },
-        "email" : { $regex: new RegExp(require("../functions/escape")(filter.email),"i") },
-        "isAdmin": { $in: require("../functions/filterBool")(filter.isAdmin)},
-    } 
+        "user" : { $regex: new RegExp(require("../functions/escape")(filter.user),"i") },
+        "processType" : { $regex: new RegExp(require("../functions/escape")(filter.processType),"i") },
+        "createdAtX" : { $regex: new RegExp(require("../functions/escape")(filter.createdAt),"i") },
+        "message": { $regex: new RegExp(require("../functions/escape")(filter.message),"i") },
+    }
 }
 
 const userController = {
