@@ -11,7 +11,91 @@ const getById = (req, res, next) => {
         } if (!article) {
             res.status(400).json({ message: "Could not retrieve article information." });
         } else {
-            res.json({article: article});
+            // res.json({article: article});
+            res.json({article: {
+                "opco": article.opco,
+                "artNr": article.artNr,
+                "description": article.description,
+                "vlunar": article.vlunar,
+                "weight": article.weight,
+                "uom": article.uom,
+                "qty": article.qty,
+                "price": {
+                    "gip": article.price.gip,
+                    "rv": article.price.rv,
+                },
+                "purchase": {
+                    "supplier": article.purchase.supplier,
+                    "qty": article.purchase.qty,
+                    "firstInStock": article.purchase.firstInStock,
+                    "deliveryDate": article.purchase.deliveryDate
+                },
+                "supplier": {
+                    "names": article.supplier.names,
+                    "qtys": article.supplier.qtys
+                },
+                "parameters": !article.parameters ? 
+                (
+                    {
+                        "sizeOne": { "name": "", "tags": [] },
+                        "sizeTwo": { "name": "", "tags": [] },
+                        "sizeThree": { "name": "", "tags": [] },
+                        "wallOne": { "name": "", "tags": [] },
+                        "wallTwo": { "name": "", "tags": [] },
+                        "type": { "name": "", "tags": [] },
+                        "grade": { "name": "", "tags": [] },
+                        "length": { "name": "", "tags": [] },
+                        "end": { "name": "", "tags": [] },
+                        "surface": { "name": "", "tags": [] },
+                    }
+                    
+                ):
+                (
+                    {
+                        "sizeOne": {
+                            "name": article.parameters.sizeOne.name,
+                            "tags": article.parameters.sizeOne.tags,
+                        },
+                        "sizeTwo": {
+                            "name": article.parameters.sizeTwo.name,
+                            "tags": article.parameters.sizeTwo.tags,
+                        },
+                        "sizeThree": {
+                            "name": article.parameters.sizeThree.name,
+                            "tags": article.parameters.sizeThree.tags,
+                        },
+                        "wallOne": {
+                            "name": article.parameters.wallOne.name,
+                            "tags": article.parameters.wallOne.tags,
+                        },
+                        "wallTwo": {
+                            "name": article.parameters.wallTwo.name,
+                            "tags": article.parameters.wallTwo.tags,
+                        },
+                        "type": {
+                            "name": article.parameters.type.name,
+                            "tags": article.parameters.type.tags,
+                        },
+                        "grade": {
+                            "name": article.parameters.grade.name,
+                            "tags": article.parameters.grade.tags,
+                        },
+                        "length": {
+                            "name": article.parameters.length.name,
+                            "tags": article.parameters.length.tags,
+                        },
+                        "end": {
+                            "name": article.parameters.end.name,
+                            "tags": article.parameters.end.tags,
+                        },
+                        "surface": {
+                            "name": article.parameters.surface.name,
+                            "tags": article.parameters.surface.tags,
+                        }
+                    }
+                )
+
+            }});
         }
     });
 }

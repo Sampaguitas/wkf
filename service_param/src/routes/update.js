@@ -63,9 +63,9 @@ router.post("/", (req, res) => {
 
 module.exports = router;
 
-function updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, length) {
+function updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, processId, index, artLength) {
     return new Promise(function(resolve) {
-        require("../functions/processUpdate")(processId, index, length).then( () => {
+        require("../functions/processUpdate")(processId, index, artLength).then( () => {
             if (!artNr || !sizeOne || !type || !grade) {
                 resolve({
                     "isRejected": true,

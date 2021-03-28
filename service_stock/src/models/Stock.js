@@ -75,6 +75,11 @@ const StockSchema = new Schema({
             "lunar": String,
             "name": String,
             "tags": [String]
+        },
+        "surface": {
+            "lunar": String,
+            "name": String,
+            "tags": [String]
         }
     }
 },

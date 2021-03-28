@@ -12,7 +12,11 @@ import TableData from "../../components/table-data";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
-import Param from '../../components/param';
+import Param from "../../components/param";
+import TabStockInfo from "../../components/tab-stock-info";
+import TabStockPurchase from "../../components/tab-stock-purchase";
+import TabStockSuppliers from "../../components/tab-stock-suppliers";
+import TabStockParams from "../../components/tab-stock-params";
 import _ from "lodash";
 
 export default class Stock extends React.Component {
@@ -21,6 +25,13 @@ export default class Stock extends React.Component {
         this.state = {
             currentUser: {},
             article: {
+                opco: "",
+                artNr: "",
+                description: "",
+                vlunar: "",
+                weight: 0,
+                uom: "",
+                qty: 0,
                 price: {
                     gip: 0,
                     rv: 0
@@ -35,13 +46,48 @@ export default class Stock extends React.Component {
                     names: [ "", "", "", "" ],
                     qtys: [ 0, 0, 0, 0 ]
                 },
-                artNr: "",
-                opco: "",
-                qty: 0,
-                description: "",
-                uom: "",
-                vlunar: "",
-                weight: 0
+                parameters: {
+                    sizeOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeThree: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    type: {
+                        name: "",
+                        tags: [],
+                    },
+                    grade: {
+                        name: "",
+                        tags: [],
+                    },
+                    length: {
+                        name: "",
+                        tags: [],
+                    },
+                    end: {
+                        name: "",
+                        tags: [],
+                    },
+                    surface: {
+                        name: "",
+                        tags: [],
+                    }
+                }
             },
             stocks: [],
             filter: {
@@ -94,6 +140,40 @@ export default class Stock extends React.Component {
                 type: "",
                 message: ""
             },
+            tabs: [
+                {
+                    index: 0, 
+                    id: "stock",
+                    label: "Stock",
+                    component: TabStockInfo, 
+                    active: true, 
+                    isLoaded: false
+                },
+                {
+                    index: 1, 
+                    id: "suppliers",
+                    label: "Suppliers",
+                    component: TabStockSuppliers, 
+                    active: false, 
+                    isLoaded: false
+                },
+                {
+                    index: 2,
+                    id: "purchase",
+                    label: "Purchase",
+                    component: TabStockPurchase,
+                    active: false,
+                    isLoaded: false
+                },
+                {
+                    index: 3,
+                    id: "params",
+                    label: "Params",
+                    component: TabStockParams,
+                    active: false,
+                    isLoaded: false
+                }
+            ],
             retrievingStocks: false,
             retrievingArticle: false,
             upserting: false,
@@ -139,6 +219,8 @@ export default class Stock extends React.Component {
         //article
         this.getArticle = this.getArticle.bind(this);
         this.toggleModalArticle = this.toggleModalArticle.bind(this);
+        //tabs
+        this.handleModalTabClick = this.handleModalTabClick.bind(this);
     }
 
     componentDidMount() {
@@ -158,7 +240,7 @@ export default class Stock extends React.Component {
             window.location.reload(true);
         }
 
-        // const fields = document.getElementById('fields');
+        // const fields = document.getElementById("fields");
         // fields.addEventListener("keydown", event => {
         //     if (Object.keys(params).includes(event.target.id)) {
         //         let name = event.target.id;
@@ -226,15 +308,15 @@ export default class Stock extends React.Component {
         //                             [name]: {
         //                                 ...this.state.params[name],
         //                                 options: [],
-        //                                 value: '',
-        //                                 hover: ''
+        //                                 value: "",
+        //                                 hover: ""
         //                             }
         //                         },
         //                         dropdown: {
         //                             ...this.state.dropdown,
         //                             [name]: selected._id,
         //                         },
-        //                         focused: '',
+        //                         focused: "",
         //                     });
         //                     let myInput = document.getElementById(name);
         //                     myInput.blur();
@@ -247,15 +329,15 @@ export default class Stock extends React.Component {
         //                         [name]: {
         //                             ...this.state.params[name],
         //                             options: [],
-        //                             value: '',
-        //                             hover: '',
+        //                             value: "",
+        //                             hover: "",
         //                         }
         //                     },
         //                     dropdown: {
         //                         ...this.state.dropdown,
         //                         [name]: "",
         //                     },
-        //                     focused: '',
+        //                     focused: "",
         //                 });
         //                 let myInput = document.getElementById(name);
         //                 myInput.blur();
@@ -424,6 +506,13 @@ export default class Stock extends React.Component {
         event.preventDefault();
         this.setState({
             article: {
+                opco: "",
+                artNr: "",
+                description: "",
+                vlunar: "",
+                weight: 0,
+                uom: "",
+                qty: 0,
                 price: {
                     gip: 0,
                     rv: 0
@@ -438,13 +527,48 @@ export default class Stock extends React.Component {
                     names: [ "", "", "", "" ],
                     qtys: [ 0, 0, 0, 0 ]
                 },
-                artNr: "",
-                opco: "",
-                qty: 0,
-                description: "",
-                uom: "",
-                vlunar: "",
-                weight: 0
+                parameters: {
+                    sizeOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeThree: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    type: {
+                        name: "",
+                        tags: [],
+                    },
+                    grade: {
+                        name: "",
+                        tags: [],
+                    },
+                    length: {
+                        name: "",
+                        tags: [],
+                    },
+                    end: {
+                        name: "",
+                        tags: [],
+                    },
+                    surface: {
+                        name: "",
+                        tags: [],
+                    }
+                }
             },
             retrievingArticle: true,
             showArticle: true
@@ -488,6 +612,13 @@ export default class Stock extends React.Component {
         const {showArticle} = this.state;
         this.setState({
             article: {
+                opco: "",
+                artNr: "",
+                description: "",
+                vlunar: "",
+                weight: 0,
+                uom: "",
+                qty: 0,
                 price: {
                     gip: 0,
                     rv: 0
@@ -502,13 +633,48 @@ export default class Stock extends React.Component {
                     names: [ "", "", "", "" ],
                     qtys: [ 0, 0, 0, 0 ]
                 },
-                artNr: "",
-                opco: "",
-                qty: 0,
-                description: "",
-                uom: "",
-                vlunar: "",
-                weight: 0
+                parameters: {
+                    sizeOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    sizeThree: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallOne: {
+                        name: "",
+                        tags: [],
+                    },
+                    wallTwo: {
+                        name: "",
+                        tags: [],
+                    },
+                    type: {
+                        name: "",
+                        tags: [],
+                    },
+                    grade: {
+                        name: "",
+                        tags: [],
+                    },
+                    length: {
+                        name: "",
+                        tags: [],
+                    },
+                    end: {
+                        name: "",
+                        tags: [],
+                    },
+                    surface: {
+                        name: "",
+                        tags: [],
+                    }
+                }
             },
             retrievingArticle: false,
             showArticle: !showArticle
@@ -801,9 +967,21 @@ export default class Stock extends React.Component {
         }
     }
 
+    handleModalTabClick(event, tab){
+        event.preventDefault();
+        const { tabs } = this.state; // 1. Get tabs from state
+        tabs.forEach((t) => {t.active = false}); //2. Reset all tabs
+        tab.isLoaded = true; // 3. set current tab as active
+        tab.active = true;
+        this.setState({
+            ...this.state,
+            tabs // 4. update state
+        })
+    }
+
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, upserting, deleting, showArticle } = this.state;
+        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, showArticle, tabs } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -1024,96 +1202,41 @@ export default class Stock extends React.Component {
                         title={article.description ? article.description : "Article"}
                         size="modal-lg"
                     >
-                        <div>
-                            <section className="mb-3">
-                                <label htmlFor="stock_info" className="mb-2">Stock Info</label>
-                                <div className="table-responsive" id="stock_info">
-                                    <table className="table table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "vLunar"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.vlunar}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "artNr"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.artNr}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "opco"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.opco}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.qty, "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "weight"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.weight, "number", getDateFormat())} KG`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "gip"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.gip, "number", getDateFormat())} EUR`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "rv"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.rv, "number", getDateFormat())} EUR`}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                            <section className="mb-3">
-                                <label htmlFor="supplier_info" className="mb-2">Suppliers</label>
-                                <div className="table-responsive" id="supplier_info">
-                                    <table className="table table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[0]}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[0], "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[1]}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[1], "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[2]}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[2], "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[3]}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[3], "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                            <section className="mb-3">
-                                <label htmlFor="purchase_info" className="mb-2">Pruchase</label>
-                                <div className="table-responsive" id="purchase_info">
-                                    <table className="table table-hover">
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "supplier"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.purchase.supplier}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.qty, "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "firstInStock"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.firstInStock, "number", getDateFormat())} ${article.uom}`}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "deliveryDate"}</th>
-                                                <td className="w-60">{retrievingArticle? <Skeleton /> : typeToString(article.purchase.deliveryDate, "date", getDateFormat())}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
+                        <div id="modal-tabs">
+                            <ul className="nav nav-tabs">
+                                {tabs.map((tab) => 
+                                    <li className={tab.active ? "nav-item active" : "nav-item"} key={tab.index}>
+                                        <a className="nav-link" href={"#"+ tab.id} data-toggle="tab" onClick={event => this.handleModalTabClick(event,tab)} id={tab.id + "-tab"} aria-controls={tab.id} role="tab" draggable="false">
+                                            {tab.label}
+                                        </a>
+                                    </li>                        
+                                )}
+                            </ul>
+                            <div className="tab-content" id="modal-nav-tabContent">
+                                {alert.message &&
+                                    <div className={`alert ${alert.type}`}>{alert.message}
+                                        <button className="close" onClick={(event) => this.handleClearAlert(event)}>
+                                            <span aria-hidden="true"><FontAwesomeIcon icon="times"/></span>
+                                        </button>
+                                    </div>
+                                }
+                                {tabs.map(tab =>
+                                    <div
+                                        className={tab.active ? "tab-pane fade show active" : "tab-pane fade"}
+                                        id={tab.id}
+                                        role="tabpanel"
+                                        aria-labelledby={tab.id + "-tab"}
+                                        key={tab.index}
+                                    >
+                                        <tab.component 
+                                            tab={tab}
+                                            article={article}
+                                            retrievingArticle={retrievingArticle}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        
                         <div className="modal-footer">
                             <div className="row">
                                 <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalArticle}>

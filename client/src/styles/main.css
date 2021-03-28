@@ -440,3 +440,7 @@ table .w-60 { width:60%; }
 table .w-70 { width:70%; }
 table .w-80 { width:80%; }
 table .w-90 { width:90%; }
+
+.nav-link {
+  font-size: 16px;
+}
