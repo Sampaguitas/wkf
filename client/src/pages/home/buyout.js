@@ -5,7 +5,7 @@ export default class BuyOut extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            menuItem: "Buy Out"
+            menuItem: "Buy-Out"
         }
     }
 

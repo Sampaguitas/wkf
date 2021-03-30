@@ -54,7 +54,8 @@ router.post("/", (req, res) => {
                             nUpserted++;
                         }
                     });
-                    require("../functions/processFinalise")(processId, nRejected, nUpserted, rejections).then( () => console.log("done"))
+                    let message = `${nRejected + nUpserted} processed, ${nRejected} rejected, ${nUpserted} upserted.`;
+                    require("../functions/processFinalise")(processId, message, rejections).then( () => console.log("done"))
                 });
             }).catch(errCreate => res.status(400).json({ "message": errCreate.message }));
         }).catch(errCheck => res.status(400).json({"message": errCheck.message }));

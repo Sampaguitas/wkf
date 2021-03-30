@@ -15,7 +15,7 @@ import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
 import _ from "lodash";
 
-export default class Process extends React.Component {
+export default class Import extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -39,7 +39,7 @@ export default class Process extends React.Component {
             upserting: false,
             loaded: false,
             submitted: false,
-            menuItem: "",
+            menuItem: "Import data",
             settingsColWidth: {},
             paginate: {
                 pageSize: 0,
@@ -67,15 +67,23 @@ export default class Process extends React.Component {
         this.generateBody = this.generateBody.bind(this);
     }
 
+
+    
+
     componentDidMount() {
         const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
+        this.interval = setInterval(() => this.getDocuments(), 3000);
         this.setState({
             paginate: {
                 ...paginate,
                 pageSize: getPageSize(tableContainer.clientHeight)
             }
         }, () => this.getDocuments());
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     resize() {
@@ -251,8 +259,8 @@ export default class Process extends React.Component {
                         
                         <TableData colIndex="0" value={process.processType} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                         <TableData colIndex="1" value={process.message} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="3" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="2" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="2" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="3" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                     </tr>
                 );
             });
@@ -294,37 +302,23 @@ export default class Process extends React.Component {
                                         <tr>
                                             <TableHeaderInput
                                                 type="text"
-                                                title="processType"
+                                                title="Type"
                                                 name="processType"
                                                 value={filter.processType}
                                                 onChange={this.handleChangeHeader}
                                                 width="30%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="2"
+                                                index="0"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="message"
+                                                title="Status"
                                                 name="message"
                                                 value={filter.message}
-                                                onChange={this.handleChangeHeader}
-                                                width="30%"
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="2"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
-                                                title="Created by"
-                                                name="user"
-                                                value={filter.user}
                                                 onChange={this.handleChangeHeader}
                                                 width="30%"
                                                 sort={sort}
@@ -336,14 +330,28 @@ export default class Process extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Created at"
+                                                title="User"
+                                                name="user"
+                                                value={filter.user}
+                                                onChange={this.handleChangeHeader}
+                                                width="30%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="2"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="Date"
                                                 name="createdAt"
                                                 value={filter.createdAt}
                                                 onChange={this.handleChangeHeader}
                                                 width="30%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="2"
+                                                index="3"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}

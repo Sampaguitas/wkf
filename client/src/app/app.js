@@ -13,7 +13,7 @@ import Settings from "../pages/account/settings";
 import User from "../pages/account/user";
 import Stock from "../pages/home/stock";
 import BuyOut from "../pages/home/buyout";
-import Process from "../pages/home/process";
+import Import from "../pages/home/import";
 
 library.add(fas, far, fal);
 
@@ -53,8 +53,8 @@ export default class App extends React.Component {
               <PrivateRoute exact path="/buyout" user={user}>
                 <BuyOut user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
-              <PrivateRoute exact path="/process" user={user}>
-                <Process user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              <PrivateRoute exact path="/import" user={user}>
+                <Import user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
               <PrivateRoute exact path="/user" user={user}>
                 <User user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>

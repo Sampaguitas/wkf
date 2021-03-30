@@ -348,21 +348,6 @@ export default class Stock extends React.Component {
 
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
-        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
-        if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
-        if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo");
-        if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne");
-        if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo");
-        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type");
-        if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade");
-        if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
-        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
-        if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
-        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
-    }
-
     resize() {
         const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
@@ -379,6 +364,18 @@ export default class Stock extends React.Component {
         if (sort !== prevState.sort || filter !== prevState.filter || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
+        if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
+        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
+        if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
+        if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo");
+        if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne");
+        if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo");
+        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type");
+        if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade");
+        if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
+        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
+        if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
+        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
     }
 
     handleClearAlert(event) {
@@ -446,8 +443,7 @@ export default class Stock extends React.Component {
     }
 
     getDocuments(nextPage) {
-        const { filter, sort, dropdown, paginate } = this.state;
-        if (!!paginate.pageSize) {
+        if (!!this.state.paginate.pageSize) {
             this.setState({
                 retrievingStocks: true
             }, () => {
@@ -455,11 +451,11 @@ export default class Stock extends React.Component {
                     method: "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        filter: filter,
-                        sort: sort,
-                        dropdown: dropdown,
+                        filter: this.state.filter,
+                        sort: this.state.sort,
+                        dropdown: this.state.dropdown,
                         nextPage: nextPage,
-                        pageSize: paginate.pageSize
+                        pageSize: this.state.paginate.pageSize
                     })
                 };
                 return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/getAll`, requestOptions)
@@ -484,7 +480,7 @@ export default class Stock extends React.Component {
                             this.setState({
                                 stocks: data[0].data,
                                 paginate: {
-                                    ...paginate,
+                                    ...this.state.paginate,
                                     ...data[0].paginate,
                                 }
                             });
@@ -807,7 +803,6 @@ export default class Stock extends React.Component {
 
     getDropdownOptions(key) {
         const { focused } = this.state;
-        console.log("getDropdownOptions(",key,")");
         this.setState({
             loading: true
         }, () => {
@@ -857,7 +852,7 @@ export default class Stock extends React.Component {
                 ...this.state.dropdown,
                 [name]: ""
             }
-        }, () => this.getDropdownOptions(name));
+        });
     }
 
     handleSelectDropdown(event, name, selection) {
