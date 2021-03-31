@@ -30,3 +30,4 @@ app.listen(port, () => console.log(`Server running on ${port}`));
 app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
 app.use("/processes", require("./routes/processes"));
+app.use("/tests", require("./routes/tests"));
