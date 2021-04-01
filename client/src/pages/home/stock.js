@@ -365,10 +365,12 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, filter, dropdown, paginate } = this.state;
+        const { sort, filter, dropdown, paginate, stocks, selectedRows } = this.state;
+        
         if (sort !== prevState.sort || filter !== prevState.filter || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
+        
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
         if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
@@ -382,18 +384,18 @@ export default class Stock extends React.Component {
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
 
-        if (this.state.stocks !== prevState.stocks) {
-            // let remaining = this.state.selectedRows.reduce(function(acc, cur) {
-            //     let found = this.state.stocks.find(element => _.isEqual(element._id, cur));
-            //     if (!_.isUndefined(found)){
-            //       acc.push(cur);
-            //     }
-            //     return acc;
-            // }, []);
-            // this.setState({
-            // selectedRows: remaining,
-            // selectAllRows: false,
-            // });
+        if (stocks !== prevState.stocks) {
+            let remaining = selectedRows.reduce(function(acc, cur) {
+                let found = stocks.find(element => _.isEqual(element._id, cur));
+                if (!_.isUndefined(found)){
+                  acc.push(cur);
+                }
+                return acc;
+            }, []);
+            this.setState({
+                selectedRows: remaining,
+                selectAllRows: false,
+            });
         }
     }
 
