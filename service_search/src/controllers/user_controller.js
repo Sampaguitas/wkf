@@ -28,7 +28,12 @@ const getAll = (req, res, next) => {
                 $facet: {
                     "data": [
                         { "$match": myMatch(filter) },
-                        { "$sort": { [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1 } },
+                        {
+                            "$sort": {
+                                [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
+                                "_id": 1
+                            }
+                        },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize },
                         {

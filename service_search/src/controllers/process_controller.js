@@ -32,7 +32,12 @@ const getAll = (req, res, next) => {
                     "data": [
                         { "$addFields": { "createdAtX": { "$dateToString": { format, "date": "$createdAt" } }  } },
                         { "$match": myMatch(filter) },
-                        { "$sort": { [!!sort.name ? sort.name : "createdAt"]: sort.isAscending === false ? -1 : 1 } },
+                        {
+                            "$sort": {
+                                [!!sort.name ? sort.name : "createdAt"]: sort.isAscending === false ? -1 : 1,
+                                "_id": 1
+                            }
+                        },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize },
                         {

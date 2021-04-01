@@ -4,9 +4,9 @@ import Skeleton from "react-loading-skeleton";
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
-import typeToString from "../../functions/typeToString";
-import getDateFormat from "../../functions/getDateFormat";
-
+import arrayRemove from "../../functions/arrayRemove";
+import TableSelectAll from '../../components/table-select-all';
+import TableSelectRow from '../../components/table-select-row';
 import TableHeaderInput from "../../components/table-header-input";
 import TableData from "../../components/table-data";
 import Layout from "../../components/layout";
@@ -172,6 +172,8 @@ export default class Stock extends React.Component {
                     isLoaded: false
                 }
             ],
+            selectAllRows: false,
+            selectedRows: [],
             retrievingStocks: false,
             retrievingArticle: false,
             upserting: false,
@@ -219,6 +221,9 @@ export default class Stock extends React.Component {
         this.toggleModalArticle = this.toggleModalArticle.bind(this);
         //tabs
         this.handleModalTabClick = this.handleModalTabClick.bind(this);
+        //selection
+        this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
+        this.updateSelectedRows = this.updateSelectedRows.bind(this);
     }
 
     componentDidMount() {
@@ -376,6 +381,20 @@ export default class Stock extends React.Component {
         if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
+
+        if (this.state.stocks !== prevState.stocks) {
+            // let remaining = this.state.selectedRows.reduce(function(acc, cur) {
+            //     let found = this.state.stocks.find(element => _.isEqual(element._id, cur));
+            //     if (!_.isUndefined(found)){
+            //       acc.push(cur);
+            //     }
+            //     return acc;
+            // }, []);
+            // this.setState({
+            // selectedRows: remaining,
+            // selectAllRows: false,
+            // });
+        }
     }
 
     handleClearAlert(event) {
@@ -710,13 +729,45 @@ export default class Stock extends React.Component {
         }
     }
 
+    toggleSelectAllRow() {
+        const { selectAllRows, stocks } = this.state;
+        if (!_.isEmpty(stocks)) {
+          if (!!selectAllRows) {
+            this.setState({
+              selectedRows: [],
+              selectAllRows: false,
+            });
+          } else {
+            this.setState({
+              selectedRows: stocks.map(stock => stock._id),
+              selectAllRows: true
+            });
+          }         
+        }
+    }
+
+    updateSelectedRows(id) {
+        const { selectedRows } = this.state;
+        if (selectedRows.includes(id)) {
+            this.setState({ selectedRows: arrayRemove(selectedRows, id) });
+        } else {
+          this.setState({ selectedRows: [...selectedRows, id] });
+        }       
+    }
+
     generateBody() {
-        const { stocks, retrievingStocks, currentUser, paginate, settingsColWidth } = this.state;
+        const { stocks, retrievingStocks, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
         if (!_.isEmpty(stocks) || !retrievingStocks) {
             stocks.map((stock) => {
                 tempRows.push(
                     <tr key={stock._id}>
+                        <TableSelectRow
+                            id={stock._id}
+                            selectAllRows={selectAllRows}
+                            selectedRows={selectedRows}
+                            callback={this.updateSelectedRows}
+                        />
                         <TableData colIndex="0" value={stock.opco} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                         <TableData colIndex="1" value={stock.artNr} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                         <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
@@ -734,6 +785,7 @@ export default class Stock extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -972,7 +1024,7 @@ export default class Stock extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, showArticle, tabs } = this.state;
+        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, showArticle, tabs, selectAllRows } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -997,6 +1049,10 @@ export default class Stock extends React.Component {
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
                                         <tr>
+                                            <TableSelectAll
+                                            checked={selectAllRows}
+                                            onChange={this.toggleSelectAllRow}
+                                            />
                                             <TableHeaderInput
                                                 type="text"
                                                 title="opco"

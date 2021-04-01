@@ -26,7 +26,12 @@ module.exports = (document) => {
                 }
             },
             { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
-            { "$sort": { [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1 } },
+            {
+                "$sort": {
+                    [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1,
+                    "_id": 1
+                } 
+            },
             {
                 "$project": {
                     "_id": 0,

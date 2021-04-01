@@ -107,6 +107,7 @@ const getAll = (req, res, next) => {
     const pageSize = req.body.pageSize || 20;
     const system = req.body.system || "METRIC";
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
+    console.log("nextPage:", nextPage);
     // let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
     // const {opco, artNr, description, qty, uom, firstInStock, weight, gip, currency, rv} = filter;
     // const { opco, artNr, pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
@@ -129,9 +130,15 @@ const getAll = (req, res, next) => {
                         },
                         { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
                         { "$project": { "qtyX": 0, "firstInStockX": 0, "gipX": 0, "rvX": 0, } },
-                        { "$sort": { [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1 } },
+                        { 
+                            "$sort": {
+                                [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1,
+                                "_id": 1
+                            }
+                        },
                         { "$skip": ((nextPage - 1) * pageSize) },
-                        { "$limit": pageSize }
+                        { "$limit": pageSize },
+                        
                     ],
                     "pagination": [
                         { "$match": myMatch },

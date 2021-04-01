@@ -76,7 +76,12 @@ const getParams = (req, res, next) => {
                 }
             },
             { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
-            { "$sort": { "artNr": 1, "qty": -1 } },
+            {
+                "$sort": {
+                    "artNr": 1,
+                    "qty": -1
+                }
+            },
             {
                 "$group": {
                     "_id": "$artNr",
