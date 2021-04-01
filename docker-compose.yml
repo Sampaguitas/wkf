@@ -8,6 +8,7 @@ services:
       - service_search
       - service_stock
       - service_user
+      - worker_export
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -74,5 +75,15 @@ services:
     volumes:
       - /app/node_modules
       - "./service_user/src:/app/src"
+    env_file:
+      - ./env/server.env
+  worker_export:
+    build:
+      context: ./worker_export
+      dockerfile: Dockerfile.dev
+    restart: on-failure
+    volumes:
+      - /app/node_modules
+      - "./worker_export/src:/app/src"
     env_file:
       - ./env/server.env

@@ -36,7 +36,10 @@ const ExportSchema = new Schema({
         },
         "sort": {
             "name": String,
-            "isAscending": true,
+            "isAscending": {
+                "type": Boolean,
+                "default": true
+            },
         },
     },
     "items": {
@@ -50,4 +53,4 @@ const ExportSchema = new Schema({
     "timestamps": true
 });
 
-module.exports= Export = mongoose.model('exports', ExportSchema);
+module.exports = Export = mongoose.model('exports', ExportSchema);
