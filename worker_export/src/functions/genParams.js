@@ -128,8 +128,8 @@ function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
         let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
-        if (regexOutlet.test(myArgs[8])) {
-            require("../functions/getSizeMm")(myArgs[5]).then(mm => {
+        if (regexOutlet.test(myArgs[7])) {
+            require("../functions/getSizeMm")(myArgs[4]).then(mm => {
                 resolve(["opco", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                     if (!!myArgs[index]) {
                         if (cur === "opco") {

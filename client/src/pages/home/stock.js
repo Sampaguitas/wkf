@@ -443,7 +443,8 @@ export default class Stock extends React.Component {
     }
 
     getDocuments(nextPage) {
-        if (!!this.state.paginate.pageSize) {
+        const {paginate, filter, sort, dropdown} = this.state;
+        if (!!paginate.pageSize) {
             this.setState({
                 retrievingStocks: true
             }, () => {
@@ -451,11 +452,11 @@ export default class Stock extends React.Component {
                     method: "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        filter: this.state.filter,
-                        sort: this.state.sort,
-                        dropdown: this.state.dropdown,
+                        filter: filter,
+                        sort: sort,
+                        dropdown: dropdown,
                         nextPage: nextPage,
-                        pageSize: this.state.paginate.pageSize
+                        pageSize: paginate.pageSize
                     })
                 };
                 return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/getAll`, requestOptions)
@@ -480,7 +481,7 @@ export default class Stock extends React.Component {
                             this.setState({
                                 stocks: data[0].data,
                                 paginate: {
-                                    ...this.state.paginate,
+                                    ...paginate,
                                     ...data[0].paginate,
                                 }
                             });
