@@ -12,7 +12,7 @@ mongoose
 
 let isProcessing = false;
 
-var generateFile = new CronJob("* * * * * *", function() {
+var generateFile = new CronJob("*/10 * * * * *", function() {
     if (!isProcessing) {
       isProcessing = true;
       require("./functions/processFindOne")().then(res => {
