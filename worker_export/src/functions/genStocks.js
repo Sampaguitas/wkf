@@ -2,6 +2,7 @@ var aws = require("aws-sdk");
 var path = require('path');
 var Excel = require('exceljs');
 const Stock = require("../models/Stock");
+const firstStage = require("../pipelines/stock_pipelines/first_stage");
 
 aws.config.update({
     accessKeyId: process.env.ACCESS_KEY_ID,
@@ -12,37 +13,10 @@ aws.config.update({
 module.exports = (document) => {
   return new Promise(function(resolve) {
     const { filter, sort, dropdown } = document.stockFilters;
+    const system = document.system;
     matchDropdown(dropdown.opco, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         Stock.aggregate([
-            { "$match": myMatch },
-            { "$project": project(document.system) },
-            {
-                "$addFields": {
-                    "qtyX": { "$toString": "$qty" },
-                    "firstInStockX": { "$toString": "$firstInStock" },
-                    "weightX": { "$toString": "$weight" },
-                    "gipX": { "$toString": "$gip" },
-                    "rvX": { "$toString": "$rv" },
-                }
-            },
-            { "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv) },
-            {
-                "$sort": {
-                    [!!sort.name ? sort.name : "gip"]: sort.isAscending === false ? -1 : 1,
-                    "_id": 1
-                } 
-            },
-            {
-                "$project": {
-                    "_id": 0,
-                    "qtyX": 0,
-                    "firstInStockX": 0,
-                    "weightX": 0,
-                    "gipX": 0,
-                    "rvX": 0,
-                    "currency": 0,
-                }
-            }
+            ...firstStage(myMatch, system, filter, sort)
         ]).exec(function(error, result) {
             if (!!error || !result) {
                 require("./processReject")(document._id).then( () => resolve());
@@ -116,20 +90,6 @@ module.exports = (document) => {
   });
 }
 
-function matchFilter() {
-    let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "uom", "firstInStock", "weight", "gip", "currency", "rv"].reduce(function(acc, cur, index) {
-        if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "weight", "gip", "rv"].includes(cur)) {
-                acc[`${cur}X`] = { "$regex": new RegExp(require("../functions/escape")(myArgs[index]),"i") };
-            } else {
-                acc[`${cur}`] = { "$regex": new RegExp(require("../functions/escape")(myArgs[index]),"i") };
-            }
-        }
-        return acc;
-    }, {}));
-}
-
 function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
@@ -171,189 +131,4 @@ function matchDropdown() {
             },{}));
         }
     });
-}
-
-
-function project(system) {
-    return {
-        "_id": "$_id",
-        "opco": "$opco",
-        "vlunar": "$vlunar",
-        "artNr": "$artNr",
-        "description": "$description",
-        "qty": {
-            "$cond": [ 
-                { "$eq": [system, "IMPERIAL"] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$qty", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$qty", 3.28084 ] } }
-                        ],
-                        default: "$qty"
-                    }
-                },
-                "$qty"
-            ]
-        },
-        "gip": {
-            "$cond": [
-                { "$eq": [ system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.gip", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.gip", 3.28084 ] } }
-                        ],
-                        default: "$price.gip"
-                    }
-                },
-                "$price.gip"
-            ],
-        },
-        "currency": "EUR",
-        "rv": {
-            "$cond": [
-                { "$eq": [ system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.rv", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.rv", 3.28084 ] } }
-                        ],
-                        default: "$price.rv"
-                    }
-                },
-                "$price.rv"
-            ],
-        },
-        "purchaseQty": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.qty", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.qty", 3.28084 ] } }
-                        ],
-                        "default": "$purchase.qty"
-                    }
-                },
-                "$purchase.qty"
-            ],
-        },
-        "weight": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$weight", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$weight", 0.671969 ] } }
-                        ],
-                        "default": "$weight"
-                    }
-                },
-                "$weight"
-            ],
-        },
-        "firstInStock": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
-                        ],
-                        "default": "$purchase.firstInStock"
-                    }
-                },
-                "$purchase.firstInStock"
-            ],
-        },
-        "uom": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": "LB" },
-                            { "case": { "$eq": [ "$uom", "LB" ] }, "then": "LB" },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": "FT" },
-                            { "case": { "$eq": [ "$uom", "FT" ] }, "then": "FT" },
-                        ],
-                        default: "ST"
-                    }
-                },
-                "$uom"
-            ],
-        },
-        "supplier": "$purchase.supplier",
-        "purchaseDeliveryDate": "$purchase.deliveryDate",
-        "nameSupplierOne": { "$arrayElemAt": ["$supplier.names", 0]},
-        "nameSupplierTwo": { "$arrayElemAt": ["$supplier.names", 1]},
-        "nameSupplierThree": { "$arrayElemAt": ["$supplier.names", 2]},
-        "nameSupplierFour": { "$arrayElemAt": ["$supplier.names", 3]},
-        "qtySupplierOne": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 0]}, 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 0]}, 3.28084 ] } }
-                        ],
-                        "default": { "$arrayElemAt": ["$supplier.qtys", 0]}
-                    }
-                },
-                { "$arrayElemAt": ["$supplier.qtys", 0]}
-            ],
-        },
-        "qtySupplierTwo": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 1]}, 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 1]}, 3.28084 ] } }
-                        ],
-                        "default": { "$arrayElemAt": ["$supplier.qtys", 1]}
-                    }
-                },
-                { "$arrayElemAt": ["$supplier.qtys", 1]}
-            ],
-        },
-        "qtySupplierThree": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 2]}, 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 2]}, 3.28084 ] } }
-                        ],
-                        "default": { "$arrayElemAt": ["$supplier.qtys", 2]}
-                    }
-                },
-                { "$arrayElemAt": ["$supplier.qtys", 2]}
-            ],
-        },
-        "qtySupplierFour": {
-            "$cond": [
-                { "$eq": [system, "IMPERIAL" ] },
-                {
-                    "$switch": {
-                        "branches": [
-                            { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 3]}, 2.204623 ] } },
-                            { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ { "$arrayElemAt": ["$supplier.qtys", 3]}, 3.28084 ] } }
-                        ],
-                        "default": { "$arrayElemAt": ["$supplier.qtys", 3]}
-                    }
-                },
-                { "$arrayElemAt": ["$supplier.qtys", 3]}
-            ],
-        }
-    }
 }

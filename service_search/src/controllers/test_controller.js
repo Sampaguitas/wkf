@@ -1,5 +1,5 @@
 const Stock = require("../models/Stock");
-const projectionResult = require("../projections/projection_result");
+const projectionResult = require("../pipelines/projections/projection_result");
 
 const getStocks = (req, res, next) => {
     
@@ -8,9 +8,6 @@ const getStocks = (req, res, next) => {
     const pageSize = req.body.pageSize || 20;
     const system = req.body.system || "METRIC";
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
-    // let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    // const {opco, artNr, description, qty, uom, firstInStock, weight, gip, currency, rv} = filter;
-    // const { opco, artNr, pffType, steelType, sizeOne, sizeTwo, wallOne, wallTwo, type, grade, length, end, surface } = dropdown;
     
     matchDropdown(dropdown.opco, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         Stock.aggregate([

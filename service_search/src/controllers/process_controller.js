@@ -1,5 +1,5 @@
 const Process = require("../models/Process");
-const projectionResult = require("../projections/projection_result");
+const projectionResult = require("../pipelines/projections/projection_result");
 
 const getById = (req, res, next) => {
 
