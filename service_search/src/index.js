@@ -2,6 +2,7 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const app = require("express")();
 var stocks = require("./routes/stocks");
+const fetch = require("node-fetch");
 
 
 app.use(require("cors")());
@@ -31,3 +32,14 @@ app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
 app.use("/processes", require("./routes/processes"));
 app.use("/tests", require("./routes/tests"));
+
+let isProcessing = false;
+
+var updateRates = new CronJob("0 * * * * *", function() {
+    if (!isProcessing) {
+      isProcessing = true;
+      require("./functions/updateRates")().then(() => isProcessing = false).catch( () => isProcessing = false);
+    }
+}, null, true, "Europe/London")
+
+updateRates.start();
