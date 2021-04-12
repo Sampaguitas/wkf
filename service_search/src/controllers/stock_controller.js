@@ -5,6 +5,7 @@ const firstStage = require("../pipelines/stock_pipelines/first_stage");
 const getById = (req, res, next) => {
 
     const {articleId} = req.params;
+    const { system } = !req.query.system ? "METRIC" : decodeURI(req.query.system);
 
     Stock.findById(articleId, function (err, article) {
         if (!!err) {
@@ -18,22 +19,27 @@ const getById = (req, res, next) => {
                 "artNr": article.artNr,
                 "description": article.description,
                 "vlunar": article.vlunar,
-                "weight": article.weight,
-                "uom": article.uom,
-                "qty": article.qty,
+                "qty": require("../functions/getQty")(system, article.uom, article.qty),
+                "uom": require("../functions/getUom")(system, article.uom),
+                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
                 "price": {
-                    "gip": article.price.gip,
-                    "rv": article.price.rv,
+                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
+                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
                 },
                 "purchase": {
-                    "supplier": article.purchase.supplier,
-                    "qty": article.purchase.qty,
-                    "firstInStock": article.purchase.firstInStock,
+                    "supplier": "",
+                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
+                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
                     "deliveryDate": article.purchase.deliveryDate
                 },
                 "supplier": {
                     "names": article.supplier.names,
-                    "qtys": article.supplier.qtys
+                    "qtys": [
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
+                    ]
                 },
                 "parameters": !article.parameters ? 
                 (
@@ -95,10 +101,57 @@ const getById = (req, res, next) => {
                         }
                     }
                 )
-
             }});
         }
     });
+}
+
+const getByArt = (req, res, next) => {
+    
+    const opco = req.params;
+    const artNr = req.params;
+    const system = decodeURI(req.query.system);
+    
+    if (!opco || !artNr) {
+        res.status(400).json({ message: "opco or artNr cannot be empty." });
+    } else {
+        Stock.findOne({opco, artNr}, function(err, article) {
+            if (!!error) {
+                res.status(400).json({ message: "An error has occured."})  
+            } else if (!article) {
+                res.status(400).json({ message: "Could not retrieve article information." });
+            } else {
+                res.status(200).send({
+                    "opco": article.opco,
+                    "artNr": article.artNr,
+                    "description": article.description,
+                    "vlunar": article.vlunar,
+                    "qty": require("../functions/getQty")(system, article.uom, article.qty),
+                    "uom": require("../functions/getUom")(system, article.uom),
+                    "weight": require("../functions/getWeight")(system, article.uom, article.weight),
+                    "price": {
+                        "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
+                        "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
+                    },
+                    "purchase": {
+                        "supplier": "",
+                        "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
+                        "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
+                        "deliveryDate": article.purchase.deliveryDate
+                    },
+                    "supplier": {
+                        "names": article.supplier.names,
+                        "qtys": [
+                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
+                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
+                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
+                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
+                        ]
+                    }
+                });
+            }
+        });
+    }
 }
 
 const getAll = (req, res, next) => {
@@ -199,6 +252,7 @@ function matchDropdown() {
 
 const stockController = {
     getAll,
+    getByArt,
     getById
 };
 
