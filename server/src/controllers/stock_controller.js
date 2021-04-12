@@ -6,7 +6,7 @@ var moment = require('moment');
 const getById = (req, res, next) => {
 
     const {articleId} = req.params;
-    const { system } = !req.query.system ? "METRIC" : decodeURI(req.query.system);
+    const { system } = decodeURI(req.query.system);
 
     Stock.findById(articleId, function (err, article) {
         if (!!err) {
@@ -110,7 +110,7 @@ const getById = (req, res, next) => {
 const getByArt = (req, res, next) => {
     
     const {opco, artNr} = req.params;
-    const { system } = !req.query.system ? "METRIC" : decodeURI(req.query.system);
+    const system = decodeURI(req.query.system);
 
     if (!opco || !artNr) {
         res.status(400).json({ message: "opco or artNr cannot be empty." });

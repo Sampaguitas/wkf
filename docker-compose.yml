@@ -3,11 +3,10 @@ services:
   nginx:
     depends_on:
       - client
-      - service_dropdown
+      - server
+      # - service_dropdown
       - service_param
-      - service_search
       - service_stock
-      - service_user
       - worker_export
     build:
       context: ./nginx
@@ -27,16 +26,26 @@ services:
       - "./client/src:/app/src"
     env_file:
       - ./env/client.env
-  service_dropdown:
+  server:
     build:
-      context: ./service_dropdown
+      context: ./server
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./service_dropdown/src:/app/src"
+      - "./server/src:/app/src"
     env_file:
       - ./env/server.env
+  # service_dropdown:
+  #   build:
+  #     context: ./service_dropdown
+  #     dockerfile: Dockerfile.dev
+  #   restart: on-failure
+  #   volumes:
+  #     - /app/node_modules
+  #     - "./service_dropdown/src:/app/src"
+  #   env_file:
+  #     - ./env/server.env
   service_param:
     build:
       context: ./service_param
@@ -47,16 +56,6 @@ services:
       - "./service_param/src:/app/src"
     env_file:
       - ./env/server.env
-  service_search:
-    build:
-      context: ./service_search
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    volumes:
-      - /app/node_modules
-      - "./service_search/src:/app/src"
-    env_file:
-      - ./env/server.env
   service_stock:
     build:
       context: ./service_stock
@@ -65,16 +64,6 @@ services:
     volumes:
       - /app/node_modules
       - "./service_stock/src:/app/src"
-    env_file:
-      - ./env/server.env
-  service_user:
-    build:
-      context: ./service_user
-      dockerfile: Dockerfile.dev
-    restart: on-failure
-    volumes:
-      - /app/node_modules
-      - "./service_user/src:/app/src"
     env_file:
       - ./env/server.env
   worker_export:

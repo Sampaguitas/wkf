@@ -480,7 +480,7 @@ export default class Stock extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrievingStocks: false,
@@ -592,7 +592,7 @@ export default class Stock extends React.Component {
                 method: "GET",
                 headers: { ...authHeader(), "Content-Type": "application/json" },
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/api/search/stocks/${_id}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/${_id}`, requestOptions)
             .then(response => response.text().then(text => {
                 const data = text && JSON.parse(text);
                 const resMsg = (data && data.message) || response.statusText;
@@ -865,7 +865,7 @@ export default class Stock extends React.Component {
                 method: "GET",
                 headers: { ...authHeader(), "Content-Type": "application/json" },
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/api/dropdown/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&opco=${encodeURI(this.state.dropdown.opco)}&isComplete=false&isMultiple=false`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/dropdowns/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&opco=${encodeURI(this.state.dropdown.opco)}&isComplete=false&isMultiple=false`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,

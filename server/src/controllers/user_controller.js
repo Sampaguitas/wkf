@@ -7,6 +7,10 @@ const _ = require("lodash");
 
 const User = require("../models/User");
 const Rpwd = require("../models/Rpwd");
+const escape = require("../functions/escape");
+const filterBool = require("../functions/filterBool");
+const projectionResult = require("../pipelines/projections/projection_result");
+
 
 const login = (req, res, next) => {
     
@@ -161,7 +165,7 @@ const updatePwd = (req, res, next) => {
                     if (errHash || !hash) {
                         res.status(400).json({ message: "Error generating hash." });                            
                     } else {
-                        require("../models/User").findByIdAndUpdate(user._id, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
+                        User.findByIdAndUpdate(user._id, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
                             if (errUser || !resUser) {
                                 res.status(400).json({ message: "Your password could not be updated." });
                             } else {
@@ -280,6 +284,83 @@ const _delete = (req, res, next) => {
     }
 }
 
+const getById = (req, res, next) => {
+
+    const {userId} = req.params;
+
+    User.findById(userId, function (err, user) {
+        if (!!err) {
+            res.status(400).json({ message: "An error has occured."})
+        } if (!user) {
+            res.status(400).json({ message: "Could not retrieve user information." });
+        } else {
+            res.json({user: user});
+        }
+    });
+}
+
+
+const getAll = (req, res, next) => {
+    
+    const { filter, sort } = req.body;
+    const nextPage = req.body.nextPage || 1;
+    const pageSize = req.body.pageSize || 20;
+
+    User.aggregate([
+            {
+                $facet: {
+                    "data": [
+                        { "$match": myMatch(filter) },
+                        {
+                            "$sort": {
+                                [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
+                                "_id": 1
+                            }
+                        },
+                        { "$skip": ((nextPage - 1) * pageSize) },
+                        { "$limit": pageSize },
+                        {
+                            "$project": {
+                                "_id": "$_id",
+                                "name": "$name",
+                                "email": "$email",
+                                "isAdmin": "$isAdmin",
+                            }
+                        }
+                    ],
+                    "pagination": [
+                        { "$match": myMatch(filter) },
+                        { "$count": "totalItems" },
+                        {
+                            "$addFields": {
+                                "nextPage": nextPage,
+                                "pageSize": pageSize
+                                
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "$project": projectionResult(nextPage, pageSize)
+            }
+    ]).exec(function(error, result) {
+        if (!!error || !result) {
+            res.status(200).json([])
+        } else {
+            res.status(200).json(result)
+        } 
+    });
+}
+
+function myMatch(filter) {
+    return {
+        "name" : { $regex: new RegExp(escape(filter.name),"i") },
+        "email" : { $regex: new RegExp(escape(filter.email),"i") },
+        "isAdmin": { $in: filterBool(filter.isAdmin)},
+    }
+}
+
 const userController = {
     login,
     reqPwd,
@@ -289,6 +370,8 @@ const userController = {
     update,
     setAdmin,
     _delete,
+    getAll,
+    getById
 };
-  
+
 module.exports = userController;

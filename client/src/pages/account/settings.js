@@ -215,7 +215,7 @@ export default class Settings extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -267,7 +267,7 @@ export default class Settings extends React.Component {
                         email: user.email
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/${user._id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${user._id}`, requestOptions)
                 .then(response => response.text().then(text => {
                     const data = text && JSON.parse(text);
                     const resMsg = (data && data.message) || response.statusText;
@@ -306,7 +306,7 @@ export default class Settings extends React.Component {
                     method: "DELETE",
                     headers: authHeader()
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/${_id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${_id}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         deleting: false,

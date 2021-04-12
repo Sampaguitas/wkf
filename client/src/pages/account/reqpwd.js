@@ -44,7 +44,7 @@ export default class ReqPwd extends Component {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({email})
         };
-        return fetch(`${process.env.REACT_APP_API_URI}/api/user/reqPwd`, requestOptions)
+        return fetch(`${process.env.REACT_APP_API_URI}/server/users/reqPwd`, requestOptions)
         .then(response => response.text().then(text => {
           this.setState({
             requesting: false,

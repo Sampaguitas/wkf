@@ -1,11 +1,11 @@
 {
-  "name": "service_user",
+  "name": "server",
   "version": "1.0.0",
   "description": "microservice",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/service_user"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/server"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -21,12 +21,14 @@
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moment": "^2.27.0",
     "mongoose": "^5.11.15",
     "nodemailer": "^6.4.11",
+    "node-fetch": "^2.6.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0"
   }

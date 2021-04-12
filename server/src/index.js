@@ -1,7 +1,7 @@
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const app = require("express")();
-const routes = require("./routes/index");
+var CronJob = require('cron').CronJob;
 
 app.use(require("cors")());
 
@@ -25,4 +25,19 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-routes(app);
+app.use("/dropdowns", require("./routes/dropdowns"));
+app.use("/stocks", require("./routes/stocks"));
+app.use("/users", require("./routes/users"));
+app.use("/processes", require("./routes/processes"));
+
+let isProcessing = false;
+var updateRates = new CronJob("0 0 0 * * *", function() {
+  if (!isProcessing) {
+    isProcessing = true;
+    require("./functions/updateRates")()
+    .then(() => isProcessing = false)
+    .catch(() => isProcessing = false);
+  }
+}, null, true, "Europe/London")
+
+updateRates.start();

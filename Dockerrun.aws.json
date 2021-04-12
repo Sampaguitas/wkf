@@ -12,7 +12,7 @@
             "containerPort": 80
           }
         ],
-        "links": ["client", "service_dropdown", "service_param", "service_search", "service_stock", "service_user"],
+        "links": ["client", "server", "service_dropdown", "service_param", "service_stock"],
         "memory": 100
       },
       {
@@ -21,6 +21,13 @@
         "hostname": "client",
         "essential": false,
         "memory": 300
+      },
+      {
+        "name": "server",
+        "image": "timotheedesurmont/wkf-server",
+        "hostname": "server",
+        "essential": false,
+        "memory": 100
       },
       {
         "name": "service_dropdown",
@@ -37,23 +44,9 @@
         "memory": 100
       },
       {
-        "name": "service_search",
-        "image": "timotheedesurmont/wkf-service_search",
-        "hostname": "service_search",
-        "essential": false,
-        "memory": 100
-      },
-      {
         "name": "service_stock",
         "image": "timotheedesurmont/wkf-service_stock",
         "hostname": "service_stock",
-        "essential": false,
-        "memory": 100
-      },
-      {
-        "name": "service_user",
-        "image": "timotheedesurmont/wkf-service_user",
-        "hostname": "service_user",
         "essential": false,
         "memory": 100
       }

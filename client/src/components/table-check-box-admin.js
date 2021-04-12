@@ -39,7 +39,7 @@ export default class TableCheckBoxAdmin extends Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({ isAdmin: !checked })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/api/user/setAdmin/${_id}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/users/setAdmin/${_id}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     updating: false,

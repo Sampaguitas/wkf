@@ -176,7 +176,7 @@ export default class Import extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/processes/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/processes/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,

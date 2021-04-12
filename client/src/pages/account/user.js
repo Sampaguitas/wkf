@@ -35,7 +35,7 @@ export default class User extends React.Component {
                     method: "GET",
                     headers: {...authHeader(), "Content-Type": "application/json"},
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/search/users/${user._id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${user._id}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         loading: false,
@@ -102,7 +102,7 @@ export default class User extends React.Component {
                     headers: {...authHeader(), "Content-Type": "application/json"},
                     body: JSON.stringify({ newPwd })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/api/user/updatePwd`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/updatePwd`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({ updating: false }, () => {
                         const data = text && JSON.parse(text);
