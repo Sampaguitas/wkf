@@ -123,7 +123,6 @@ module.exports = (myMatch, system, filter) => {
                 "weightX": 0,
                 "gipX": 0,
                 "rvX": 0,
-                "currency": 0,
             }
         },
     ]

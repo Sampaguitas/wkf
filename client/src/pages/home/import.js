@@ -73,13 +73,13 @@ export default class Import extends React.Component {
     componentDidMount() {
         const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
-        this.interval = setInterval(() => this.getDocuments(), 3000);
+        this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
         this.setState({
             paginate: {
-                ...paginate,
+                ...this.state.paginate,
                 pageSize: getPageSize(tableContainer.clientHeight)
             }
-        }, () => this.getDocuments());
+        }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
     componentWillUnmount() {
@@ -87,14 +87,13 @@ export default class Import extends React.Component {
     }
 
     resize() {
-        const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
         this.setState({
             paginate: {
-                ...paginate,
+                ...this.state.paginate,
                 pageSize: getPageSize(tableContainer.clientHeight)
             }
-        }, () => this.getDocuments());
+        }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
     componentDidUpdate(prevProps, prevState) {
