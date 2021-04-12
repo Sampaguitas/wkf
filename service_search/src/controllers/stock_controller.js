@@ -1,6 +1,7 @@
 const Stock = require("../models/Stock");
 const projectionResult = require("../pipelines/projections/projection_result");
 const firstStage = require("../pipelines/stock_pipelines/first_stage");
+var moment = require('moment');
 
 const getById = (req, res, next) => {
 
@@ -108,15 +109,14 @@ const getById = (req, res, next) => {
 
 const getByArt = (req, res, next) => {
     
-    const opco = req.params;
-    const artNr = req.params;
-    const system = decodeURI(req.query.system);
-    
+    const {opco, artNr} = req.params;
+    const { system } = !req.query.system ? "METRIC" : decodeURI(req.query.system);
+
     if (!opco || !artNr) {
         res.status(400).json({ message: "opco or artNr cannot be empty." });
     } else {
         Stock.findOne({opco, artNr}, function(err, article) {
-            if (!!error) {
+            if (!!err) {
                 res.status(400).json({ message: "An error has occured."})  
             } else if (!article) {
                 res.status(400).json({ message: "Could not retrieve article information." });
@@ -137,7 +137,7 @@ const getByArt = (req, res, next) => {
                         "supplier": "",
                         "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
                         "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
-                        "deliveryDate": article.purchase.deliveryDate
+                        "deliveryDate": !!article.purchase.deliveryDate ? moment(article.purchase.deliveryDate).format("LL") : ""
                     },
                     "supplier": {
                         "names": article.supplier.names,
