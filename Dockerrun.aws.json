@@ -12,7 +12,7 @@
             "containerPort": 80
           }
         ],
-        "links": ["client", "server", "service_dropdown", "service_param", "service_stock"],
+        "links": ["client", "server", "service_param", "service_stock"],
         "memory": 100
       },
       {
@@ -26,13 +26,6 @@
         "name": "server",
         "image": "timotheedesurmont/wkf-server",
         "hostname": "server",
-        "essential": false,
-        "memory": 100
-      },
-      {
-        "name": "service_dropdown",
-        "image": "timotheedesurmont/wkf-service_dropdown",
-        "hostname": "service_dropdown",
         "essential": false,
         "memory": 100
       },

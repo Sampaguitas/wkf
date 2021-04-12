@@ -4,7 +4,6 @@ services:
     depends_on:
       - client
       - server
-      # - service_dropdown
       - service_param
       - service_stock
       - worker_export
@@ -36,16 +35,6 @@ services:
       - "./server/src:/app/src"
     env_file:
       - ./env/server.env
-  # service_dropdown:
-  #   build:
-  #     context: ./service_dropdown
-  #     dockerfile: Dockerfile.dev
-  #   restart: on-failure
-  #   volumes:
-  #     - /app/node_modules
-  #     - "./service_dropdown/src:/app/src"
-  #   env_file:
-  #     - ./env/server.env
   service_param:
     build:
       context: ./service_param
