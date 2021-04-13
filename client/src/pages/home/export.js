@@ -15,17 +15,17 @@ import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
 import _ from "lodash";
 
-export default class Import extends React.Component {
+export default class Export extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             user: {},
-            processes: [],
+            exports: [],
             filter: {
+                type:"",
+                status:"",
                 user:"",
-                processType:"",
-                createdAt: "",
-                message:""
+                createdAt:""
             },
             sort: {
                 name: "",
@@ -39,7 +39,7 @@ export default class Import extends React.Component {
             upserting: false,
             loaded: false,
             submitted: false,
-            menuItem: "Import data",
+            menuItem: "Export data",
             settingsColWidth: {},
             paginate: {
                 pageSize: 0,
@@ -176,7 +176,7 @@ export default class Import extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/processes/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -196,7 +196,7 @@ export default class Import extends React.Component {
                             });
                         } else {
                             this.setState({
-                                processes: data[0].data,
+                                export: data[0].data,
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -249,17 +249,17 @@ export default class Import extends React.Component {
     }
 
     generateBody() {
-        const { processes, retrieving, paginate, settingsColWidth } = this.state;
+        const { exports, retrieving, paginate, settingsColWidth } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(processes) || !retrieving) {
-            processes.map((process) => {
+        if (!_.isEmpty(exports) || !retrieving) {
+            exports.map((_export) => {
                 tempRows.push(
-                    <tr key={process._id}>
+                    <tr key={_export._id}>
                         
-                        <TableData colIndex="0" value={process.processType} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="1" value={process.message} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="2" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="3" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="0" value={_export.type} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
+                        <TableData colIndex="1" value={_export.status} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
+                        <TableData colIndex="2" value={_export.user} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
+                        <TableData colIndex="3" value={typeToString(_export.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
                     </tr>
                 );
             });
@@ -302,8 +302,8 @@ export default class Import extends React.Component {
                                             <TableHeaderInput
                                                 type="text"
                                                 title="Type"
-                                                name="processType"
-                                                value={filter.processType}
+                                                name="type"
+                                                value={filter.type}
                                                 onChange={this.handleChangeHeader}
                                                 width="25%"
                                                 sort={sort}
@@ -316,8 +316,8 @@ export default class Import extends React.Component {
                                             <TableHeaderInput
                                                 type="text"
                                                 title="Status"
-                                                name="message"
-                                                value={filter.message}
+                                                name="status"
+                                                value={filter.status}
                                                 onChange={this.handleChangeHeader}
                                                 width="25%"
                                                 sort={sort}
@@ -355,7 +355,6 @@ export default class Import extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            
                                         </tr>
                                     </thead>
                                     <tbody className="full-height">

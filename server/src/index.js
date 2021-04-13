@@ -26,6 +26,7 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
 app.use("/dropdowns", require("./routes/dropdowns"));
+app.use("/exports", require("./routes/exports"));
 app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
 app.use("/processes", require("./routes/processes"));

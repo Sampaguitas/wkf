@@ -24,6 +24,21 @@ module.exports = (myMatch, system, filter) => {
                         "$qty"
                     ]
                 },
+                "firstInStock": {
+                    "$cond": [
+                        { "$eq": [system, "IMPERIAL" ] },
+                        {
+                            "$switch": {
+                                "branches": [
+                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
+                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
+                                ],
+                                "default": "$purchase.firstInStock"
+                            }
+                        },
+                        "$purchase.firstInStock"
+                    ],
+                },
                 "uom": {
                     "$cond": [
                         { "$eq": [system, "IMPERIAL" ] },
@@ -41,36 +56,6 @@ module.exports = (myMatch, system, filter) => {
                         "$uom"
                     ],
                 },
-                "firstInStock": {
-                    "$cond": [
-                        { "$eq": [system, "IMPERIAL" ] },
-                        {
-                            "$switch": {
-                                "branches": [
-                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
-                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
-                                ],
-                                "default": "$purchase.firstInStock"
-                            }
-                        },
-                        "$purchase.firstInStock"
-                    ],
-                },
-                "weight": {
-                    "$cond": [
-                        { "$eq": [system, "IMPERIAL" ] },
-                        {
-                            "$switch": {
-                                "branches": [
-                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$weight", 2.204623 ] } },
-                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$weight", 0.671969 ] } }
-                                ],
-                                "default": "$weight"
-                            }
-                        },
-                        "$weight"
-                    ],
-                },
                 "gip": {
                     "$cond": [
                         { "$eq": [ system, "IMPERIAL" ] },
@@ -86,7 +71,6 @@ module.exports = (myMatch, system, filter) => {
                         "$price.gip"
                     ],
                 },
-                "currency": "EUR",
                 "rv": {
                     "$cond": [
                         { "$eq": [ system, "IMPERIAL" ] },
@@ -102,25 +86,24 @@ module.exports = (myMatch, system, filter) => {
                         "$price.rv"
                     ],
                 },
+                "currency": "EUR"
             }
         },
         {
             "$addFields": {
                 "qtyX": { "$toString": "$qty" },
                 "firstInStockX": { "$toString": "$firstInStock" },
-                "weightX": { "$toString": "$weight" },
                 "gipX": { "$toString": "$gip" },
                 "rvX": { "$toString": "$rv" },
             }
         },
         {
-            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv)
+            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.firstInStock, filter.uom, filter.gip, filter.rv, filter.currency)
         },
         {
             "$project": {
                 "qtyX": 0,
                 "firstInStockX": 0,
-                "weightX": 0,
                 "gipX": 0,
                 "rvX": 0,
             }
@@ -130,9 +113,9 @@ module.exports = (myMatch, system, filter) => {
 
 function matchFilter() {
     let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "uom", "firstInStock", "weight", "gip", "currency", "rv"].reduce(function(acc, cur, index) {
+    return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
         if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "weight", "gip", "rv"].includes(cur)) {
+            if(["qty", "firstInStock", "gip", "rv"].includes(cur)) {
                 acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
             } else {
                 acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };

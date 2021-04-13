@@ -12,13 +12,12 @@ module.exports = (myMatch, system, filter, sort) => {
             "$addFields": {
                 "qtyX": { "$toString": "$qty" },
                 "firstInStockX": { "$toString": "$firstInStock" },
-                "weightX": { "$toString": "$weight" },
                 "gipX": { "$toString": "$gip" },
                 "rvX": { "$toString": "$rv" },
             }
         },
         {
-            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.uom, filter.firstInStock, filter.weight, filter.gip, filter.currency, filter.rv)
+            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.firstInStock, filter.uom, filter.gip, filter.rv, filter.currency)
         },
         {
             "$sort": {
@@ -31,7 +30,6 @@ module.exports = (myMatch, system, filter, sort) => {
                 "_id": 0,
                 "qtyX": 0,
                 "firstInStockX": 0,
-                "weightX": 0,
                 "gipX": 0,
                 "rvX": 0,
                 "currency": 0,
@@ -42,9 +40,9 @@ module.exports = (myMatch, system, filter, sort) => {
 
 function matchFilter() {
     let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "uom", "firstInStock", "weight", "gip", "currency", "rv"].reduce(function(acc, cur, index) {
+    return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
         if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "weight", "gip", "rv"].includes(cur)) {
+            if(["qty", "firstInStock", "rv", "gip"].includes(cur)) {
                 acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
             } else {
                 acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };

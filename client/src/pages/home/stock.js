@@ -97,7 +97,6 @@ export default class Stock extends React.Component {
                 qty: "",
                 uom: "",
                 firstInStock: "",
-                weight: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -202,6 +201,7 @@ export default class Stock extends React.Component {
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
+        this.handleExport = this.handleExport.bind(this);
         this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
@@ -450,6 +450,11 @@ export default class Stock extends React.Component {
         this.setState({
             showSearch: !showSearch
         });
+    }
+
+    handleExport(event, type) {
+        event.preventDefault();
+        console.log(type);
     }
 
     handleChangeHeader(event) {
@@ -774,12 +779,12 @@ export default class Stock extends React.Component {
                         <TableData colIndex="1" value={stock.artNr} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                         <TableData colIndex="2" value={stock.description} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                         <TableData colIndex="3" value={stock.qty} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
-                        <TableData colIndex="4" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
-                        <TableData colIndex="5" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
-                        <TableData colIndex="6" value={stock.weight} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
-                        <TableData colIndex="7" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="4" value={stock.firstInStock} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="5" value={stock.uom} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="6" value={stock.gip} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        <TableData colIndex="7" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
                         <TableData colIndex="8" value={stock.currency} type="text" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
-                        <TableData colIndex="9" value={stock.rv} type="number" settingsColWidth={settingsColWidth} handleClick={this.getArticle} eventId={stock._id} />
+                        
                     </tr>
                 );
             });
@@ -787,7 +792,6 @@ export default class Stock extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
-                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -815,7 +819,6 @@ export default class Stock extends React.Component {
                 qty: "",
                 uom: "",
                 firstInStock: "",
-                weight: "",
                 gip: "",
                 currency: "",
                 rv: ""
@@ -1041,8 +1044,14 @@ export default class Stock extends React.Component {
                 }
                 <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Create User" className="btn btn-sm btn-leeuwen-blue" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        </button>
+                        <button title="Export Stock" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "stock")}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2" />Exp. Stock</span>
+                        </button>
+                        <button title="Export Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2" />Exp. Params</span>
                         </button>
                     </div>
                     <div className="body-section">
@@ -1109,9 +1118,9 @@ export default class Stock extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="uom"
-                                                name="uom"
-                                                value={filter.uom}
+                                                title="firstInStock"
+                                                name="firstInStock"
+                                                value={filter.firstInStock}
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
@@ -1122,26 +1131,13 @@ export default class Stock extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="firstInStock"
-                                                name="firstInStock"
-                                                value={filter.firstInStock}
+                                                title="uom"
+                                                name="uom"
+                                                value={filter.uom}
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="5"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
-                                                title="weight"
-                                                name="weight"
-                                                value={filter.weight}
-                                                onChange={this.handleChangeHeader}
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -1154,20 +1150,7 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="7"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
-                                                title="curr"
-                                                name="currency"
-                                                value={filter.currency}
-                                                onChange={this.handleChangeHeader}
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="8"
+                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -1180,7 +1163,20 @@ export default class Stock extends React.Component {
                                                 onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="9"
+                                                index="7"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="currency"
+                                                name="currency"
+                                                value={filter.currency}
+                                                onChange={this.handleChangeHeader}
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="8"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}

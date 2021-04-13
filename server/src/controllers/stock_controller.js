@@ -108,50 +108,48 @@ const getById = (req, res, next) => {
 }
 
 const getByArt = (req, res, next) => {
-    
     const {opco, artNr} = req.params;
     const system = decodeURI(req.query.system);
-
-    if (!opco || !artNr) {
-        res.status(400).json({ message: "opco or artNr cannot be empty." });
-    } else {
-        Stock.findOne({opco, artNr}, function(err, article) {
-            if (!!err) {
-                res.status(400).json({ message: "An error has occured."})  
-            } else if (!article) {
-                res.status(400).json({ message: "Could not retrieve article information." });
-            } else {
-                res.status(200).send({
-                    "opco": article.opco,
-                    "artNr": article.artNr,
-                    "description": article.description,
-                    "vlunar": article.vlunar,
-                    "qty": require("../functions/getQty")(system, article.uom, article.qty),
-                    "uom": require("../functions/getUom")(system, article.uom),
-                    "weight": require("../functions/getWeight")(system, article.uom, article.weight),
-                    "price": {
-                        "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
-                        "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
-                    },
-                    "purchase": {
-                        "supplier": "",
-                        "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
-                        "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
-                        "deliveryDate": !!article.purchase.deliveryDate ? moment(article.purchase.deliveryDate).format("LL") : ""
-                    },
-                    "supplier": {
-                        "names": article.supplier.names,
-                        "qtys": [
-                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
-                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
-                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
-                            require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
-                        ]
-                    }
-                });
-            }
-        });
-    }
+    Stock.findOne({opco, artNr}, function(err, article) {
+        if (!!err || !article) {
+            res.status(200).json({
+                "description": "",
+                "qty": "",
+                "weight": "",
+                "price": { "gip": "", "rv": "" },
+                "purchase": { "supplier": "", "qty": "", "firstInStock": "", "deliveryDate": "" },
+                "supplier": {
+                    "names": ["", "", "", "" ],
+                    "qtys": [ "", "", "", "" ]
+                }
+            });
+        } else {
+            res.status(200).json({
+                "description": article.description,
+                "qty": require("../functions/getQty")(system, article.uom, article.qty),
+                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
+                "price": {
+                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
+                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
+                },
+                "purchase": {
+                    "supplier": "",
+                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
+                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
+                    "deliveryDate": !!article.purchase.deliveryDate ? moment(article.purchase.deliveryDate).format("LL") : ""
+                },
+                "supplier": {
+                    "names": article.supplier.names,
+                    "qtys": [
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
+                    ]
+                }
+            });
+        }
+    });
 }
 
 const getAll = (req, res, next) => {
@@ -203,7 +201,6 @@ const getAll = (req, res, next) => {
             }
         });
     });
-    
 }
 
 
