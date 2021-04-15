@@ -175,6 +175,8 @@ export default class Stock extends React.Component {
             selectedRows: [],
             retrievingStocks: false,
             retrievingArticle: false,
+            exportingParams: false,
+            exportingStocks: false,
             upserting: false,
             loaded: false,
             submitted: false,
@@ -454,7 +456,51 @@ export default class Stock extends React.Component {
 
     handleExport(event, type) {
         event.preventDefault();
-        console.log(type);
+        const { filter, sort, dropdown, exportingParams, exportingStocks } = this.state;
+        if (["params", "stocks"].includes(type) && !exportingParams && !exportingStocks) {
+            
+            this.setState({
+                exportingParams: type === "params" ? true : false,
+                exportingStocks: type === "stocks" ? true : false,
+            }, () => {
+                const requestOptions = {
+                    method: "POST",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        filter: filter,
+                        sort: sort,
+                        dropdown: dropdown,
+                    })
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/export/${type}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        exportingParams: type === false,
+                        exportingStocks: type === false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else if (response.status !== 200) {
+                            this.setState({
+                                alert: {
+                                    type: response.status === 200 ? "alert-success" : "alert-danger",
+                                    message: resMsg || ""
+                                }
+                            });
+                        }
+                    });
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
+            });
+        }
+        
     }
 
     handleChangeHeader(event) {
@@ -874,7 +920,6 @@ export default class Stock extends React.Component {
                     loading: false,
                 }, () => {
                     const data = text && JSON.parse(text);
-                    console.log(data);
                     if (response.status === 200) {
                         this.setState({
                             params: {
@@ -1029,7 +1074,7 @@ export default class Stock extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, showArticle, tabs, selectAllRows } = this.state;
+        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -1047,11 +1092,11 @@ export default class Stock extends React.Component {
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
-                        <button title="Export Stock" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "stock")}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2" />Exp. Stock</span>
+                        <button title="Export Stock" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Exp. Stock</span>
                         </button>
                         <button title="Export Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2" />Exp. Params</span>
+                            <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Exp. Params</span>
                         </button>
                     </div>
                     <div className="body-section">

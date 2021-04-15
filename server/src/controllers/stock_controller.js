@@ -1,7 +1,39 @@
 const Stock = require("../models/Stock");
+const Export = require("../models/Export");
 const projectionResult = require("../pipelines/projections/projection_result");
 const firstStage = require("../pipelines/stock_pipelines/first_stage");
 var moment = require('moment');
+
+const _export = (req, res, next) => {
+    const { type } = req.params;
+    const user = req.user;
+    const { filter, sort, dropdown } = req.body;
+    const system = req.body.system || "METRIC";
+
+    if (["stocks", "params"].includes(type)) {
+        let newExport = new Export({
+            type,
+            system,
+            stockFilters: {
+                filter,
+                dropdown,
+                sort
+            },
+            status: "pending",
+            createdBy: user._id
+        });
+
+        newExport
+        .save()
+        .then( () => res.status(200).json({message: "Export in progress." }))
+        .catch( (err) => {
+            console.log("err:", err)
+            res.status(400).json({message: "Export failed." })
+        });
+    } else {
+        res.status(400).json({ message: "export type not recognized."});
+    }
+}
 
 const getById = (req, res, next) => {
 
@@ -10,7 +42,7 @@ const getById = (req, res, next) => {
 
     Stock.findById(articleId, function (err, article) {
         if (!!err) {
-            res.status(400).json({ message: "An error has occured."})
+            res.status(400).json({ message: "An error has occured."});
         } if (!article) {
             res.status(400).json({ message: "Could not retrieve article information." });
         } else {
@@ -248,6 +280,7 @@ function matchDropdown() {
 }
 
 const stockController = {
+    _export,
     getAll,
     getByArt,
     getById

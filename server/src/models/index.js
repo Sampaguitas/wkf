@@ -1,5 +1,7 @@
 "use strict"
+require("./Currency");
 require("./End");
+require("./Export");
 require("./Grade");
 require("./Length");
 require("./Pff");

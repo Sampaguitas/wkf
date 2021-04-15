@@ -38,12 +38,12 @@ const getAll = (req, res, next) => {
                         },
                         { "$skip": ((nextPage - 1) * pageSize) },
                         { "$limit": pageSize },
-                        {
-                            "$project": {
-                                "itemsX": 0,
-                                "createdAtX": 0
-                            }
-                        }
+                        // {
+                        //     "$project": {
+                        //         "createdAtX": 0,
+                        //         "expiresAtX": 0
+                        //     }
+                        // }
                     ],
                     "pagination": [
                         ...firstStage(filter, format),

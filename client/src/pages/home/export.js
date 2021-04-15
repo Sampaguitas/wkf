@@ -20,12 +20,13 @@ export default class Export extends React.Component {
         super(props);
         this.state = {
             user: {},
-            exports: [],
+            processes: [],
             filter: {
                 type:"",
                 status:"",
                 user:"",
-                createdAt:""
+                createdAt:"",
+                expiresAt: ""
             },
             sort: {
                 name: "",
@@ -196,7 +197,7 @@ export default class Export extends React.Component {
                             });
                         } else {
                             this.setState({
-                                export: data[0].data,
+                                processes: data[0].data,
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -249,17 +250,17 @@ export default class Export extends React.Component {
     }
 
     generateBody() {
-        const { exports, retrieving, paginate, settingsColWidth } = this.state;
+        const { processes, retrieving, paginate, settingsColWidth } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(exports) || !retrieving) {
-            exports.map((_export) => {
+        if (!_.isEmpty(processes) || !retrieving) {
+            processes.map((process) => {
                 tempRows.push(
-                    <tr key={_export._id}>
-                        
-                        <TableData colIndex="0" value={_export.type} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
-                        <TableData colIndex="1" value={_export.status} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
-                        <TableData colIndex="2" value={_export.user} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
-                        <TableData colIndex="3" value={typeToString(_export.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={_export._id} />
+                    <tr key={process._id}>
+                        <TableData colIndex="0" value={process.type} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="1" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="2" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="3" value={typeToString(process.expiresAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="4" value={process.status} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                     </tr>
                 );
             });
@@ -267,6 +268,7 @@ export default class Export extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -315,20 +317,6 @@ export default class Export extends React.Component {
                                             />
                                             <TableHeaderInput
                                                 type="text"
-                                                title="Status"
-                                                name="status"
-                                                value={filter.status}
-                                                onChange={this.handleChangeHeader}
-                                                width="25%"
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="1"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeaderInput
-                                                type="text"
                                                 title="User"
                                                 name="user"
                                                 value={filter.user}
@@ -336,7 +324,7 @@ export default class Export extends React.Component {
                                                 width="25%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="2"
+                                                index="1"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -350,7 +338,35 @@ export default class Export extends React.Component {
                                                 width="25%"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
+                                                index="2"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="Expires"
+                                                name="expiresAt"
+                                                value={filter.expiresAt}
+                                                onChange={this.handleChangeHeader}
+                                                width="25%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
                                                 index="3"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeaderInput
+                                                type="text"
+                                                title="Status"
+                                                name="status"
+                                                value={filter.status}
+                                                onChange={this.handleChangeHeader}
+                                                width="25%"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="4"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}

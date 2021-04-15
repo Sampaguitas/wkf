@@ -3,17 +3,23 @@ module.exports = (filter, format) => {
         {
             "$lookup": {
                 "from": "users",
-                "localField": "userId",
-                "foreignField": "name",
+                "localField": "createdBy",
+                "foreignField": "_id",
                 "as": "user"
             }
+        },
+        {
+            "$addFields": { "user": { "$arrayElemAt": ["$user", 0] } }
         },
         {
             "$project": {
                 "type": 1,
                 "status": 1,
                 "user": "$user.name",
-                "createdAtX": { "$dateToString": { format, "date": "$createdAt" } }
+                "createdAt": 1,
+                "expiresAt": 1,
+                "createdAtX": { "$dateToString": { format, "date": "$createdAt" } },
+                "expiresAtX": { "$dateToString": { format, "date": "$expiresAt" } }
             }
         },
         {
@@ -28,5 +34,6 @@ function matchFilter(filter) {
         "status" : { $regex: new RegExp(require("../../functions/escape")(filter.status),"i") },
         "user" : { $regex: new RegExp(require("../../functions/escape")(filter.user),"i") },
         "createdAtX" : { $regex: new RegExp(require("../../functions/escape")(filter.createdAt),"i") },
+        "expiresAtX" : { $regex: new RegExp(require("../../functions/escape")(filter.expiresAt),"i") },
     }
 }
