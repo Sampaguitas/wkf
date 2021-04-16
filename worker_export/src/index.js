@@ -12,19 +12,19 @@ mongoose
 
 let isProcessing = false;
 
-// var generateFile = new CronJob("*/10 * * * * *", function() {
-//     if (!isProcessing) {
-//       isProcessing = true;
-//       require("./functions/processFindOne")().then(res => {
-//         switch(res.type) {
-//             case "stocks": require("./functions/genStocks")().then( () => isProcessing = false);
-//             break;
-//             case "params": require("./functions/genStocks")().then( () => isProcessing = false);
-//             break;
-//           default: require("./functions/processReject")(res._id).then( () => isProcessing = false);
-//         }
-//       }).catch( () => isProcessing = false);
-//     }
-// }, null, true, "Europe/London");
+var generateFile = new CronJob("*/10 * * * * *", function() {
+    if (!isProcessing) {
+      isProcessing = true;
+      require("./functions/processFindOne")().then(res => {
+        switch(res.type) {
+            case "stocks": require("./functions/genStocks")(res).then( () => isProcessing = false);
+            break;
+            case "params": require("./functions/genStocks")(res).then( () => isProcessing = false);
+            break;
+          default: require("./functions/processReject")(res._id).then( () => isProcessing = false);
+        }
+      }).catch( () => isProcessing = false);
+    }
+}, null, true, "Europe/London");
 
-// generateFile.start();
+generateFile.start();

@@ -62,7 +62,7 @@ module.exports = (document) => {
                     const buffer = workbook.xlsx.writeBuffer();
                     var s3_export = new aws.S3();
                     var params_export = {
-                        Bucket: awsBucketName,
+                        Bucket: process.env.AWS_BUCKET_NAME,
                         Body: buffer,
                         Key: path.join('exports', `${document._id}.xls`),
                     };
