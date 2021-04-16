@@ -1,6 +1,7 @@
 var aws = require("aws-sdk");
 var path = require('path');
 var Excel = require('exceljs');
+var Stream = require('stream');
 const Stock = require("../models/Stock");
 const firstStage = require("../pipelines/stock_pipelines/first_stage");
 
@@ -22,10 +23,8 @@ module.exports = (document) => {
                 ...firstStage(myMatch, system, filter, sort)
             ]).exec(function(error, result) {
                 if (!!error || !result) {
-                    console.log("error:", error)
                     require("./processReject")(document._id).then( () => resolve());
                 } else {
-                    console.log("result:", result);
                     var workbook = new Excel.Workbook();
                     var worksheet = workbook.addWorksheet('My Sheet');
                     worksheet.getCell("A1").value = "Company";
@@ -73,22 +72,26 @@ module.exports = (document) => {
                         worksheet.getCell(`T${lineIndex + 2}`).value = line.qtySupplierThree;
                         worksheet.getCell(`U${lineIndex + 2}`).value = line.qtySupplierFour;
                     });
-    
-                    const buffer = workbook.xlsx.writeBuffer();
-                    var s3_export = new aws.S3();
-                    var params_export = {
+
+                    const s3_export = new aws.S3();
+                    const stream = new Stream.PassThrough();
+                    // var params_export = {
+                    //     Bucket: process.env.AWS_BUCKET_NAME,
+                    //     Body: workbook,
+                    //     Key: path.join('exports', `${document._id}.xls`),
+                    // };
+                    
+                    workbook.xlsx.write(stream)
+                    .then(() => s3_export.upload({
                         Bucket: process.env.AWS_BUCKET_NAME,
-                        Body: buffer,
-                        Key: path.join('exports', `${document._id}.xls`),
-                    };
-    
-                    s3_export.upload(params_export, function(err) {
-                        if (err) {
-                        require("./processFinalise")(document._id, result.length).then( () => resolve());
-                        } else {
-                        require("./processReject")(document._id).then( () => resolve());
-                        }
-                    });
+                        Body: stream,
+                        Key: path.join('exports', `${document._id}.xls`)
+                    }).promise())
+                    .then(() => require("./processFinalise")(document._id, result.length).then( () => resolve()))
+                    .catch(() => require("./processReject")(document._id).then( () => resolve()));
+                    
+                    // const buffer = workbook.xlsx.writeBuffer();
+                    
                 }
             });
         });
