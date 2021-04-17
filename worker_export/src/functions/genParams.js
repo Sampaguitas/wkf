@@ -1,6 +1,7 @@
 var aws = require("aws-sdk");
 var path = require('path');
 var Excel = require('exceljs');
+var Stream = require('stream');
 const Stock = require("../models/Stock");
 const firstStage = require("../pipelines/param_pipelines/first_stage");
 
@@ -13,6 +14,7 @@ aws.config.update({
 module.exports = (document) => {
   return new Promise(function(resolve) {
     const { filter, sort, dropdown } = document.stockFilters;
+    const system = document.system;
     matchDropdown(dropdown.opco, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         Stock.aggregate([
             ...firstStage(myMatch, system, filter)
@@ -20,19 +22,17 @@ module.exports = (document) => {
             if (!!error || !result) {
                 require("./processReject")(document._id).then( () => resolve());
             } else {
-                // res.status(200).json(result);
+                console.log(result.length);
                 var s3_template = new aws.S3();
-                
-                var params_template = {
-                    Bucket: process.env.AWS_BUCKET_NAME,
-                    Key: path.join("templates", "duf_params.xls"),
-                };
-
                 var workbook = new Excel.Workbook();
-                workbook.xlsx.read(s3_template.getObject(params_template).createReadStream()
-                .then(async function(workbook) {
-                    workbook.eachSheet(function(worksheet, sheetId) {
-                        if(sheetId === 1) {
+                workbook.xlsx.read(s3_template.getObject({
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: path.join("templates", "duf_params.xlsx"),
+                }).createReadStream())
+                .then(function(workbook) {
+                    // workbook.eachSheet(function(worksheet, sheetId) {
+                        worksheet = workbook.getWorksheet('Sheet1');
+                        // if(sheetId === 1) {
                             //insert empty rows
                             if (result.length > 1) {
                                 worksheet.duplicateRow(3, result.length -1, true);
@@ -56,25 +56,21 @@ module.exports = (document) => {
                                 worksheet.getCell(`O${lineIndex + 3}`).value = line.end;
                                 worksheet.getCell(`P${lineIndex + 3}`).value = line.surface;
                             });
-                        }
-                    });
+                        // }
+                    // });
 
-                    const buffer = workbook.xlsx.writeBuffer();
-                    var s3_export = new aws.S3();
-                    var params_export = {
+                    const s3_export = new aws.S3();
+                    const stream = new Stream.PassThrough();
+
+                    workbook.xlsx.write(stream)
+                    .then(() => s3_export.upload({
                         Bucket: process.env.AWS_BUCKET_NAME,
-                        Body: buffer,
-                        Key: path.join('exports', `${document._id}.xls`),
-                    };
-
-                    s3_export.upload(params_export, function(err) {
-                        if (err) {
-                        require("./processFinalise")(document._id, result.length).then( () => resolve());
-                        } else {
-                        require("./processReject")(document._id).then( () => resolve());
-                        }
-                    });
-                }));
+                        Body: stream,
+                        Key: path.join('exports', `${document._id}.xlsx`)
+                    }).promise())
+                    .then(() => require("./processFinalise")(document._id, result.length).then( () => resolve()))
+                    .catch(() => require("./processReject")(document._id).then( () => resolve()));
+                });
             }
         });
     })

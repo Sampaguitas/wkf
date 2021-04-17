@@ -75,12 +75,6 @@ module.exports = (document) => {
 
                     const s3_export = new aws.S3();
                     const stream = new Stream.PassThrough();
-                    // var params_export = {
-                    //     Bucket: process.env.AWS_BUCKET_NAME,
-                    //     Body: workbook,
-                    //     Key: path.join('exports', `${document._id}.xls`),
-                    // };
-                    
                     workbook.xlsx.write(stream)
                     .then(() => s3_export.upload({
                         Bucket: process.env.AWS_BUCKET_NAME,
@@ -89,9 +83,6 @@ module.exports = (document) => {
                     }).promise())
                     .then(() => require("./processFinalise")(document._id, result.length).then( () => resolve()))
                     .catch(() => require("./processReject")(document._id).then( () => resolve()));
-                    
-                    // const buffer = workbook.xlsx.writeBuffer();
-                    
                 }
             });
         });

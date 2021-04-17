@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 var CronJob = require("cron").CronJob
-// const genParams = require("./functions/genParams")
-// const genStocks = require("./functions/genStocks")
 
-// Connect to MongoDB
 mongoose
 .set("useFindAndModify", false)
 .connect(process.env.MONGO_URI,{useNewUrlParser:true, useUnifiedTopology: true})
@@ -19,7 +16,7 @@ var generateFile = new CronJob("*/10 * * * * *", function() {
         switch(res.type) {
             case "stocks": require("./functions/genStocks")(res).then( () => isProcessing = false);
             break;
-            case "params": require("./functions/genStocks")(res).then( () => isProcessing = false);
+            case "params": require("./functions/genParams")(res).then( () => isProcessing = false);
             break;
           default: require("./functions/processReject")(res._id).then( () => isProcessing = false);
         }
