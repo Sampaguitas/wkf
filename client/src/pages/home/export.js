@@ -258,8 +258,8 @@ export default class Export extends React.Component {
                     <tr key={process._id}>
                         <TableData colIndex="0" value={process.type} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                         <TableData colIndex="1" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="2" value={typeToString(process.createdAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="3" value={typeToString(process.expiresAt, "date", getDateFormat())} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="2" value={process.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="3" value={process.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                         <TableData colIndex="4" value={process.status} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                     </tr>
                 );
