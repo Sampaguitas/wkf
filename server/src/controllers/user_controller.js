@@ -7,9 +7,10 @@ const _ = require("lodash");
 
 const User = require("../models/User");
 const Rpwd = require("../models/Rpwd");
-const escape = require("../functions/escape");
-const filterBool = require("../functions/filterBool");
+
+const firstStage = require("../pipelines/user_pipelines/first_stage");
 const projectionResult = require("../pipelines/projections/projection_result");
+const projectionDropSorted = require("../pipelines/projections/projection_drop_sorted");
 
 
 const login = (req, res, next) => {
@@ -310,7 +311,7 @@ const getAll = (req, res, next) => {
             {
                 $facet: {
                     "data": [
-                        { "$match": myMatch(filter) },
+                        ...firstStage(filter),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
@@ -321,15 +322,16 @@ const getAll = (req, res, next) => {
                         { "$limit": pageSize },
                         {
                             "$project": {
-                                "_id": "$_id",
-                                "name": "$name",
-                                "email": "$email",
-                                "isAdmin": "$isAdmin",
+                                "_id": 1,
+                                "name": 1,
+                                "email": 1,
+                                "isAdmin": 1,
+                                "isAdminX": 1
                             }
                         }
                     ],
                     "pagination": [
-                        { "$match": myMatch(filter) },
+                        ...firstStage(filter),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -353,11 +355,50 @@ const getAll = (req, res, next) => {
     });
 }
 
-function myMatch(filter) {
-    return {
-        "name" : { $regex: new RegExp(escape(filter.name),"i") },
-        "email" : { $regex: new RegExp(escape(filter.email),"i") },
-        "isAdmin": { $in: filterBool(filter.isAdmin)},
+const getDrop = (req, res, next) => {
+    const { filter, name } = req.body;
+    let page = req.body.page || 0;
+    const {key} = req.params;
+
+    switch(key) {
+        case "name":
+        case "email":
+            User.aggregate([
+                ...firstStage(filter),
+                {
+                    "$group": {
+                        "_id": null,
+                        "data":{ "$addToSet": `$${key}`}
+                    }
+                },
+                ...projectionDropSorted(name, page)
+            ]).exec(function(error, result) {
+                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                    res.status(200).json([]);
+                } else {
+                    res.status(200).json(result[0].data);
+                } 
+            });
+            break;
+        case "isAdmin":
+            User.aggregate([
+                ...firstStage(filter),
+                {
+                    "$group": {
+                        "_id": null,
+                        "data":{ "$addToSet": `$${key}X`}
+                    }
+                },
+                ...projectionDropSorted(name, page)
+            ]).exec(function(error, result) {
+                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                    res.status(200).json([]);
+                } else {
+                    res.status(200).json(result[0].data);
+                } 
+            });
+            break;
+        default: res.status(200).json([]);
     }
 }
 
@@ -371,6 +412,7 @@ const userController = {
     setAdmin,
     _delete,
     getAll,
+    getDrop,
     getById
 };
 

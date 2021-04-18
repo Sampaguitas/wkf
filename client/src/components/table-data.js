@@ -21,7 +21,8 @@ export default class TableData extends React.Component{
               onClick={event => !!handleClick && !!eventId && value !== "complete" ? handleClick(event, eventId) : event.preventDefault()}
             >
               {!!handleDownlaod && eventId && value === "complete" ? (
-                <button type="button" className="btn btn-link">Download</button>
+                <button type="button" className="btn btn-sm btn-link p-0 shadow-none" onClick={event => handleDownlaod(event, eventId)}>Download</button>
+                // typeToString(value, type, getDateFormat())
               ):(
                 typeToString(value, type, getDateFormat())
               )

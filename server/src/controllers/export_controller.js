@@ -3,6 +3,7 @@ var path = require('path');
 
 const Export = require("../models/Export");
 const projectionResult = require("../pipelines/projections/projection_result");
+const projectionDropSorted = require("../pipelines/projections/projection_drop_sorted");
 const firstStage = require("../pipelines/export_pipelines/first_stage");
 
 aws.config.update({
@@ -74,6 +75,59 @@ const getAll = (req, res, next) => {
     });
 }
 
+const getDrop = (req, res, next) => {
+    const { filter, name } = req.body;
+    let page = req.body.page || 0;
+    const {key} = req.params;
+
+    const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
+    let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
+    
+    console.log("key:", key);
+    switch(key) {
+        case "type":
+        case "status":
+        case "user":
+            Export.aggregate([
+                ...firstStage(filter, format),
+                {
+                    "$group": {
+                        "_id": null,
+                        "data":{ "$addToSet": `$${key}`}
+                    }
+                },
+                ...projectionDropSorted(name, page)
+            ]).exec(function(error, result) {
+                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                    res.status(200).json([]);
+                } else {
+                    res.status(200).json(result[0].data);
+                } 
+            });
+            break;
+        case "expiresAt":
+        case "createdAt":
+            Export.aggregate([
+                ...firstStage(filter, format),
+                {
+                    "$group": {
+                        "_id": null,
+                        "data":{ "$addToSet": `$${key}X`}
+                    }
+                },
+                ...projectionDropSorted(name, page)
+            ]).exec(function(error, result) {
+                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                    res.status(200).json([]);
+                } else {
+                    res.status(200).json(result[0].data);
+                } 
+            });
+            break;
+        default: res.status(200).json([]);
+    }
+}
+
 const download = (req, res, next) => {
     const {exportId} = req.params;
     Export.findById(exportId, function(err, document) {
@@ -97,7 +151,8 @@ const download = (req, res, next) => {
 const exportController = {
     getAll,
     getById,
-    download
+    download,
+    getDrop
 };
 
 module.exports = exportController;

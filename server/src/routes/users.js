@@ -9,6 +9,7 @@ router.get("/:userId", passport.authenticate("jwt", { session: false }), userCon
 router.post("/login", userController.login);
 router.post("/reqPwd", userController.reqPwd);
 router.post("/getAll", passport.authenticate("jwt", { session: false }), userController.getAll);//server
+router.post("/getDrop/:key", passport.authenticate("jwt", { session: false }), userController.getDrop);
 router.post("/", passport.authenticate("jwt", { session: false }), userController.create);
 
 router.put("/resetPwd/:userId", userController.resetPwd);

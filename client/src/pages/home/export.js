@@ -5,14 +5,10 @@ import { saveAs } from 'file-saver';
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
-import typeToString from "../../functions/typeToString";
-import getDateFormat from "../../functions/getDateFormat";
 
 import TableHeaderInput from "../../components/table-header-input";
 import TableData from "../../components/table-data";
-import Input from "../../components/input";
 import Layout from "../../components/layout";
-import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
 import _ from "lodash";
 
@@ -258,15 +254,19 @@ export default class Export extends React.Component {
             this.setState({
                 downloadingExport: true
             }, () => {
+                const requestOptions = {
+                    method: "GET",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                };
                 return fetch(`${process.env.REACT_APP_API_URI}/server/exports/download/${exportId}`, requestOptions)
-                .then(responce => {
+                .then(response => {
                     this.setState({ downloadingExport: false });
-                    if (!responce.ok) {
-                        if (responce.status === 401) {
+                    if (!response.ok) {
+                        if (response.status === 401) {
                             localStorage.removeItem('user');
-                            location.reload(true);
+                            window.location.reload(true);
                         } else {
-                            responce.text().then(text => {
+                            response.text().then(text => {
                                 const data = text && JSON.parse(text);
                                 const resMsg = (data && data.message) || response.statusText;
                                 this.setState({
@@ -278,7 +278,7 @@ export default class Export extends React.Component {
                             });
                         }
                     } else {
-                        responce.blob().then(blob => saveAs(blob));
+                        response.blob().then(blob => saveAs(blob, "export.xlsx"));
                     }
                 });
             });

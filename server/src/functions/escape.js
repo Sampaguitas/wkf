@@ -1,3 +1,3 @@
 module.exports = (string) => {
-    return !!string ? `${string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}` : "";
+    return !!string ? `^${string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}` : "";
 }
