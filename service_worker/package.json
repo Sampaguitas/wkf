@@ -1,5 +1,5 @@
 {
-  "name": "worker_export",
+  "name": "service_worker",
   "version": "1.0.0",
   "description": "microservice",
   "author": "Timothee Desurmont",
@@ -7,7 +7,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sampaguitas/wkf/tree/master/worker_export"
+    "url": "https://github.com/Sampaguitas/wkf/tree/master/service_worker"
   },
   "scripts": {
     "start": "node src/index.js",
