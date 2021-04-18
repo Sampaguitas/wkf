@@ -1,6 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
+import { saveAs } from 'file-saver';
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
@@ -65,6 +66,7 @@ export default class Export extends React.Component {
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
+        this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
     }
 
@@ -249,6 +251,40 @@ export default class Export extends React.Component {
         }
     }
 
+    handleDownlaod(event, exportId) {
+        event.preventDefault();
+        const { downloadingExport } = this.state;
+        if (!!exportId && !downloadingExport) {
+            this.setState({
+                downloadingExport: true
+            }, () => {
+                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/download/${exportId}`, requestOptions)
+                .then(responce => {
+                    this.setState({ downloadingExport: false });
+                    if (!responce.ok) {
+                        if (responce.status === 401) {
+                            localStorage.removeItem('user');
+                            location.reload(true);
+                        } else {
+                            responce.text().then(text => {
+                                const data = text && JSON.parse(text);
+                                const resMsg = (data && data.message) || response.statusText;
+                                this.setState({
+                                    alert: {
+                                        type: "alert-danger",
+                                        message: resMsg
+                                    },
+                                });
+                            });
+                        }
+                    } else {
+                        responce.blob().then(blob => saveAs(blob));
+                    }
+                });
+            });
+        }
+    }
+
     generateBody() {
         const { processes, retrieving, paginate, settingsColWidth } = this.state;
         let tempRows = [];
@@ -260,7 +296,7 @@ export default class Export extends React.Component {
                         <TableData colIndex="1" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                         <TableData colIndex="2" value={process.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
                         <TableData colIndex="3" value={process.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="4" value={process.status} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
+                        <TableData colIndex="4" value={process.status} type="text" settingsColWidth={settingsColWidth} handleDownlaod={this.handleDownlaod} eventId={process._id} />
                     </tr>
                 );
             });

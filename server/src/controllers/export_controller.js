@@ -79,8 +79,8 @@ const download = (req, res, next) => {
     Export.findById(exportId, function(err, document) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."});
-        } else if (document) {
-            res.status(200).json({ message: "Could not find the document."});
+        } else if (!document) {
+            res.status(400).json({ message: "Could not find the document."});
         } else {
             var s3 = new aws.S3();
             s3.getObject({
