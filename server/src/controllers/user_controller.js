@@ -5,20 +5,12 @@ const moment = require("moment");
 const nodemailer = require("nodemailer");
 const _ = require("lodash");
 
-const User = require("../models/User");
-const Rpwd = require("../models/Rpwd");
-
-const firstStage = require("../pipelines/user_pipelines/first_stage");
-const projectionResult = require("../pipelines/projections/projection_result");
-const projectionDrop = require("../pipelines/projections/projection_drop");
-
-
 const login = (req, res, next) => {
     
     const email = req.body.email.toLowerCase();
     const {password} = req.body;
 
-    User.findOne({ email }, { password:1, name: 1, isAdmin: 1 })
+    require("../models/User").findOne({ email }, { password:1, name: 1, isAdmin: 1 })
     .then(user => {
         if (!user) {
             res.status(400).json({ message: "Wrong email or password." });
@@ -73,7 +65,7 @@ const reqPwd = (req, res, next) => {
     if (!email) {
         res.status(400).json({ message: "Email is required." });
     } else {
-        User.findOne({email}, function(err, user) {
+        require("../models/User").findOne({email}, function(err, user) {
             if (!!err) {
                 res.status(400).json({ message: "An error has occured." });
             } else if (!user) {
@@ -83,7 +75,7 @@ const reqPwd = (req, res, next) => {
                 let query = { userId: user._id, status: 0 }
                 let update = {token: token, expire: moment.utc().add(3600, "seconds")}
                 let options = {new: true, upsert: true}
-                Rpwd.findOneAndUpdate(query, update, options, function (errRpwd, resRpwd) {
+                require("../models/Rpwd").findOneAndUpdate(query, update, options, function (errRpwd, resRpwd) {
                     if (errRpwd || !resRpwd) {
                         res.status(400).json({message: "Error generating hashed token."});
                     } else {
@@ -122,7 +114,7 @@ const resetPwd = (req, res, next) => {
     let update = { $set: {status: 1} }
     let options = {new : true, upsert: false }
     
-    Rpwd.findOneAndUpdate(query, update, options, function (errRpwd, resRpwd){
+    require("../models/Rpwd").findOneAndUpdate(query, update, options, function (errRpwd, resRpwd){
         if (errRpwd) {
             res.status(400).json({ message: "An error has occured."});
         } else if (!resRpwd) {
@@ -136,7 +128,7 @@ const resetPwd = (req, res, next) => {
                         if (errHash || !hash) {
                             res.status(400).json({ message: "Error generating hash." });                            
                         } else {
-                            User.findByIdAndUpdate(userId, { $set: {password: hash} }, function (errUser, resUser) {
+                            require("../models/User").findByIdAndUpdate(userId, { $set: {password: hash} }, function (errUser, resUser) {
                                 if (!!errUser || !resUser) {
                                     res.status(400).json({ message: "Error updating password." });
                                 } else {
@@ -166,7 +158,7 @@ const updatePwd = (req, res, next) => {
                     if (errHash || !hash) {
                         res.status(400).json({ message: "Error generating hash." });                            
                     } else {
-                        User.findByIdAndUpdate(user._id, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
+                        require("../models/User").findByIdAndUpdate(user._id, { $set: {password: hash} }, { new: true }, function (errUser, resUser) {
                             if (errUser || !resUser) {
                                 res.status(400).json({ message: "Your password could not be updated." });
                             } else {
@@ -199,7 +191,7 @@ const create = (req, res, next) => {
                     if (!!errHash) {
                         res.status(400).json({message: "Error creating the password hash."});
                     } else {
-                        let newUser = new User({
+                        let newUser = new require("../models/User")({
                             name, "email": email.toLowerCase(),
                             "password": hash
                         });
@@ -230,7 +222,7 @@ const update = (req, res, next) => {
     } else {
         let update = { "name": name, "email": email.toLowerCase() };
         let options = { "new": true };
-        User.findByIdAndUpdate(userId, update, options, function(errUser, user) {
+        require("../models/User").findByIdAndUpdate(userId, update, options, function(errUser, user) {
             if (!!errUser || !user) {
                 res.status(400).json({message: "User could not be updated." });
             } else {
@@ -255,7 +247,7 @@ const setAdmin = (req, res, next) => {
     } else {
         let update = { isAdmin };
         let options = { "new": true };
-        User.findByIdAndUpdate(userId, update, options, function (errUser, user) {
+        require("../models/User").findByIdAndUpdate(userId, update, options, function (errUser, user) {
             if (!!errUser || !user) {
                 res.status(400).json({message: "User could not be updated." });
             } else {
@@ -275,7 +267,7 @@ const _delete = (req, res, next) => {
     } else if (!userId) {
         res.status(400).json({message: "User ID is missing."});
     } else {
-        User.findByIdAndDelete(userId, function(errUser, user) {
+        require("../models/User").findByIdAndDelete(userId, function(errUser, user) {
             if (!!errUser || !user) {
                 res.status(400).json({message: "User could not be deleted." });
             } else {
@@ -289,7 +281,7 @@ const getById = (req, res, next) => {
 
     const {userId} = req.params;
 
-    User.findById(userId, function (err, user) {
+    require("../models/User").findById(userId, function (err, user) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!user) {
@@ -303,15 +295,15 @@ const getById = (req, res, next) => {
 
 const getAll = (req, res, next) => {
     
-    const { filter, sort } = req.body;
+    const { dropdown, sort } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
-
-    User.aggregate([
+    matchDropdown(dropdown.name, dropdown.email, dropdown.isAdmin).then(myMatch => {
+        require("../models/User").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...firstStage(filter),
+                        ...require("../pipelines/user_pipelines/first_stage")(myMatch),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
@@ -331,7 +323,7 @@ const getAll = (req, res, next) => {
                         }
                     ],
                     "pagination": [
-                        ...firstStage(filter),
+                        ...require("../pipelines/user_pipelines/first_stage")(myMatch),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -344,62 +336,82 @@ const getAll = (req, res, next) => {
                 }
             },
             {
-                "$project": projectionResult(nextPage, pageSize)
+                "$project": require("../pipelines/projections/projection_result")(nextPage, pageSize)
             }
-    ]).exec(function(error, result) {
-        if (!!error || !result) {
-            res.status(200).json([])
-        } else {
-            res.status(200).json(result)
-        } 
+        ]).exec(function(error, result) {
+            if (!!error || !result) {
+                res.status(200).json([])
+            } else {
+                res.status(200).json(result)
+            } 
+        });
     });
 }
 
 const getDrop = (req, res, next) => {
-    const { filter, name } = req.body;
+    const { dropdown, name } = req.body;
     let page = req.body.page || 0;
     const {key} = req.params;
+    matchDropdown(dropdown.name, dropdown.email, dropdown.isAdmin).then(myMatch => {
+        switch(key) {
+            case "name":
+            case "email":
+                require("../models/User").aggregate([
+                    ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                    {
+                        "$group": {
+                            "_id": null,
+                            "data":{ "$addToSet": `$${key}`}
+                        }
+                    },
+                    ...require("../pipelines/projections/projection_drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                        res.status(200).json([]);
+                    } else {
+                        res.status(200).json(result[0].data);
+                    } 
+                });
+                break;
+            case "isAdmin":
+                require("../models/User").aggregate([
+                    ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                    {
+                        "$group": {
+                            "_id": null,
+                            "data":{ "$addToSet": `$${key}X`}
+                        }
+                    },
+                    ...require("../pipelines/projections/projection_drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                        res.status(200).json([]);
+                    } else {
+                        res.status(200).json(result[0].data);
+                    } 
+                });
+                break;
+            default: res.status(200).json([]);
+        }
+    });
+}
 
-    switch(key) {
-        case "name":
-        case "email":
-            User.aggregate([
-                ...firstStage(filter),
-                {
-                    "$group": {
-                        "_id": null,
-                        "data":{ "$addToSet": `$${key}`}
-                    }
-                },
-                ...projectionDrop(name, page)
-            ]).exec(function(error, result) {
-                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                    res.status(200).json([]);
+function matchDropdown() {
+    let myArgs = arguments;
+    return new Promise(function(resolve) {
+        resolve(["name", "email", "isAdmin"].reduce(function(acc, cur, index) {
+            if (!!myArgs[index]) {
+                if (cur === "isAdmin" && myArgs[index] === "false") {
+                    acc[`${cur}`] = { "$ne": true };
+                } else if (cur === "isAdmin" && myArgs[index] === "true") {
+                    acc[`${cur}`] = { "$eq": true };
                 } else {
-                    res.status(200).json(result[0].data);
-                } 
-            });
-            break;
-        case "isAdmin":
-            User.aggregate([
-                ...firstStage(filter),
-                {
-                    "$group": {
-                        "_id": null,
-                        "data":{ "$addToSet": `$${key}X`}
-                    }
-                },
-                ...projectionDrop(name, page)
-            ]).exec(function(error, result) {
-                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                    res.status(200).json([]);
-                } else {
-                    res.status(200).json(result[0].data);
-                } 
-            });
-            break;
-        default: res.status(200).json([]);
-    }
+                    acc[`${cur}`] = myArgs[index];
+                }
+            }
+            return acc;
+        },{}));
+    });
 }
 
 const userController = {

@@ -124,6 +124,7 @@ export default class Stock extends React.Component {
                 opco: { value: "", placeholder: "OPCO", options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "ArtNr", options: [], hover: "", page: 0 },
             },
+            focused: "",
             alert: {
                 type: "",
                 message: ""
@@ -169,6 +170,7 @@ export default class Stock extends React.Component {
             exportingParams: false,
             exportingStocks: false,
             upserting: false,
+            loading: false,
             loaded: false,
             submitted: false,
             showSearch: false,
@@ -1104,6 +1106,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="opco"
                                                 name="opco"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="0"
@@ -1114,6 +1117,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="artNr"
                                                 name="artNr"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="1"
@@ -1134,6 +1138,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="qty"
                                                 name="qty"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="3"
@@ -1144,6 +1149,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="firstInStock"
                                                 name="firstInStock"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="4"
@@ -1154,6 +1160,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="uom"
                                                 name="uom"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="5"
@@ -1164,6 +1171,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="gip"
                                                 name="gip"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="6"
@@ -1174,6 +1182,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="rv"
                                                 name="rv"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="7"
@@ -1184,6 +1193,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="currency"
                                                 name="currency"
+                                                width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="8"
