@@ -10,7 +10,7 @@ const Rpwd = require("../models/Rpwd");
 
 const firstStage = require("../pipelines/user_pipelines/first_stage");
 const projectionResult = require("../pipelines/projections/projection_result");
-const projectionDropSorted = require("../pipelines/projections/projection_drop_sorted");
+const projectionDrop = require("../pipelines/projections/projection_drop");
 
 
 const login = (req, res, next) => {
@@ -371,7 +371,7 @@ const getDrop = (req, res, next) => {
                         "data":{ "$addToSet": `$${key}`}
                     }
                 },
-                ...projectionDropSorted(name, page)
+                ...projectionDrop(name, page)
             ]).exec(function(error, result) {
                 if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                     res.status(200).json([]);
@@ -389,7 +389,7 @@ const getDrop = (req, res, next) => {
                         "data":{ "$addToSet": `$${key}X`}
                     }
                 },
-                ...projectionDropSorted(name, page)
+                ...projectionDrop(name, page)
             ]).exec(function(error, result) {
                 if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                     res.status(200).json([]);

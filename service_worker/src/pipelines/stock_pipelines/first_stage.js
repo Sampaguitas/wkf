@@ -1,23 +1,34 @@
-const projection = require("./projection");
-
-module.exports = (myMatch, system, filter, sort) => {
+module.exports = (myMatch, sort) => {
     return [
         {
             "$match": myMatch
         },
         {
-            "$project": projection(system)
-        },
-        {
-            "$addFields": {
-                "qtyX": { "$toString": "$qty" },
-                "firstInStockX": { "$toString": "$firstInStock" },
-                "gipX": { "$toString": "$gip" },
-                "rvX": { "$toString": "$rv" },
+            "$project": {
+                "_id": 1,
+                "opco": 1,
+                "vlunar": 1,
+                "artNr": 1,
+                "description": 1,
+                "qty": 1,
+                "gip": "$price.gip",
+                "currency": "EUR",
+                "rv": "$price.rv",
+                "purchaseQty": "$purchase.qty",
+                "weight": 1,
+                "firstInStock": "$purchase.firstInStock",
+                "uom": 1,
+                "supplier": "$purchase.supplier",
+                "purchaseDeliveryDate": "$purchase.deliveryDate",
+                "nameSupplierOne": { "$arrayElemAt": ["$supplier.names", 0]},
+                "nameSupplierTwo": { "$arrayElemAt": ["$supplier.names", 1]},
+                "nameSupplierThree": { "$arrayElemAt": ["$supplier.names", 2]},
+                "nameSupplierFour": { "$arrayElemAt": ["$supplier.names", 3]},
+                "qtySupplierOne": { "$arrayElemAt": ["$supplier.qtys", 0]},
+                "qtySupplierTwo": { "$arrayElemAt": ["$supplier.qtys", 1]},
+                "qtySupplierThree": { "$arrayElemAt": ["$supplier.qtys", 2]},
+                "qtySupplierFour": { "$arrayElemAt": ["$supplier.qtys", 3]}
             }
-        },
-        {
-            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.firstInStock, filter.uom, filter.gip, filter.rv, filter.currency)
         },
         {
             "$sort": {
@@ -28,26 +39,8 @@ module.exports = (myMatch, system, filter, sort) => {
         {
             "$project": {
                 "_id": 0,
-                "qtyX": 0,
-                "firstInStockX": 0,
-                "gipX": 0,
-                "rvX": 0,
                 "currency": 0,
             }
         },
     ]
-}
-
-function matchFilter() {
-    let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
-        if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "rv", "gip"].includes(cur)) {
-                acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            } else {
-                acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            }
-        }
-        return acc;
-    }, {}));
 }

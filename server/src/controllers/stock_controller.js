@@ -1,11 +1,4 @@
-const Stock = require("../models/Stock");
-const Size = require("../models/Size");
-const Export = require("../models/Export");
-
-const projectionResult = require("../pipelines/projections/projection_result");
-const projectionDropSorted = require("../pipelines/projections/projection_drop_sorted");
-const projectionDropUnsorted = require("../pipelines/projections/projection_drop_unsorted");
-const firstStage = require("../pipelines/stock_pipelines/first_stage");
+// const Export = require("../models/Export");
 
 const escape = require("../functions/escape");
 var moment = require('moment');
@@ -15,17 +8,15 @@ let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|TH
 const _export = (req, res, next) => {
     const { type } = req.params;
     const user = req.user;
-    const { filter, sort, dropdown } = req.body;
-    const system = req.body.system || "METRIC";
+    const { sort, dropdown, selectedIds } = req.body;
 
     if (["stocks", "params"].includes(type)) {
-        let newExport = new Export({
+        let newExport = new require("../models/Export")({
             type,
-            system,
             stockFilters: {
-                filter,
                 dropdown,
-                sort
+                sort,
+                selectedIds
             },
             status: "pending",
             createdBy: user._id
@@ -44,42 +35,38 @@ const _export = (req, res, next) => {
 }
 
 const getById = (req, res, next) => {
-
     const {articleId} = req.params;
-    const { system } = decodeURI(req.query.system);
-
-    Stock.findById(articleId, function (err, article) {
+    require("../models/Stock").findById(articleId, function (err, article) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."});
         } if (!article) {
             res.status(400).json({ message: "Could not retrieve article information." });
         } else {
-            // res.json({article: article});
             res.json({article: {
                 "opco": article.opco,
                 "artNr": article.artNr,
                 "description": article.description,
                 "vlunar": article.vlunar,
-                "qty": require("../functions/getQty")(system, article.uom, article.qty),
-                "uom": require("../functions/getUom")(system, article.uom),
-                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
+                "qty": article.qty,
+                "uom": article.uom,
+                "weight": article.weight,
                 "price": {
-                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
-                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
+                    "gip": article.price.gip,
+                    "rv": article.price.rv,
                 },
                 "purchase": {
-                    "supplier": "",
-                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
-                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
+                    "supplier": article.purchase.supplier,
+                    "qty": article.purchase.qty,
+                    "firstInStock": article.purchase.firstInStock,
                     "deliveryDate": article.purchase.deliveryDate
                 },
                 "supplier": {
                     "names": article.supplier.names,
                     "qtys": [
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
+                        article.supplier.qtys[0],
+                        article.supplier.qtys[1],
+                        article.supplier.qtys[2],
+                        article.supplier.qtys[3]
                     ]
                 },
                 "parameters": !article.parameters ? 
@@ -149,8 +136,7 @@ const getById = (req, res, next) => {
 
 const getByArt = (req, res, next) => {
     const {opco, artNr} = req.params;
-    const system = decodeURI(req.query.system);
-    Stock.findOne({opco, artNr}, function(err, article) {
+    require("../models/Stock").findOne({opco, artNr}, function(err, article) {
         if (!!err || !article) {
             res.status(200).json({
                 "description": "",
@@ -166,25 +152,25 @@ const getByArt = (req, res, next) => {
         } else {
             res.status(200).json({
                 "description": article.description,
-                "qty": require("../functions/getQty")(system, article.uom, article.qty),
-                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
+                "qty": article.qty,
+                "weight": article.weight,
                 "price": {
-                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
-                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
+                    "gip": article.price.gip,
+                    "rv": article.price.rv,
                 },
                 "purchase": {
-                    "supplier": "",
-                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
-                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
+                    "supplier": article.purchase.supplier,
+                    "qty": article.purchase.qty,
+                    "firstInStock": article.purchase.firstInStock,
                     "deliveryDate": !!article.purchase.deliveryDate ? moment(article.purchase.deliveryDate).format("LL") : ""
                 },
                 "supplier": {
                     "names": article.supplier.names,
                     "qtys": [
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
-                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
+                        article.supplier.qtys[0],
+                        article.supplier.qtys[1],
+                        article.supplier.qtys[2],
+                        article.supplier.qtys[3]
                     ]
                 }
             });
@@ -194,17 +180,16 @@ const getByArt = (req, res, next) => {
 
 const getAll = (req, res, next) => {
     
-    const { filter, sort, dropdown } = req.body;
+    const { sort, dropdown } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
-    const system = req.body.system || "METRIC";
     
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
-        Stock.aggregate([
+        require("../models/Stock").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...firstStage(myMatch, system, filter),
+                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                         {
                             "$project": {
                                 "parameters": 0,
@@ -221,7 +206,7 @@ const getAll = (req, res, next) => {
                         
                     ],
                     "pagination": [
-                        ...firstStage(myMatch, system, filter),
+                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -234,7 +219,7 @@ const getAll = (req, res, next) => {
                 }
             },
             {
-                $project: projectionResult(nextPage, pageSize)
+                $project: require("../pipelines/projections/projection_result")(nextPage, pageSize)
             }
         ]).exec(function(error, result) {
             if (!!error || !result) {
@@ -248,25 +233,22 @@ const getAll = (req, res, next) => {
 }
 
 const getDrop = (req, res, next) => {
-    const { filter, dropdown, name } = req.body;
+    const { dropdown, name } = req.body;
     const {key} = req.params;
-
     let page = req.body.page || 0;
-    const system = req.body.system || "METRIC";
-
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         switch(key) {
             case "opco":
             case "artNr":
-                Stock.aggregate([
-                    ...firstStage(myMatch, system, filter),
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}`}
                         }
                     },
-                    ...projectionDropSorted(name, page)
+                    ...require("../pipelines/projections/projection_drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -277,15 +259,15 @@ const getDrop = (req, res, next) => {
                 break;
             case "steelType":
             case "pffType":
-                Stock.aggregate([
-                    ...firstStage(myMatch, system, filter),
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$parameters.${key=== "steelType" ? "grade" : "type"}.${key}`}
                         }
                     },
-                    ...projectionDropSorted(name, page)
+                    ...require("../pipelines/projections/projection_drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -298,8 +280,8 @@ const getDrop = (req, res, next) => {
             case "grade":
             case "end":
             case "surface":
-                Stock.aggregate([
-                    ...firstStage(myMatch, system, filter),
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                     {
                         "$project": {
                             "data": `$parameters.${key}.tags`
@@ -314,7 +296,7 @@ const getDrop = (req, res, next) => {
                             "data":{ "$addToSet": `$data`}
                         }
                     },
-                    ...projectionDropSorted(name, page)
+                    ...require("../pipelines/projections/projection_drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -326,8 +308,8 @@ const getDrop = (req, res, next) => {
             case "sizeOne":
             case "wallOne":
             case "wallTwo":
-                Stock.aggregate([
-                    ...firstStage(myMatch, system, filter),
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -404,8 +386,8 @@ const getDrop = (req, res, next) => {
                 break;
             case "sizeTwo":
                 if (dropdown.pffType === "FORGED_OLETS" || regexOutlet.test(dropdown.type)) {
-                    Stock.aggregate([
-                        ...firstStage(myMatch, system, filter),
+                    require("../models/Stock").aggregate([
+                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                         {
                             "$group": {
                                 "_id": null,
@@ -424,7 +406,7 @@ const getDrop = (req, res, next) => {
                         } else {
                             console.log("min:", temp[0].min);
                             console.log("max:", temp[0].max);
-                            Size.aggregate([
+                            require("../models/Size").aggregate([
                                 {
                                     "$match": {
                                         "mm": { 
@@ -508,8 +490,8 @@ const getDrop = (req, res, next) => {
                         } 
                     });
                 } else {
-                    Stock.aggregate([
-                        ...firstStage(myMatch, system, filter),
+                    require("../models/Stock").aggregate([
+                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                         {
                             "$project": {
                                 "tags": `$parameters.${key}.tags`,
@@ -584,9 +566,9 @@ const getDrop = (req, res, next) => {
 
                 }
                 break;
-                case "length":
-                Stock.aggregate([
-                    ...firstStage(myMatch, system, filter),
+            case "length":
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -663,9 +645,8 @@ const getDrop = (req, res, next) => {
 function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
-            // let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
-            if (regexOutlet.test(myArgs[7])) {
-                require("../functions/getSizeMm")(myArgs[4]).then(mm => {
+            if (regexOutlet.test(myArgs[8]) || myArgs[2] === "FORGED_OLETS") {
+                require("../functions/getSizeMm")(myArgs[5]).then(mm => {
                     resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
                         if (!!myArgs[index]) {
                             if (["opco", "artNr"].includes(cur)) {

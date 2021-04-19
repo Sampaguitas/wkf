@@ -2,8 +2,6 @@ var aws = require("aws-sdk");
 var path = require('path');
 var Excel = require('exceljs');
 var Stream = require('stream');
-const Stock = require("../models/Stock");
-const firstStage = require("../pipelines/param_pipelines/first_stage");
 
 aws.config.update({
     accessKeyId: process.env.ACCESS_KEY_ID,
@@ -13,11 +11,10 @@ aws.config.update({
 
 module.exports = (document) => {
   return new Promise(function(resolve) {
-    const { filter, sort, dropdown } = document.stockFilters;
-    const system = document.system;
-    matchDropdown(dropdown.opco, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
-        Stock.aggregate([
-            ...firstStage(myMatch, system, filter)
+    const { dropdown, selectedIds } = document.stockFilters;
+    matchDropdown(selectedIds, dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
+        require("../models/Stock").aggregate([
+            ...require("../pipelines/param_pipelines/first_stage")(myMatch)
         ]).exec(function(error, result) {
             if (!!error || !result) {
                 require("./processReject")(document._id).then( () => resolve());
@@ -81,11 +78,13 @@ function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
         let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
-        if (regexOutlet.test(myArgs[7])) {
-            require("../functions/getSizeMm")(myArgs[4]).then(mm => {
-                resolve(["opco", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
-                    if (!!myArgs[index]) {
-                        if (cur === "opco") {
+        if (regexOutlet.test(myArgs[9])  || myArgs[3] === "FORGED_OLETS") {
+            require("../functions/getSizeMm")(myArgs[6]).then(mm => {
+                resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                    if (cur === "selectedIds" && myArgs[index].length > 0) {
+                        acc[`_id`] = { "$in": myArgs[index] };
+                    } else if (cur !== "selectedIds" && !!myArgs[index]) {
+                        if (["opco", "artNr"].includes(cur)) {
                             acc[`${cur}`] = myArgs[index];
                         } else if (cur === "pffType") {
                             acc[`parameters.type.pffType`] = myArgs[index];
@@ -102,9 +101,11 @@ function matchDropdown() {
                 },{}));
             });
         } else {
-            resolve(["opco", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
-                if (!!myArgs[index]) {
-                    if (cur === "opco") {
+            resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                if (cur === "selectedIds" && myArgs[index].length > 0) {
+                    acc[`_id`] = { "$in": myArgs[index] };
+                } else if (cur !== "selectedIds" && !!myArgs[index]) {
+                    if (["opco", "artNr"].includes(cur)) {
                         acc[`${cur}`] = myArgs[index];
                     } else if (cur === "pffType") {
                         acc[`parameters.type.pffType`] = myArgs[index];

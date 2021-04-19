@@ -7,7 +7,7 @@ import getPageSize from "../../functions/getPageSize";
 import arrayRemove from "../../functions/arrayRemove";
 import TableSelectAll from '../../components/table-select-all';
 import TableSelectRow from '../../components/table-select-row';
-import TableHeaderInput from "../../components/table-header-input";
+import TableHeader from "../../components/table-header";
 import TableData from "../../components/table-data";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
@@ -90,17 +90,6 @@ export default class Stock extends React.Component {
                 }
             },
             stocks: [],
-            filter: {
-                opco:"",
-                artNr:"",
-                description: "",
-                qty: "",
-                uom: "",
-                firstInStock: "",
-                gip: "",
-                currency: "",
-                rv: ""
-            },
             sort: {
                 name: "",
                 isAscending: true,
@@ -121,19 +110,19 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
-                pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
-                steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
-                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
-                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "" },
-                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
-                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
-                type: { value: "", placeholder: "Article type", options: [], hover: "" },
-                grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
-                length: { value: "", placeholder: "Length", options: [], hover: "" },
-                end: { value: "", placeholder: "Ends", options: [], hover: "" },
-                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
-                artNr: { value: "", placeholder: "ArtNr", options: [], hover: "" },
+                pffType: { value: "", placeholder: "PFF type", options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "Steel type", options: [], hover: "", page: 0 },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "", page: 0 },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "", page: 0 },
+                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "", page: 0 },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Article type", options: [], hover: "", page: 0 },
+                grade: { value: "", placeholder: "Material grade", options: [], hover: "", page: 0 },
+                length: { value: "", placeholder: "Length", options: [], hover: "", page: 0 },
+                end: { value: "", placeholder: "Ends", options: [], hover: "", page: 0 },
+                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "", page: 0 },
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "", page: 0 },
+                artNr: { value: "", placeholder: "ArtNr", options: [], hover: "", page: 0 },
             },
             alert: {
                 type: "",
@@ -206,7 +195,6 @@ export default class Stock extends React.Component {
         this.toggleSort = this.toggleSort.bind(this);
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleExport = this.handleExport.bind(this);
-        this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
@@ -216,6 +204,7 @@ export default class Stock extends React.Component {
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
         this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
+        this.handleNextDropdown = this.handleNextDropdown.bind(this);
         this.handleSelectDropdown = this.handleSelectDropdown.bind(this);
         this.onFocusDropdown = this.onFocusDropdown.bind(this);
         this.onHoverDropdown = this.onHoverDropdown.bind(this);
@@ -369,25 +358,25 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, filter, dropdown, paginate, stocks, selectedRows } = this.state;
+        const { sort, dropdown, paginate, stocks, selectedRows } = this.state;
         
-        if (sort !== prevState.sort || filter !== prevState.filter || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
+        if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
         
-        if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType");
-        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType");
-        if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne");
-        if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo");
-        if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne");
-        if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo");
-        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type");
-        if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade");
-        if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length");
-        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
-        if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
-        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
-        if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr");
+        if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
+        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
+        if (this.state.params.sizeOne.value !== prevState.params.sizeOne.value) this.getDropdownOptions("sizeOne", 0);
+        if (this.state.params.sizeTwo.value !== prevState.params.sizeTwo.value) this.getDropdownOptions("sizeTwo", 0);
+        if (this.state.params.wallOne.value !== prevState.params.wallOne.value) this.getDropdownOptions("wallOne", 0);
+        if (this.state.params.wallTwo.value !== prevState.params.wallTwo.value) this.getDropdownOptions("wallTwo", 0);
+        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type", 0);
+        if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade", 0);
+        if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length", 0);
+        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end", 0);
+        if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface", 0);
+        if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco", 0);
+        if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr", 0);
 
         if (stocks !== prevState.stocks) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -459,7 +448,7 @@ export default class Stock extends React.Component {
 
     handleExport(event, type) {
         event.preventDefault();
-        const { filter, sort, dropdown, exportingParams, exportingStocks } = this.state;
+        const { sort, dropdown, exportingParams, exportingStocks, selectedRows } = this.state;
         if (["params", "stocks"].includes(type) && !exportingParams && !exportingStocks) {
             
             this.setState({
@@ -470,9 +459,9 @@ export default class Stock extends React.Component {
                     method: "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        filter: filter,
                         sort: sort,
                         dropdown: dropdown,
+                        selectedIds: selectedRows
                     })
                 };
                 return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/export/${type}`, requestOptions)
@@ -506,19 +495,8 @@ export default class Stock extends React.Component {
         
     }
 
-    handleChangeHeader(event) {
-        const { filter } = this.state;
-        const { name, value } = event.target;
-        this.setState({
-            filter: {
-                ...filter,
-                [name]: value
-            }
-        });
-    }
-
     getDocuments(nextPage) {
-        const {paginate, filter, sort, dropdown} = this.state;
+        const {paginate, sort, dropdown} = this.state;
         if (!!paginate.pageSize) {
             this.setState({
                 retrievingStocks: true
@@ -527,7 +505,6 @@ export default class Stock extends React.Component {
                     method: "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        filter: filter,
                         sort: sort,
                         dropdown: dropdown,
                         nextPage: nextPage,
@@ -861,17 +838,6 @@ export default class Stock extends React.Component {
     handleClearFields(event) {
         event.preventDefault();
         this.setState({
-            filter: {
-                opco:"",
-                artNr:"",
-                description: "",
-                qty: "",
-                uom: "",
-                firstInStock: "",
-                gip: "",
-                currency: "",
-                rv: ""
-            },
             sort: {
                 name: "",
                 isAscending: true,
@@ -892,34 +858,40 @@ export default class Stock extends React.Component {
                 surface: ""
             },
             params: {
-                pffType: { value: "", placeholder: "PFF type", options: [], hover: "" },
-                steelType: { value: "", placeholder: "Steel type", options: [], hover: "" },
-                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "" },
-                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "" },
-                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "" },
-                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "" },
-                type: { value: "", placeholder: "Article type", options: [], hover: "" },
-                grade: { value: "", placeholder: "Material grade", options: [], hover: "" },
-                length: { value: "", placeholder: "Length", options: [], hover: "" },
-                end: { value: "", placeholder: "Ends", options: [], hover: "" },
-                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
-                artNr: { value: "", placeholder: "Art Nr", options: [], hover: "" },
+                pffType: { value: "", placeholder: "PFF type", options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "Steel type", options: [], hover: "", page: 0 },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "", page: 0 },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "", page: 0 },
+                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "", page: 0 },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Article type", options: [], hover: "", page: 0 },
+                grade: { value: "", placeholder: "Material grade", options: [], hover: "", page: 0 },
+                length: { value: "", placeholder: "Length", options: [], hover: "", page: 0 },
+                end: { value: "", placeholder: "Ends", options: [], hover: "", page: 0 },
+                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "", page: 0 },
+                opco: { value: "", placeholder: "OPCO", options: [], hover: "", page: 0 },
+                artNr: { value: "", placeholder: "Art Nr", options: [], hover: "", page: 0 },
             },
             focused: "",
         });
     }
 
-    getDropdownOptions(key) {
-        const { focused } = this.state;
+    getDropdownOptions(key, page) {
+        const { focused, sort, dropdown } = this.state;
         this.setState({
             loading: true
         }, () => {
             const requestOptions = {
-                method: "GET",
+                method: "POST",
                 headers: { ...authHeader(), "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sort: sort,
+                    dropdown: dropdown,
+                    name: this.state.params[key].value,
+                    page: page || 0
+                })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/dropdowns/${key}?name=${encodeURI(this.state.params[key].value)}&pffType=${encodeURI(this.state.dropdown.pffType)}&steelType=${encodeURI(this.state.dropdown.steelType)}&sizeOne=${encodeURI(this.state.dropdown.sizeOne)}&sizeTwo=${encodeURI(this.state.dropdown.sizeTwo)}&opco=${encodeURI(this.state.dropdown.opco)}&isComplete=false&isMultiple=false`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/getDrop/${key}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -931,7 +903,8 @@ export default class Stock extends React.Component {
                                 ...this.state.params,
                                 [key]: {
                                     ...this.state.params[key],
-                                    options: key !== focused ? [] : data,
+                                    options: key !== focused ? [] : page !== 0 ? [ ...this.state.params[key].options, ...data ] : data,
+                                    page
                                 }
                             }
                         });
@@ -942,6 +915,20 @@ export default class Stock extends React.Component {
                 localStorage.removeItem("user");
                 window.location.reload(true);
             });
+        });
+    }
+
+    handleNextDropdown(key) {
+        this.setState({
+            params: {
+                ...this.state.params,
+                [key]: {
+                    ...this.state.params[key],
+                    page: this.state.params[key].page + 1
+                }
+            }
+        }, () => {
+            this.getDropdownOptions(key, this.state.params[key].page)
         });
     }
 
@@ -1006,7 +993,7 @@ export default class Stock extends React.Component {
                     },
                 },
                 focused: name, //
-            }, () => this.getDropdownOptions(name));
+            }, () => this.getDropdownOptions(name, 0));
         } else {
             this.setState({
                 params: {
@@ -1019,7 +1006,7 @@ export default class Stock extends React.Component {
                     }
                 },
                 focused: name,
-            }, () => this.getDropdownOptions(name));
+            }, () => this.getDropdownOptions(name, 0));
         }
     }
 
@@ -1079,7 +1066,7 @@ export default class Stock extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, article, retrievingArticle, filter, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
+        const { alert, menuItem, article, retrievingArticle, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -1114,12 +1101,9 @@ export default class Stock extends React.Component {
                                             checked={selectAllRows}
                                             onChange={this.toggleSelectAllRow}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="opco"
                                                 name="opco"
-                                                value={filter.opco}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="0"
@@ -1127,12 +1111,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="artNr"
                                                 name="artNr"
-                                                value={filter.artNr}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="1"
@@ -1140,12 +1121,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="description"
                                                 name="description"
-                                                value={filter.description}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
@@ -1153,12 +1131,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="qty"
                                                 name="qty"
-                                                value={filter.qty}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="3"
@@ -1166,12 +1141,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="firstInStock"
                                                 name="firstInStock"
-                                                value={filter.firstInStock}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="4"
@@ -1179,12 +1151,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="uom"
                                                 name="uom"
-                                                value={filter.uom}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="5"
@@ -1192,12 +1161,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="gip"
                                                 name="gip"
-                                                value={filter.gip}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="6"
@@ -1205,12 +1171,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="rv"
                                                 name="rv"
-                                                value={filter.rv}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="7"
@@ -1218,12 +1181,9 @@ export default class Stock extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            <TableHeaderInput
-                                                type="text"
+                                            <TableHeader
                                                 title="currency"
                                                 name="currency"
-                                                value={filter.currency}
-                                                onChange={this.handleChangeHeader}
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="8"
@@ -1271,7 +1231,9 @@ export default class Stock extends React.Component {
                                         selection={dropdown[key]}
                                         options={params[key].options}
                                         hover={this.state.params[key].hover}
+                                        page={params[key].page}
                                         onChange={this.handleChangeDropdown}
+                                        handleNextDropdown={this.handleNextDropdown}
                                         handleSelect={this.handleSelectDropdown}
                                         onFocus={this.onFocusDropdown}
                                         onHover={this.onHoverDropdown}

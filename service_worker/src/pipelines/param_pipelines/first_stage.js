@@ -1,25 +1,35 @@
-const projection = require("./projection");
-
-module.exports = (myMatch, system, filter) => {
+module.exports = (myMatch) => {
     return [
         {
             "$match": myMatch
         },
         {
-            "$project": projection(system)
-        },
-        {
-            "$addFields": {
-                "qtyX": { "$toString": "$qty" },
-                "firstInStockX": { "$toString": "$firstInStock" },
-                "gipX": { "$toString": "$gip" },
-                "rvX": { "$toString": "$rv" },
+            "$project": {
+                "artNr": 1,
+                "description": 1,
+                "qty": 1,
+                "parameters": {
+                    "steelType": { "$ifNull": [ "$parameters.grade.steelType", "" ] },
+                    "pffType": { "$ifNull": [ "$parameters.type.pffType", "" ] },
+                    "sizeOne": { "$ifNull": [ "$parameters.sizeOne.name", "" ] },
+                    "sizeTwo": { "$ifNull": [ "$parameters.sizeTwo.name", "" ] },
+                    "sizeThree": { "$ifNull": [ "$parameters.sizeThree.name", "" ] },
+                    "wallOne": { "$ifNull": [ "$parameters.wallOne.name", "" ] },
+                    "wallTwo": { "$ifNull": [ "$parameters.wallTwo.name", "" ] },
+                    "type": { "$ifNull": [ "$parameters.type.name", "" ] },
+                    "grade": { "$ifNull": [ "$parameters.grade.name", "" ] },
+                    "length": { "$ifNull": [ "$parameters.length.name", "" ] },
+                    "end": { "$ifNull": [ "$parameters.end.name", "" ] },
+                    "surface": { "$ifNull": [ "$parameters.surface.name", "" ] },
+                }
             }
         },
         {
-            "$match": matchFilter(filter.opco, filter.artNr, filter.description, filter.qty, filter.firstInStock, filter.uom, filter.gip, filter.rv, filter.currency)
+            "$sort": {
+                "artNr": 1,
+                "qty": -1
+            }
         },
-        { "$sort": { "artNr": 1, "qty": -1 } },
         {
             "$group": {
               "_id": "$artNr",
@@ -39,18 +49,4 @@ module.exports = (myMatch, system, filter) => {
             }
         },
     ]
-}
-
-function matchFilter() {
-    let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
-        if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "gip", "rv"].includes(cur)) {
-                acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            } else {
-                acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            }
-        }
-        return acc;
-    }, {}));
 }

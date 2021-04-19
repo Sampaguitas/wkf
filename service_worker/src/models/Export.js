@@ -4,43 +4,13 @@ const Schema = mongoose.Schema;
 const ExportSchema = new Schema({
     "type": {
         "type": String,
-     }, //stock or params
-    "system": {
-        "type": String,
-        "default": "METRIC"
-    },
+     },
     "stockFilters": {
-        "filter": {
-            "opco": {
-                "type": String
-            },
-            "artNr": {
-                "type": String
-            },
-            "description": {
-                "type": String
-            },
-            "qty": {
-                "type": Number,
-            },
-            "firstInStock": {
-                "type": Number,
-            },
-            "uom": {
-                "type": String
-            },
-            "gip": {
-                "type": Number,
-            },
-            "rv": {
-                "type": Number,
-            },
-            "currency": {
-                "type": String
-            },
-        },
         "dropdown": {
             "opco": {
+                "type": String,
+            },
+            "artNr": {
                 "type": String,
             },
             "pffType": {
@@ -86,9 +56,17 @@ const ExportSchema = new Schema({
                 "default": true
             },
         },
+        "selectedIds": [{
+            "type": mongoose.ObjectId,
+            "ref": "stocks"
+        }]
     },
     "status": {
         "type": String,
+    },
+    "lines": {
+        "type": Number,
+        "default": 0
     },
     "createdBy": {
         "type": mongoose.ObjectId,

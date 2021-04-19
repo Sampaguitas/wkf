@@ -1,4 +1,4 @@
-module.exports = (myMatch, system, filter) => {
+module.exports = (myMatch) => {
     return [
         {
             "$match": myMatch
@@ -133,16 +133,16 @@ module.exports = (myMatch, system, filter) => {
     ]
 }
 
-function matchFilter() {
-    let myArgs = arguments;
-    return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
-        if (!!myArgs[index]) {
-            if(["qty", "firstInStock", "gip", "rv"].includes(cur)) {
-                acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            } else {
-                acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
-            }
-        }
-        return acc;
-    }, {}));
-}
+// function matchFilter() {
+//     let myArgs = arguments;
+//     return(["opco", "artNr", "description", "qty", "firstInStock", "uom", "gip", "rv", "currency"].reduce(function(acc, cur, index) {
+//         if (!!myArgs[index]) {
+//             if(["qty", "firstInStock", "gip", "rv"].includes(cur)) {
+//                 acc[`${cur}X`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
+//             } else {
+//                 acc[`${cur}`] = { "$regex": new RegExp(require("../../functions/escape")(myArgs[index]),"i") };
+//             }
+//         }
+//         return acc;
+//     }, {}));
+// }

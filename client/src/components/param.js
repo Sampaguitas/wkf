@@ -6,6 +6,16 @@ import "../styles/param.css"
 
 class Param extends Component{
 
+    componentDidMount() {
+        const { name, handleNextDropdown } = this.props;
+        let thisList = document.getElementById(`list_${name}`);
+        thisList.addEventListener('scroll', (e) => {
+            if (thisList.scrollTop / (thisList.scrollHeight - thisList.clientHeight ) > 0.9) {
+                handleNextDropdown(name);
+            }
+        });
+    }
+
     render() {
         const { name, focused, value, placeholder, onChange, onFocus, onHover, options, hover, selection, handleSelect, toggleDropDown } = this.props;
         return(
