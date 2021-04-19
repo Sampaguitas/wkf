@@ -387,6 +387,7 @@ export default class Stock extends React.Component {
         if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end");
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface");
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco");
+        if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr");
 
         if (stocks !== prevState.stocks) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -877,6 +878,7 @@ export default class Stock extends React.Component {
             },
             dropdown: {
                 opco: "",
+                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -902,6 +904,7 @@ export default class Stock extends React.Component {
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
                 surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
                 opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
+                artNr: { value: "", placeholder: "Art Nr", options: [], hover: "" },
             },
             focused: "",
         });
