@@ -1,11 +1,16 @@
 const Stock = require("../models/Stock");
+const Size = require("../models/Size");
 const Export = require("../models/Export");
+
 const projectionResult = require("../pipelines/projections/projection_result");
 const projectionDropSorted = require("../pipelines/projections/projection_drop_sorted");
 const projectionDropUnsorted = require("../pipelines/projections/projection_drop_unsorted");
 const firstStage = require("../pipelines/stock_pipelines/first_stage");
+
 const escape = require("../functions/escape");
 var moment = require('moment');
+
+let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
 
 const _export = (req, res, next) => {
     const { type } = req.params;
@@ -319,6 +324,8 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "sizeOne":
+            case "wallOne":
+            case "wallTwo":
                 Stock.aggregate([
                     ...firstStage(myMatch, system, filter),
                     {
@@ -328,7 +335,10 @@ const getDrop = (req, res, next) => {
                         }
                     },
                     {
-                        "$unwind": "$tags"
+                        "$unwind": {
+                            "path": "$tags",
+                            "includeArrayIndex": "arrayIndex"
+                        }
                     },
                     {
                         "$match": {
@@ -336,43 +346,36 @@ const getDrop = (req, res, next) => {
                         }
                     },
                     {
-                        "$sort": {
-                            "mm": 1,
-                        }
-                    },
-                    {
-                        "$group": {
-                            "_id": null,
-                            "nps":{
-                                "$addToSet": {
-                                    "$cond":[ { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "$tags", "$$REMOVE" ]
-                                }
-                            },
-                            "dn": {
-                                "$addToSet": {
-                                    "$cond":[ { "$regexMatch": { "input": "$tags", "regex": /^DN \d*$/ } }, "$tags", "$$REMOVE" ]
-                                }
-                            },
-                            "mm": {
-                                "$addToSet": {
-                                    "$cond":[ { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "$tags", "$$REMOVE" ]
-                                }
-                            },
-                            "in": {
-                                "$addToSet": {
-                                    "$cond":[ { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* in$/ } }, "$tags", "$$REMOVE" ]
+                        "$addFields": {
+                            "unitIndex": {
+                                "$switch": {
+                                    "branches": [
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(STD|XS|XXS)$/ } }, "then": 0 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^S\d*S?$/ } }, "then": 1 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "then": 2 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^DN \d*$/ } }, "then": 3 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "then": 4 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* in$/ } }, "then": 5 },
+                                    ],
+                                    "default": 6
                                 }
                             }
                         }
                     },
                     {
-                        "$project": {
-                            "_id": null,
-                            "data": { "$concatArrays": [ "$nps", "$dn", "$mm", "$in" ] }
+                        "$group": {
+                            "_id": "$tags",
+                            "unitIndex": { "$first": "$unitIndex" },
+                            "mm": { "$first": "$mm" },
+                            "arrayIndex": { "$first": "$arrayIndex" }
                         }
                     },
                     {
-                        "$unwind": "$data"
+                        "$sort": {
+                            "unitIndex": 1,
+                            "mm": 1,
+                            "arrayIndex": 1
+                        }
                     },
                     {
                         "$skip": 10 * page
@@ -383,7 +386,7 @@ const getDrop = (req, res, next) => {
                     {
                         "$group": {
                             "_id": null,
-                            "data":{ "$push": `$data`}
+                            "data": { "$push": "$_id" }
                         }
                     },
                     {
@@ -391,13 +394,264 @@ const getDrop = (req, res, next) => {
                             "_id": 0
                         }
                     }
-                    // ...projectionDropUnsorted(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
                     } else {
                         res.status(200).json(result[0].data);
-                    } 
+                    }
+                });
+                break;
+            case "sizeTwo":
+                if (dropdown.pffType === "FORGED_OLETS" || regexOutlet.test(dropdown.type)) {
+                    Stock.aggregate([
+                        ...firstStage(myMatch, system, filter),
+                        {
+                            "$group": {
+                                "_id": null,
+                                "min": { "$min": "$parameters.sizeTwo.mm" },
+                                "max": { "$max": "$parameters.sizeThree.mm" },
+                            }
+                        },
+                        {
+                            "$project":{
+                                "_id": 0
+                            }
+                        }
+                    ]).exec(function(errTemp, temp) {
+                        if (!!errTemp || temp.length !== 1 || !temp[0].hasOwnProperty("min") || !temp[0].hasOwnProperty("max")) {
+                            res.status(200).json([]);
+                        } else {
+                            console.log("min:", temp[0].min);
+                            console.log("max:", temp[0].max);
+                            Size.aggregate([
+                                {
+                                    "$match": {
+                                        "mm": { 
+                                            "$gte": Number(temp[0].min),
+                                            "$lte": Number(temp[0].max)
+                                        },
+                                        "pffTypes": "FORGED_OLETS"
+                                    }
+                                },
+                                {
+                                    "$project": {
+                                        "tags": "$tags",
+                                        "mm": "$mm",
+                                    }
+                                },
+                                {
+                                    "$unwind": {
+                                        "path": "$tags",
+                                        "includeArrayIndex": "arrayIndex"
+                                    }
+                                },
+                                {
+                                    "$match": {
+                                        "tags": { "$regex": new RegExp(escape(name),"i") }
+                                    }
+                                },
+                                {
+                                    "$addFields": {
+                                        "unitIndex": {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "then": 0 },
+                                                    { "case": { "$regexMatch": { "input": "$tags", "regex": /^DN \d*$/ } }, "then": 1 },
+                                                    { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "then": 2 },
+                                                    { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* in$/ } }, "then": 3 },
+                                                ],
+                                                "default": 4
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "$group": {
+                                        "_id": "$tags",
+                                        "unitIndex": { "$first": "$unitIndex" },
+                                        "mm": { "$first": "$mm" },
+                                        "arrayIndex": { "$first": "$arrayIndex" }
+                                    }
+                                },
+                                {
+                                    "$sort": {
+                                        "unitIndex": 1,
+                                        "mm": 1,
+                                        "arrayIndex": 1
+                                    }
+                                },
+                                {
+                                    "$skip": 10 * page
+                                },
+                                {
+                                    "$limit": 10
+                                },
+                                {
+                                    "$group": {
+                                        "_id": null,
+                                        "data": { "$push": "$_id" }
+                                    }
+                                },
+                                {
+                                    "$project":{
+                                        "_id": 0
+                                    }
+                                }
+                            ]).exec(function(error, result) {
+                                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                                    res.status(200).json([]);
+                                } else {
+                                    res.status(200).json(result[0].data);
+                                }
+                            });
+                        } 
+                    });
+                } else {
+                    Stock.aggregate([
+                        ...firstStage(myMatch, system, filter),
+                        {
+                            "$project": {
+                                "tags": `$parameters.${key}.tags`,
+                                "mm": `$parameters.${key}.mm`,
+                            }
+                        },
+                        {
+                            "$unwind": {
+                                "path": "$tags",
+                                "includeArrayIndex": "arrayIndex"
+                            }
+                        },
+                        {
+                            "$match": {
+                                "tags": { "$regex": new RegExp(escape(name),"i") }
+                            }
+                        },
+                        {
+                            "$addFields": {
+                                "unitIndex": {
+                                    "$switch": {
+                                        "branches": [
+                                            { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "then": 0 },
+                                            { "case": { "$regexMatch": { "input": "$tags", "regex": /^DN \d*$/ } }, "then": 1 },
+                                            { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "then": 2 },
+                                            { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* in$/ } }, "then": 3 },
+                                        ],
+                                        "default": 4
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "$group": {
+                                "_id": "$tags",
+                                "unitIndex": { "$first": "$unitIndex" },
+                                "mm": { "$first": "$mm" },
+                                "arrayIndex": { "$first": "$arrayIndex" }
+                            }
+                        },
+                        {
+                            "$sort": {
+                                "unitIndex": 1,
+                                "mm": 1,
+                                "arrayIndex": 1
+                            }
+                        },
+                        {
+                            "$skip": 10 * page
+                        },
+                        {
+                            "$limit": 10
+                        },
+                        {
+                            "$group": {
+                                "_id": null,
+                                "data": { "$push": "$_id" }
+                            }
+                        },
+                        {
+                            "$project":{
+                                "_id": 0
+                            }
+                        }
+                    ]).exec(function(error, result) {
+                        if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                            res.status(200).json([]);
+                        } else {
+                            res.status(200).json(result[0].data);
+                        } 
+                    });
+
+                }
+                break;
+                case "length":
+                Stock.aggregate([
+                    ...firstStage(myMatch, system, filter),
+                    {
+                        "$project": {
+                            "tags": `$parameters.${key}.tags`,
+                        }
+                    },
+                    {
+                        "$unwind": {
+                            "path": "$tags"
+                        }
+                    },
+                    {
+                        "$match": {
+                            "tags": { "$regex": new RegExp(escape(name),"i") }
+                        }
+                    },
+                    {
+                        "$addFields": {
+                            "unitIndex": {
+                                "$switch": {
+                                    "branches": [
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(SRL|DRL)$/ } }, "then": 0 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "then": 1 },
+                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "then": 2 },
+                                        
+                                    ],
+                                    "default": 3
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "$group": {
+                            "_id": "$tags",
+                            "unitIndex": { "$first": "$unitIndex" }
+                        }
+                    },
+                    {
+                        "$sort": {
+                            "unitIndex": 1,
+                            "_id": 1
+                        }
+                    },
+                    {
+                        "$skip": 10 * page
+                    },
+                    {
+                        "$limit": 10
+                    },
+                    {
+                        "$group": {
+                            "_id": null,
+                            "data": { "$push": "$_id" }
+                        }
+                    },
+                    {
+                        "$project":{
+                            "_id": 0
+                        }
+                    }
+                ]).exec(function(error, result) {
+                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                        res.status(200).json([]);
+                    } else {
+                        res.status(200).json(result[0].data);
+                    }
                 });
                 break;
             default: res.status(200).json([]);
@@ -409,7 +663,7 @@ const getDrop = (req, res, next) => {
 function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
-            let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
+            // let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
             if (regexOutlet.test(myArgs[7])) {
                 require("../functions/getSizeMm")(myArgs[4]).then(mm => {
                     resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {

@@ -107,6 +107,7 @@ export default class Stock extends React.Component {
             },
             dropdown: {
                 opco: "",
+                artNr: "",
                 pffType: "",
                 steelType: "",
                 sizeOne: "",
@@ -132,6 +133,7 @@ export default class Stock extends React.Component {
                 end: { value: "", placeholder: "Ends", options: [], hover: "" },
                 surface: { value: "", placeholder: "Surface treatment", options: [], hover: "" },
                 opco: { value: "", placeholder: "OPCO", options: [], hover: "" },
+                artNr: { value: "", placeholder: "ArtNr", options: [], hover: "" },
             },
             alert: {
                 type: "",
