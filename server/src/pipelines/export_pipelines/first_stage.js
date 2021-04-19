@@ -1,4 +1,4 @@
-module.exports = (filter, format) => {
+module.exports = (myMatch, format) => {
     return [
         {
             "$lookup": {
@@ -23,17 +23,7 @@ module.exports = (filter, format) => {
             }
         },
         {
-            "$match": matchFilter(filter)
+            "$match": myMatch
         }
     ];
-}
-
-function matchFilter(filter) {
-    return {
-        "type" : { $regex: new RegExp(require("../../functions/escape")(filter.type),"i") },
-        "status" : { $regex: new RegExp(require("../../functions/escape")(filter.status),"i") },
-        "user" : { $regex: new RegExp(require("../../functions/escape")(filter.user),"i") },
-        "createdAtX" : { $regex: new RegExp(require("../../functions/escape")(filter.createdAt),"i") },
-        "expiresAtX" : { $regex: new RegExp(require("../../functions/escape")(filter.expiresAt),"i") },
-    }
 }
