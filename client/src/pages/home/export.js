@@ -21,8 +21,8 @@ export default class Export extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: {},
-            processes: [],
+            // element: {},
+            elements: [],
             sort: {
                 name: "",
                 isAscending: true,
@@ -48,12 +48,12 @@ export default class Export extends React.Component {
             },
             selectAllRows: false,
             selectedRows: [],
-            exporting: false,
+            // exporting: false,
             retrieving: false,
-            upserting: false,
+            // upserting: false,
             loading: false,
-            loaded: false,
-            submitted: false,
+            // loaded: false,
+            // submitted: false,
             showSearch: false,
             menuItem: "Export data",
             settingsColWidth: {},
@@ -75,7 +75,6 @@ export default class Export extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        this.toggleModalSearch = this.toggleModalSearch.bind(this);
         // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
@@ -84,6 +83,7 @@ export default class Export extends React.Component {
         this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
         //dropdown
+        this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
         this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
@@ -101,7 +101,6 @@ export default class Export extends React.Component {
     
 
     componentDidMount() {
-        const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
         this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
         this.setState({
@@ -127,7 +126,7 @@ export default class Export extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, dropdown, paginate, processes, selectedRows } = this.state;
+        const { sort, dropdown, paginate, elements, selectedRows } = this.state;
         if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
@@ -138,9 +137,9 @@ export default class Export extends React.Component {
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
         if (this.state.params.expiresAt.value !== prevState.params.expiresAt.value) this.getDropdownOptions("expiresAt", 0);
 
-        if (processes !== prevState.processes) {
+        if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
-                let found = processes.find(element => _.isEqual(element._id, cur));
+                let found = elements.find(element => _.isEqual(element._id, cur));
                 if (!_.isUndefined(found)){
                   acc.push(cur);
                 }
@@ -255,7 +254,7 @@ export default class Export extends React.Component {
                             });
                         } else {
                             this.setState({
-                                processes: data[0].data,
+                                elements: data[0].data,
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -308,8 +307,8 @@ export default class Export extends React.Component {
     }
 
     toggleSelectAllRow() {
-        const { selectAllRows, processes } = this.state;
-        if (!_.isEmpty(processes)) {
+        const { selectAllRows, elements } = this.state;
+        if (!_.isEmpty(elements)) {
           if (!!selectAllRows) {
             this.setState({
               selectedRows: [],
@@ -317,7 +316,7 @@ export default class Export extends React.Component {
             });
           } else {
             this.setState({
-              selectedRows: processes.map(process => process._id),
+              selectedRows: elements.map(element => element._id),
               selectAllRows: true
             });
           }         
@@ -372,23 +371,23 @@ export default class Export extends React.Component {
     }
 
     generateBody() {
-        const { processes, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
+        const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(processes) || !retrieving) {
-            processes.map((process) => {
+        if (!_.isEmpty(elements) || !retrieving) {
+            elements.map((element) => {
                 tempRows.push(
-                    <tr key={process._id}>
+                    <tr key={element._id}>
                         <TableSelectRow
-                            id={process._id}
+                            id={element._id}
                             selectAllRows={selectAllRows}
                             selectedRows={selectedRows}
                             callback={this.updateSelectedRows}
                         />
-                        <TableData colIndex="1" value={process.type} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="2" value={process.user} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="3" value={process.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="4" value={process.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={process._id} />
-                        <TableData colIndex="5" value={process.status} type="text" settingsColWidth={settingsColWidth} handleDownlaod={this.handleDownlaod} eventId={process._id} />
+                        <TableData colIndex="1" value={element.type} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="2" value={element.user} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="3" value={element.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="4" value={element.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="5" value={element.status} type="text" settingsColWidth={settingsColWidth} handleDownlaod={this.handleDownlaod} eventId={element._id} />
                     </tr>
                 );
             });

@@ -30,6 +30,7 @@ app.use("/exports", require("./routes/exports"));
 app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
 app.use("/processes", require("./routes/processes"));
+app.use("/imports", require("./routes/imports"));
 
 let isProcessing = false;
 var updateRates = new CronJob("0 0 0 * * *", function() {

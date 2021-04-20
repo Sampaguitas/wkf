@@ -2,22 +2,13 @@ const locale = Intl.DateTimeFormat().resolvedOptions().locale;
 const options = {'year': 'numeric', 'month': '2-digit', day: '2-digit', timeZone: 'GMT'};
 
 export default function getDateFormat() {
-    let tempDateFormat = ''
-    Intl.DateTimeFormat(locale, options).formatToParts().map(function (element) {
-        switch(element.type) {
-            case 'month': 
-                tempDateFormat = tempDateFormat + 'MM';
-                break;
-            case 'literal': 
-                tempDateFormat = tempDateFormat + element.value;
-                break;
-            case 'day': 
-                tempDateFormat = tempDateFormat + 'DD';
-                break;
-            case 'year': 
-                tempDateFormat = tempDateFormat + 'YYYY';
-                break;
-        }
-    });
-    return tempDateFormat;
+	return Intl.DateTimeFormat(locale, options).formatToParts().reduce(function (acc, cur) {
+  		switch(cur.type) {
+    		case "day": return acc + "DD";
+    		case "month": return acc + "MM";
+    		case "year": return acc + "YYYY";
+    		case "literal": return acc + cur.value;
+    		default: return acc;
+  		}
+	}, "");
 }

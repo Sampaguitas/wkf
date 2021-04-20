@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const exportController = require("../controllers/export_controller");
+const exportController = require("../controllers/export");
 const passport = require("passport");
 
 router.post("/getAll", passport.authenticate("jwt", { session: false }), exportController.getAll);

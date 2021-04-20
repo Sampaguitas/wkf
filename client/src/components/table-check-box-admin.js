@@ -54,8 +54,10 @@ export default class TableCheckBoxAdmin extends Component {
                         this.setState({
                             checked: response.status !== 200 ? checked : !checked, 
                         }, () => {
-                            setAlert(response.status !== 200 ? "alert-danger" : "alert-success", resMsg);
                             refreshStore();
+                            if (response.status !== 200) {
+                                setAlert(response.status !== 200 ? "alert-danger" : "alert-success", resMsg);
+                            }
                         });
                     }
                 });

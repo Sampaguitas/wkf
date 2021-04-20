@@ -303,7 +303,7 @@ const getAll = (req, res, next) => {
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/user")(myMatch),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
@@ -323,7 +323,7 @@ const getAll = (req, res, next) => {
                         }
                     ],
                     "pagination": [
-                        ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/user")(myMatch),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -336,7 +336,7 @@ const getAll = (req, res, next) => {
                 }
             },
             {
-                "$project": require("../pipelines/projections/projection_result")(nextPage, pageSize)
+                "$project": require("../pipelines/projection/result")(nextPage, pageSize)
             }
         ]).exec(function(error, result) {
             if (!!error || !result) {
@@ -357,14 +357,14 @@ const getDrop = (req, res, next) => {
             case "name":
             case "email":
                 require("../models/User").aggregate([
-                    ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/user")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -375,14 +375,14 @@ const getDrop = (req, res, next) => {
                 break;
             case "isAdmin":
                 require("../models/User").aggregate([
-                    ...require("../pipelines/user_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/user")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}X`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);

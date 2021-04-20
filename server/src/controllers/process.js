@@ -1,26 +1,18 @@
-var aws = require('aws-sdk');
-var path = require('path');
-
-aws.config.update({
-    accessKeyId: process.env.ACCESS_KEY_ID,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    region: process.env.REGION
-});
-
 const getById = (req, res, next) => {
 
-    const {exportId} = req.params;
+    const {processId} = req.params;
 
-    require("../models/Export").findById(exportId, function (err, doc) {
+    require("../models/Process").findById(processId, function (err, user) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
-        } if (!doc) {
+        } if (!user) {
             res.status(400).json({ message: "Could not retrieve process information." });
         } else {
-            res.json({doc: doc});
+            res.json({user: user});
         }
     });
 }
+
 
 const getAll = (req, res, next) => {
     
@@ -30,12 +22,12 @@ const getAll = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.type, dropdown.status, dropdown.user, dropdown.createdAt, dropdown.expiresAt).then(myMatch => {
-        require("../models/Export").aggregate([
+    matchDropdown(dropdown.user, dropdown.processType, dropdown.createdAt).then(myMatch => {
+        require("../models/Process").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/export_pipelines/first_stage")(myMatch, format),
+                        ...require("../pipelines/first_stage/process")(myMatch, format),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "createdAt"]: sort.isAscending === false ? -1 : 1,
@@ -43,10 +35,10 @@ const getAll = (req, res, next) => {
                             }
                         },
                         { "$skip": ((nextPage - 1) * pageSize) },
-                        { "$limit": pageSize }
+                        { "$limit": pageSize },
                     ],
                     "pagination": [
-                        ...require("../pipelines/export_pipelines/first_stage")(myMatch, format),
+                        ...require("../pipelines/first_stage/process")(myMatch, format),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -59,7 +51,7 @@ const getAll = (req, res, next) => {
                 }
             },
             {
-                "$project": require("../pipelines/projections/projection_result")(nextPage, pageSize)
+                "$project": require("../pipelines/projection/result")(nextPage, pageSize)
             }
         ]).exec(function(error, result) {
             if (!!error || !result) {
@@ -69,6 +61,7 @@ const getAll = (req, res, next) => {
             } 
         });
     });
+    
 }
 
 const getDrop = (req, res, next) => {
@@ -78,20 +71,19 @@ const getDrop = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.type, dropdown.status, dropdown.user, dropdown.createdAt, dropdown.expiresAt).then(myMatch => {
+    matchDropdown(dropdown.user, dropdown.processType, dropdown.createdAt).then(myMatch => {
         switch(key) {
-            case "type":
-            case "status":
             case "user":
-                require("../models/Export").aggregate([
-                    ...require("../pipelines/export_pipelines/first_stage")(myMatch, format),
+            case "processType":
+                require("../models/Process").aggregate([
+                    ...require("../pipelines/first_stage/process")(myMatch, format),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -100,17 +92,16 @@ const getDrop = (req, res, next) => {
                     } 
                 });
                 break;
-            case "expiresAt":
             case "createdAt":
-                require("../models/Export").aggregate([
-                    ...require("../pipelines/export_pipelines/first_stage")(myMatch, format),
+                require("../models/Process").aggregate([
+                    ...require("../pipelines/first_stage/process")(myMatch, format),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}X`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -125,32 +116,12 @@ const getDrop = (req, res, next) => {
     
 }
 
-const download = (req, res, next) => {
-    const {exportId} = req.params;
-    require("../models/Export").findById(exportId, function(err, document) {
-        if (!!err) {
-            res.status(400).json({ message: "An error has occured."});
-        } else if (!document) {
-            res.status(400).json({ message: "Could not find the document."});
-        } else {
-            var s3 = new aws.S3();
-            s3.getObject({
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: path.join('exports', `${document._id}.xlsx`)
-            }).createReadStream()
-            .on('error', () => {
-                res.status(400).json({message: "The file could not be located."});
-            }).pipe(res);
-        }
-    });
-}
-
 function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
-        resolve(["type", "status", "user", "createdAt", "expiresAt" ].reduce(function(acc, cur, index) {
+        resolve(["user", "processType", "createdAt" ].reduce(function(acc, cur, index) {
             if (!!myArgs[index]) {
-                if (["createdAt", "expiresAt"].includes(cur)) {
+                if (cur ==="createdAt") {
                     acc[`${cur}X`] = myArgs[index];
                 } else {
                     acc[`${cur}`] = myArgs[index];
@@ -161,11 +132,10 @@ function matchDropdown() {
     });
 }
 
-const exportController = {
+const processController = {
     getAll,
-    getById,
-    download,
-    getDrop
+    getDrop,
+    getById
 };
 
-module.exports = exportController;
+module.exports = processController;

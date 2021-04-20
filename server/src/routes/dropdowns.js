@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const dropdownController = require("../controllers/dropdown_controller");
+const dropdownController = require("../controllers/dropdown");
 const passport = require("passport");
 
 router.get("/artNr", passport.authenticate("jwt", { session: false }), dropdownController.artNr);

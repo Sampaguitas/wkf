@@ -416,7 +416,7 @@ const wallTwo = (req, res, next) => {
 
 
 
-const userController = {
+const dropdownController = {
     artNr,
     currency,
     end,
@@ -434,5 +434,5 @@ const userController = {
     wallTwo
 };
 
-module.exports = userController;
+module.exports = dropdownController;
 

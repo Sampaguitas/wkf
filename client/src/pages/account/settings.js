@@ -24,13 +24,8 @@ export default class Settings extends React.Component {
         super(props);
         this.state = {
             currentUser: {},
-            user: {},
-            users: [],
-            // filter: {
-            //     name: "",
-            //     email: "",
-            //     isAdmin: 0,
-            // },
+            element: {},
+            elements: [],
             sort: {
                 name: "",
                 isAscending: true,
@@ -109,7 +104,7 @@ export default class Settings extends React.Component {
     }
 
     componentDidMount() {
-        const { menuItem, paginate } = this.state;
+        const { paginate } = this.state;
         let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
         if (!!currentUser) {
@@ -138,7 +133,7 @@ export default class Settings extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, dropdown, paginate, users, selectedRows } = this.state;
+        const { sort, dropdown, paginate, elements, selectedRows } = this.state;
         if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
@@ -147,9 +142,9 @@ export default class Settings extends React.Component {
         if (this.state.params.email.value !== prevState.params.email.value) this.getDropdownOptions("email", 0);
         if (this.state.params.isAdmin.value !== prevState.params.isAdmin.value) this.getDropdownOptions("isAdmin", 0);
 
-        if (users !== prevState.users) {
+        if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
-                let found = users.find(element => _.isEqual(element._id, cur));
+                let found = elements.find(element => _.isEqual(element._id, cur));
                 if (!_.isUndefined(found)){
                   acc.push(cur);
                 }
@@ -217,7 +212,7 @@ export default class Settings extends React.Component {
 
     showModal() {
         this.setState({
-            user: {
+            element: {
                 name: "",
                 email: ""
             },
@@ -227,7 +222,7 @@ export default class Settings extends React.Component {
 
     hideModal() {
         this.setState({
-            user: {
+            element: {
                 name: "",
                 email: ""
             },
@@ -238,10 +233,10 @@ export default class Settings extends React.Component {
 
     handleChangeUser(event) {
         const { name, value } = event.target;
-        const { user } = this.state;
+        const { element } = this.state;
         this.setState({
-            user: {
-                ...user,
+            element: {
+                ...element,
                 [name]: value
             }
         });
@@ -294,7 +289,7 @@ export default class Settings extends React.Component {
                             });
                         } else {
                             this.setState({
-                                users: data[0].data,
+                                elements: data[0].data,
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -313,38 +308,43 @@ export default class Settings extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const { user, upserting } = this.state;
-        if (!!user.name && !!user.email && !upserting) {
+        const { element, upserting } = this.state;
+        if (!!element.name && !!element.email && !upserting) {
             this.setState({
                 upserting: true,
             }, () => {
                 const requestOptions = {
-                    method: !!user._id ? "PUT" : "POST",
+                    method: !!element._id ? "PUT" : "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        name: user.name,
-                        email: user.email
+                        name: element.name,
+                        email: element.email
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${user._id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${element._id}`, requestOptions)
                 .then(response => response.text().then(text => {
-                    const data = text && JSON.parse(text);
-                    const resMsg = (data && data.message) || response.statusText;
-                    if (response.status === 401) {
-                        // Unauthorized
-                        localStorage.removeItem("user");
-                        window.location.reload(true);
-                    } else {
-                        this.setState({
-                            alert: {
-                                type: response.status !== 200 ? "alert-danger" : "alert-success",
-                                message: response.message
-                            }
-                        }, () => {
-                            this.getDocuments();
-                            this.hideModal();
-                        });
-                    }
+                    this.setState({
+                        upserting: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else {
+                            this.setState({
+                                alert: {
+                                    type: response.status !== 200 ? "alert-danger" : "alert-success",
+                                    message: resMsg
+                                }
+                            }, () => {
+                                this.getDocuments();
+                                this.hideModal();
+                            });
+                        }
+                    });
+                    
                 }))
                 .catch( () => {
                     localStorage.removeItem("user");
@@ -395,11 +395,11 @@ export default class Settings extends React.Component {
 
     handleOnclick(event, _id) {
         event.preventDefault();
-        const { users, currentUser } = this.state;
-        let found = users.find(element => _.isEqual(element._id, _id));
+        const { elements, currentUser } = this.state;
+        let found = elements.find(element => _.isEqual(element._id, _id));
         if (!_.isUndefined(found) && !!currentUser.isAdmin) {
             this.setState({
-                user: {
+                element: {
                     _id: found._id,
                     name: found.name,
                     email: found.email,
@@ -445,8 +445,8 @@ export default class Settings extends React.Component {
     }
 
     toggleSelectAllRow() {
-        const { selectAllRows, users } = this.state;
-        if (!_.isEmpty(users)) {
+        const { selectAllRows, elements } = this.state;
+        if (!_.isEmpty(elements)) {
           if (!!selectAllRows) {
             this.setState({
               selectedRows: [],
@@ -454,7 +454,7 @@ export default class Settings extends React.Component {
             });
           } else {
             this.setState({
-              selectedRows: users.map(stock => stock._id),
+              selectedRows: elements.map(element => element._id),
               selectAllRows: true
             });
           }         
@@ -471,27 +471,27 @@ export default class Settings extends React.Component {
     }
 
     generateBody() {
-        const { users, retrieving, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
+        const { elements, retrieving, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(users) || !retrieving) {
-            users.map((user) => {
+        if (!_.isEmpty(elements) || !retrieving) {
+            elements.map((element) => {
                 tempRows.push(
-                    <tr key={user._id}>
+                    <tr key={element._id}>
                         <TableSelectRow
-                            id={user._id}
+                            id={element._id}
                             selectAllRows={selectAllRows}
                             selectedRows={selectedRows}
                             callback={this.updateSelectedRows}
                         />
-                        <TableData colIndex="1" value={user.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
-                        <TableData colIndex="2" value={user.email} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={user._id} />
+                        <TableData colIndex="1" value={element.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="2" value={element.email} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                         <td data-type="checkbox">
                             <TableCheckBoxAdmin
-                                _id={user._id}
-                                checked={user.isAdmin || false}
+                                _id={element._id}
+                                checked={element.isAdmin || false}
                                 refreshStore={this.getDocuments}
                                 setAlert={this.setAlert}
-                                disabled={_.isEqual(currentUser._id, user._id) || !currentUser.isAdmin ? true : false}
+                                disabled={_.isEqual(currentUser._id, element._id) || !currentUser.isAdmin ? true : false}
                                 data-type="checkbox"
                             />
                         </td>
@@ -712,7 +712,7 @@ export default class Settings extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, user, sort, showSearch, showUser, settingsColWidth, upserting, deleting, selectAllRows } = this.state;
+        const { alert, menuItem, element, sort, showSearch, showUser, settingsColWidth, upserting, deleting, selectAllRows } = this.state;
         const { params, focused, dropdown } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -846,7 +846,7 @@ export default class Settings extends React.Component {
                     <Modal
                         show={showUser}
                         hideModal={this.hideModal}
-                        title={this.state.user._id ? "Update user" : "Add user"}
+                        title={this.state.element._id ? "Update user" : "Add user"}
                     >
                         <div className="col-12">
                             <form
@@ -857,7 +857,7 @@ export default class Settings extends React.Component {
                                     title="Full Name"
                                     name="name"
                                     type="text"
-                                    value={user.name}
+                                    value={element.name}
                                     onChange={this.handleChangeUser}
                                     inline={false}
                                     required={true}
@@ -866,15 +866,15 @@ export default class Settings extends React.Component {
                                     title="Email"
                                     name="email"
                                     type="email"
-                                    value={user.email}
+                                    value={element.email}
                                     onChange={this.handleChangeUser}
                                     inline={false}
                                     required={true}
                                 />
                                 <div className="modal-footer">
-                                    {this.state.user._id ?
+                                    {this.state.element._id ?
                                         <div className="row">
-                                            <button className="btn btn-sm btn-leeuwen" onClick={(event) => { this.handleDelete(event, this.state.user._id) }}>
+                                            <button className="btn btn-sm btn-leeuwen" onClick={(event) => { this.handleDelete(event, this.state.element._id) }}>
                                                 <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
                                             </button>
                                             <button type="submit" className="btn btn-sm btn-leeuwen-blue ml-2">

@@ -15,6 +15,7 @@ phases:
       - echo Build client and backend docker images for testing...
       - docker build -t timotheedesurmont/client-test -f ./client/Dockerfile.dev ./client
       - docker build -t timotheedesurmont/server-test -f ./server/Dockerfile.dev ./server
+      - docker build -t timotheedesurmont/worker-test -f ./worker/Dockerfile.dev ./worker
       - docker build -t timotheedesurmont/service_param-test -f ./service_param/Dockerfile.dev ./service_param
       - docker build -t timotheedesurmont/service_stock-test -f ./service_stock/Dockerfile.dev ./service_stock
   build:
@@ -25,6 +26,8 @@ phases:
       - docker run -e CI=true timotheedesurmont/client-test
       - echo Run server tests...
       - docker run -e CI=true timotheedesurmont/server-test
+      - echo Run worker tests...
+      - docker run -e CI=true timotheedesurmont/worker-test
       - echo Run service_param tests...
       - docker run -e CI=true timotheedesurmont/service_param-test
       - echo Run service_stock tests...
@@ -42,6 +45,12 @@ phases:
       # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
       ## Setup continuous monitoring
       # - ./snyk monitor --docker timotheedesurmont/server-test:latest --file=./server/Dockerfile.dev
+
+      ## worker
+      ## Run test for security vulernabilities
+      # - ./snyk test --severity-threshold=medium --docker timotheedesurmont/worker-test:latest --file=./worker/Dockerfile.dev
+      ## Setup continuous monitoring
+      # - ./snyk monitor --docker timotheedesurmont/worker-test:latest --file=./worker/Dockerfile.dev
       
       ## service_param
       ## Run test for security vulernabilities
@@ -59,6 +68,7 @@ phases:
       - echo Building the production Docker image...
       - docker build -t timotheedesurmont/wkf-client ./client
       - docker build -t timotheedesurmont/wkf-server ./server
+      - docker build -t timotheedesurmont/wkf-worker ./worker
       - docker build -t timotheedesurmont/wkf-service_param ./service_param
       - docker build -t timotheedesurmont/wkf-service_stock ./service_stock
       - docker build -t timotheedesurmont/wkf-nginx ./nginx
@@ -70,6 +80,7 @@ phases:
       - echo Pushing the Docker images...
       - docker push timotheedesurmont/wkf-client
       - docker push timotheedesurmont/wkf-server
+      - docker push timotheedesurmont/wkf-worker
       - docker push timotheedesurmont/wkf-service_param
       - docker push timotheedesurmont/wkf-service_stock
       - docker push timotheedesurmont/wkf-nginx

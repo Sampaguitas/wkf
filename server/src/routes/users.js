@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const userController = require("../controllers/user_controller");
+const userController = require("../controllers/user");
 const passport = require("passport");
 
 router.get("/:userId", passport.authenticate("jwt", { session: false }), userController.getById);//server

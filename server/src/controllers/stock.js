@@ -1,5 +1,3 @@
-// const Export = require("../models/Export");
-
 const escape = require("../functions/escape");
 var moment = require('moment');
 
@@ -189,7 +187,7 @@ const getAll = (req, res, next) => {
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch),
                         {
                             "$project": {
                                 "parameters": 0,
@@ -206,7 +204,7 @@ const getAll = (req, res, next) => {
                         
                     ],
                     "pagination": [
-                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -219,7 +217,7 @@ const getAll = (req, res, next) => {
                 }
             },
             {
-                $project: require("../pipelines/projections/projection_result")(nextPage, pageSize)
+                $project: require("../pipelines/projection/result")(nextPage, pageSize)
             }
         ]).exec(function(error, result) {
             if (!!error || !result) {
@@ -241,14 +239,14 @@ const getDrop = (req, res, next) => {
             case "opco":
             case "artNr":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$${key}`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -260,14 +258,14 @@ const getDrop = (req, res, next) => {
             case "steelType":
             case "pffType":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch),
                     {
                         "$group": {
                             "_id": null,
                             "data":{ "$addToSet": `$parameters.${key=== "steelType" ? "grade" : "type"}.${key}`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -277,11 +275,10 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "type":
-            case "grade":
             case "end":
             case "surface":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch),
                     {
                         "$project": {
                             "data": `$parameters.${key}.tags`
@@ -296,7 +293,7 @@ const getDrop = (req, res, next) => {
                             "data":{ "$addToSet": `$data`}
                         }
                     },
-                    ...require("../pipelines/projections/projection_drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
                     if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
                         res.status(200).json([]);
@@ -305,11 +302,66 @@ const getDrop = (req, res, next) => {
                     } 
                 });
                 break;
+            case "grade":
+                // require("../models/Grade").aggregate([
+                //     {
+                //         "$match": {
+                //             "isMultiple": { "$ne": true }
+                //         }
+                //     },
+                //     {
+                //         "$group": {
+                //             "_id": null,
+                //             "data":{ "$addToSet": `$name`}
+                //         }
+                //     },
+                //     {
+                //         "$project":{
+                //             "_id": 0
+                //         }
+                //     }
+                // ]).exec(function(err, uniques) {
+                //     if (!!err || uniques.length !== 1 || !uniques[0].hasOwnProperty("data")) {
+                //         res.status(200).json([])
+                //     } else {
+                        require("../models/Stock").aggregate([
+                            ...require("../pipelines/first_stage/stock")(myMatch),
+                            {
+                                "$project": {
+                                    "data": `$parameters.${key}.tags`
+                                }
+                            },
+                            {
+                                "$unwind": "$data"
+                            },
+                            {
+                                "$group": {
+                                    "_id": null,
+                                    "data":{ "$addToSet": `$data`}
+                                }
+                            },
+                            // {
+                            //     "$project": {
+                            //         "data": { "$setIntersection":  [ uniques[0].data, "$data"] }
+                            //     }
+                            // },
+                            ...require("../pipelines/projection/drop")(name, page)
+                        ]).exec(function(error, result) {
+                            if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
+                                res.status(200).json([]);
+                            } else {
+                                res.status(200).json(result[0].data);
+                            } 
+                        }); 
+                    // }
+                // });
+                
+                break;
             case "sizeOne":
             case "wallOne":
             case "wallTwo":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -387,7 +439,7 @@ const getDrop = (req, res, next) => {
             case "sizeTwo":
                 if (dropdown.pffType === "FORGED_OLETS" || regexOutlet.test(dropdown.type)) {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch),
                         {
                             "$group": {
                                 "_id": null,
@@ -491,7 +543,7 @@ const getDrop = (req, res, next) => {
                     });
                 } else {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch),
                         {
                             "$project": {
                                 "tags": `$parameters.${key}.tags`,
@@ -568,7 +620,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "length":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/stock_pipelines/first_stage")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,

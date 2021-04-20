@@ -6,7 +6,7 @@ services:
       - server
       - service_param
       - service_stock
-      - service_worker
+      - worker
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -55,13 +55,13 @@ services:
       - "./service_stock/src:/app/src"
     env_file:
       - ./env/server.env
-  service_worker:
+  worker:
     build:
-      context: ./service_worker
+      context: ./worker
       dockerfile: Dockerfile.dev
     restart: on-failure
     volumes:
       - /app/node_modules
-      - "./service_worker/src:/app/src"
+      - "./worker/src:/app/src"
     env_file:
       - ./env/server.env

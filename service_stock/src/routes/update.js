@@ -92,7 +92,7 @@ function updateStock(row, processId, index, length) {
                 $set: {
                     "description": require("../functions/getString")(row[3]),
                     "vlunar": require("../functions/getString")(row[1]),
-                    "weight": require("../functions/getWeight")(uom, Number(row[8])),
+                    "weight": require("../functions/getWeight")("METRIC", uom, Number(row[8])),
                     "uom": require("../functions/getUom")(uom),
                     "qty": require("../functions/getQty")(uom, Number(row[4])),
                     "price": {

@@ -2,7 +2,7 @@ var express = require("express");
 const passport = require("passport");
 var router = express.Router();
 
-const stockController = require("../controllers/stock_controller");
+const stockController = require("../controllers/stock");
 
 router.post("/getAll", passport.authenticate("jwt", { session: false }), stockController.getAll);
 router.post("/getDrop/:key", passport.authenticate("jwt", { session: false }), stockController.getDrop);
