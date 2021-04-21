@@ -19,10 +19,23 @@ const UserSchema = new Schema({
     "isAdmin":{
         type: Boolean,
         default: false
+    },
+    "accountId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "accounts"
     }
 },
 {
     "timestamps": true
 });
+
+UserSchema.virtual("account", {
+    ref: "accounts",
+    localField: "accountId",
+    foreignField: "_id",
+    justOne: true
+});
+
+UserSchema.set('toJSON', { virtuals: true });
 
 module.exports= User = mongoose.model("users", UserSchema);

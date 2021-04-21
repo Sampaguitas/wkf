@@ -78,6 +78,10 @@ const ExportSchema = new Schema({
             var today = new Date();
            return new Date(today.setDate(today.getDate() + 7));
        }
+    },
+    "accountId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "accounts"
     }
 },
 {

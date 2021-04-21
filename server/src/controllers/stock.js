@@ -181,13 +181,13 @@ const getAll = (req, res, next) => {
     const { sort, dropdown } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
-    
+    const user = req.user
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         require("../models/Stock").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/first_stage/stock")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                         {
                             "$project": {
                                 "parameters": 0,
@@ -204,7 +204,7 @@ const getAll = (req, res, next) => {
                         
                     ],
                     "pagination": [
-                        ...require("../pipelines/first_stage/stock")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -234,12 +234,13 @@ const getDrop = (req, res, next) => {
     const { dropdown, name } = req.body;
     const {key} = req.params;
     let page = req.body.page || 0;
+    const user = req.user
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         switch(key) {
             case "opco":
             case "artNr":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$group": {
                             "_id": null,
@@ -258,7 +259,7 @@ const getDrop = (req, res, next) => {
             case "steelType":
             case "pffType":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$group": {
                             "_id": null,
@@ -278,7 +279,7 @@ const getDrop = (req, res, next) => {
             case "end":
             case "surface":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$project": {
                             "data": `$parameters.${key}.tags`
@@ -325,7 +326,7 @@ const getDrop = (req, res, next) => {
                 //         res.status(200).json([])
                 //     } else {
                         require("../models/Stock").aggregate([
-                            ...require("../pipelines/first_stage/stock")(myMatch),
+                            ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                             {
                                 "$project": {
                                     "data": `$parameters.${key}.tags`
@@ -361,7 +362,7 @@ const getDrop = (req, res, next) => {
             case "wallOne":
             case "wallTwo":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -439,7 +440,7 @@ const getDrop = (req, res, next) => {
             case "sizeTwo":
                 if (dropdown.pffType === "FORGED_OLETS" || regexOutlet.test(dropdown.type)) {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/first_stage/stock")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                         {
                             "$group": {
                                 "_id": null,
@@ -543,7 +544,7 @@ const getDrop = (req, res, next) => {
                     });
                 } else {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/first_stage/stock")(myMatch),
+                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                         {
                             "$project": {
                                 "tags": `$parameters.${key}.tags`,
@@ -620,7 +621,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "length":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch),
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,

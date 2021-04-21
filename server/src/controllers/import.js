@@ -10,29 +10,62 @@ aws.config.update({
 
 const uploadStock = (req, res, next) => {
     const file = req.file;
-    const { email, password, opco } = req.body;
-    if (!email || !password || !opco || !system || !file) {
-        console.log("email, password or file is missing");
-        res.status(400).json({ message: "email, password, opco, system or file is missing"});  
+    const { email, key, opco } = req.body;
+    if (!email || !key || !opco || !file) {
+        console.log("Fields are missing.");
+        res.status(400).json({ message: "Fields are missing."});  
     } else {
-        require("../models/User").findOne({ email }, { password:1, isAdmin: 1 })
-        .then(user => {
-            if (!user) {
-                res.status(400).json({ message: "Wrong email or password." });
+        require("../models/User")
+        .findOne({ email })
+        .populate({
+            path: "account",
+            populate: {
+                path: "opcos",
+                match: {
+                    "stockInfo.capex_file_code": opco 
+                }
+            }
+        })
+        .exec(function(err, user) {
+            if (!!err, !user) {
+                console.log(err);
+                res.status(400).json({ message: "User not found." });
+            } else if (!user.isAdmin || !user.account || !user.account.uploadKey || user.account.opcos.length === 0 ) { //|| !user.account.isActive 
+                console.log("Unauthorized");
+                res.status(401).send("Unauthorized");
             } else {
-                bcrypt.compare(password, user.password).then(isMatch => {
-                    if (!isMatch) { 
-                        res.status(400).json({ message: "Wrong email or password." });
-                    } else if (!user.isAdmin){
+                bcrypt.compare(key, user.account.uploadKey).then(isMatch => {
+                    if (!isMatch) {
+                        console.log("Unauthorized");
                         res.status(401).send("Unauthorized");
                     } else {
-                        console.log("file.originalname:", file.originalname);
-                        console.log("userId:", user._id);
-                        res.status(200).json({ message: file.originalname});
+                            console.log("file.originalname:", file.originalname);
+                            console.log("capex_file_code:", user.account.opcos[0].stockInfo.capex_file_code);
+                            console.log("system:", user.account.opcos[0].stockInfo.system);
+                            console.log("currency_cost_prices:", user.account.opcos[0].stockInfo.currency_cost_prices);
+                            console.log("userId:", user._id);
+                            res.status(200).json({ message: file.originalname});
                     }
                 });
             }
-        });
+        })
+        // .then(user => {
+        //     if (!user) {
+        //         res.status(400).json({ message: "Wrong email or password." });
+        //     } else {
+        //         bcrypt.compare(password, user.password).then(isMatch => {
+        //             if (!isMatch) { 
+        //                 res.status(400).json({ message: "Wrong email or password." });
+        //             } else if (!user.isAdmin){
+        //                 res.status(401).send("Unauthorized");
+        //             } else {
+        //                 console.log("file.originalname:", file.originalname);
+        //                 console.log("userId:", user._id);
+        //                 res.status(200).json({ message: file.originalname});
+        //             }
+        //         });
+        //     }
+        // });
     }
     // const {exportId} = req.params;
     // require("../models/Export").findById(exportId, function(err, document) {

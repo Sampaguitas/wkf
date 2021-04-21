@@ -81,6 +81,10 @@ const StockSchema = new Schema({
             "name": String,
             "tags": [String]
         }
+    },
+    "accountId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "accounts"
     }
 },
 {

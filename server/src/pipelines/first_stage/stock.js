@@ -1,5 +1,11 @@
-module.exports = (myMatch) => {
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
+module.exports = (myMatch, accountId) => {
     return [
+        {
+            "$match": { "accountId": ObjectId(accountId) }
+        },
         {
             "$match": myMatch
         },

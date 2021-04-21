@@ -10,7 +10,7 @@ const login = (req, res, next) => {
     const email = req.body.email.toLowerCase();
     const {password} = req.body;
 
-    require("../models/User").findOne({ email }, { password:1, name: 1, isAdmin: 1 })
+    require("../models/User").findOne({ email }, { password:1, name: 1, isAdmin: 1, accountId: 1 })
     .then(user => {
         if (!user) {
             res.status(400).json({ message: "Wrong email or password." });
@@ -23,7 +23,8 @@ const login = (req, res, next) => {
                         "_id": user._id,
                         "name": user.name,
                         "email": user.email,
-                        "isAdmin": user.isAdmin
+                        "isAdmin": user.isAdmin,
+                        "accountId": user.accountId
                     };
                     jwt.sign(
                         payload,
@@ -193,7 +194,8 @@ const create = (req, res, next) => {
                     } else {
                         let newUser = new require("../models/User")({
                             name, "email": email.toLowerCase(),
-                            "password": hash
+                            "password": hash,
+                            "accountId": user.accountId
                         });
 
                         newUser
@@ -206,6 +208,7 @@ const create = (req, res, next) => {
         });
     }
 }
+
 
 const update = (req, res, next) => {
         
@@ -227,6 +230,36 @@ const update = (req, res, next) => {
                 res.status(400).json({message: "User could not be updated." });
             } else {
                 res.status(200).json({message: "User has successfuly been updated." });
+            }
+        });
+    }
+}
+
+const genKey = (req, res, next) => {
+    const user = req.user;
+    if (!user.isAdmin) {
+        res.status(400).json({message: "You do not have the permission to create users"})
+    } else if (!user.accountId) {
+        res.status(400).json({message: "Could not get retreive your accountId."})
+    } else {
+        let key = crypto.randomBytes(32).toString("hex");
+        bcrypt.genSalt(10, (errSalt, salt) => {
+            if (!!errSalt) {
+                res.status(400).json({message: "Error generating salt." });
+            } else {
+                bcrypt.hash(key, salt, (errHash, hash) => {
+                    if (!!errHash || !hash) {
+                        res.status(400).json({message: "Error creating the key hash."});
+                    } else {
+                        require("../models/Account").findByIdAndUpdate(user.accountId, { "uploadKey": hash }, function(err, doc) {
+                            if (!!err || !doc) {
+                                res.status(400).json({message: "Could not save the new upload key."});
+                            } else {
+                                res.status(200).json({key: key });
+                            }
+                        });
+                    }
+                });
             }
         });
     }
@@ -294,7 +327,7 @@ const getById = (req, res, next) => {
 
 
 const getAll = (req, res, next) => {
-    
+    const user = req.user;
     const { dropdown, sort } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
@@ -303,7 +336,7 @@ const getAll = (req, res, next) => {
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/first_stage/user")(myMatch),
+                        ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
@@ -318,12 +351,13 @@ const getAll = (req, res, next) => {
                                 "name": 1,
                                 "email": 1,
                                 "isAdmin": 1,
-                                "isAdminX": 1
+                                "isAdminX": 1,
+                                "accountId": 1
                             }
                         }
                     ],
                     "pagination": [
-                        ...require("../pipelines/first_stage/user")(myMatch),
+                        ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -349,6 +383,7 @@ const getAll = (req, res, next) => {
 }
 
 const getDrop = (req, res, next) => {
+    const user = req.user;
     const { dropdown, name } = req.body;
     let page = req.body.page || 0;
     const {key} = req.params;
@@ -357,7 +392,7 @@ const getDrop = (req, res, next) => {
             case "name":
             case "email":
                 require("../models/User").aggregate([
-                    ...require("../pipelines/first_stage/user")(myMatch),
+                    ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                     {
                         "$group": {
                             "_id": null,
@@ -375,7 +410,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "isAdmin":
                 require("../models/User").aggregate([
-                    ...require("../pipelines/first_stage/user")(myMatch),
+                    ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                     {
                         "$group": {
                             "_id": null,
@@ -420,6 +455,7 @@ const userController = {
     resetPwd,
     updatePwd,
     create,
+    genKey,
     update,
     setAdmin,
     _delete,
