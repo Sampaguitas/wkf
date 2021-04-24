@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
-var aws = require('aws-sdk');
-var path = require('path');
+const aws = require('aws-sdk');
+const path = require('path');
+const mongoose = require("mongoose")
 
 aws.config.update({
     accessKeyId: process.env.ACCESS_KEY_ID,
@@ -12,86 +13,128 @@ const uploadStock = (req, res, next) => {
     const file = req.file;
     const { email, key, opco } = req.body;
     if (!email || !key || !opco || !file) {
-        console.log("Fields are missing.");
         res.status(400).json({ message: "Fields are missing."});  
+    } else if (path.extname(file.originalname) !== ".txt") {
+        res.status(400).json({ message: "Wrong file format." }); 
     } else {
         require("../models/User")
         .findOne({ email })
-        .populate({
-            path: "account",
-            populate: {
-                path: "opcos",
-                match: {
-                    "stockInfo.capex_file_code": opco 
-                }
-            }
-        })
+        .populate({ path: "account", populate: { path: "opcos", match: { "stockInfo.capex_file_code": opco } } })
         .exec(function(err, user) {
-            if (!!err, !user) {
-                console.log(err);
+            if (!!err || !user) { 
                 res.status(400).json({ message: "User not found." });
-            } else if (!user.isAdmin || !user.account || !user.account.uploadKey || user.account.opcos.length === 0 ) { //|| !user.account.isActive 
-                console.log("Unauthorized");
+            } else if (!user.isAdmin || !user.account || !user.account.uploadKey || user.account.opcos.length === 0) { 
                 res.status(401).send("Unauthorized");
             } else {
-                bcrypt.compare(key, user.account.uploadKey).then(isMatch => {
-                    if (!isMatch) {
-                        console.log("Unauthorized");
-                        res.status(401).send("Unauthorized");
-                    } else {
-                            console.log("file.originalname:", file.originalname);
-                            console.log("capex_file_code:", user.account.opcos[0].stockInfo.capex_file_code);
-                            console.log("system:", user.account.opcos[0].stockInfo.system);
-                            console.log("currency_cost_prices:", user.account.opcos[0].stockInfo.currency_cost_prices);
-                            console.log("userId:", user._id);
-                            res.status(200).json({ message: file.originalname});
-                    }
+                let { system, currency_cost_prices, capex_file_code } = user.account.opcos[0].stockInfo;
+                if ( !system || !currency_cost_prices || !capex_file_code ) {
+                    res.status(400).json({ message: "Check stock information information." });
+                } else {
+                    console.log("toto")
+                    bcrypt.compare(key, user.account.uploadKey).then(isMatch => {
+                        if (!isMatch) {
+                            res.status(401).send("Unauthorized");
+                        } else {
+                            let timestamp = new mongoose.Types.ObjectId();
+                            var s3 = new aws.S3();
+                            s3.upload({
+                                Bucket: process.env.AWS_BUCKET_NAME,
+                                Body: file.buffer,
+                                Key: path.join('imports', `${timestamp}.txt`)
+                            }, function(error, data) {
+                                if (!!error || !data) {
+                                    res.status(400).json({ message: "Could not upload file." });
+                                } else {
+                                    let newImport = new require("../models/Import")({
+                                        "_id": timestamp,
+                                        "type": "stocks",
+                                        "system": system,
+                                        "currency": currency_cost_prices,
+                                        "opco": capex_file_code,
+                                        "status": "pending",
+                                        "createdBy": user._id,
+                                        "accountId": user.accountId
+                                    });
+    
+                                    newImport
+                                    .save()
+                                    .then( () => res.status(200).json({message: "Import in progress." }))
+                                    .catch( (err) => {
+                                        res.status(400).json({message: "Import failed." })
+                                    });
+                                }
+    
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+}
+
+const uploadParam = (req, res, next) => {
+    
+    const file = req.file;
+    const user = req.user;
+
+    if(!user.isAdmin || !user.accountId) {
+        res.status(401).send("Unauthorized");
+    } else if (!file) {
+        res.status(400).json({ message: "File is missing missing."});  
+    } else if (path.extname(file.originalname) !== ".xlsx") {
+        res.status(400).json({ message: "Wrong file format." }); 
+    } else {
+        let timestamp = new mongoose.Types.ObjectId();
+        var s3 = new aws.S3();
+        s3.upload({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Body: file.buffer,
+            Key: path.join('imports', `${timestamp}.txt`)
+        }, function(error, data) {
+            if (!!error || !data) {
+                res.status(400).json({ message: "Could not upload file." });
+            } else {
+                let newImport = new require("../models/Import")({
+                    "_id": timestamp,
+                    "type": "params",
+                    "status": "pending",
+                    "createdBy": user._id,
+                    "accountId": user.accountId
+                });
+
+                newImport
+                .save()
+                .then( () => res.status(200).json({message: "Import in progress." }))
+                .catch( (err) => {
+                    res.status(400).json({message: "Import failed." })
                 });
             }
-        })
-        // .then(user => {
-        //     if (!user) {
-        //         res.status(400).json({ message: "Wrong email or password." });
-        //     } else {
-        //         bcrypt.compare(password, user.password).then(isMatch => {
-        //             if (!isMatch) { 
-        //                 res.status(400).json({ message: "Wrong email or password." });
-        //             } else if (!user.isAdmin){
-        //                 res.status(401).send("Unauthorized");
-        //             } else {
-        //                 console.log("file.originalname:", file.originalname);
-        //                 console.log("userId:", user._id);
-        //                 res.status(200).json({ message: file.originalname});
-        //             }
-        //         });
-        //     }
-        // });
-    }
-    // const {exportId} = req.params;
-    // require("../models/Export").findById(exportId, function(err, document) {
-    //     if (!!err) {
-    //         res.status(400).json({ message: "An error has occured."});
-    //     } else if (!document) {
-    //         res.status(400).json({ message: "Could not find the document."});
-    //     } else {
-    //         var s3 = new aws.S3();
-    //         s3.getObject({
-    //             Bucket: process.env.AWS_BUCKET_NAME,
-    //             Key: path.join('exports', `${document._id}.xlsx`)
-    //         }).createReadStream()
-    //         .on('error', () => {
-    //             res.status(400).json({message: "The file could not be located."});
-    //         }).pipe(res);
-    //     }
-    // });
 
-    // else if (!file) {
-    //     console.log("The file is missing");
-    //     res.status(400).json({ message: "The file is missing"});
+        });
+    }
+}
+
+const downloadParam = (req, res, next) => {
+    const user = req.user;
+    if(!user.isAdmin) {
+        res.status(400).json({ message: "You do not have the permission to download params"});
+    } else {
+        var s3 = new aws.S3();
+        s3.getObject({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: path.join('templates', `duf_params.xls`)
+        }).createReadStream()
+        .on('error', () => {
+            res.status(400).json({message: "The file could not be located."});
+        }).pipe(res);
+    }
 }
 
 const importController = {
-    uploadStock
+    uploadStock,
+    uploadParam,
+    downloadParam
 };
 
 module.exports = importController;

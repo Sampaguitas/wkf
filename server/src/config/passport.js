@@ -7,3 +7,18 @@ module.exports = passport => {
         secretOrKey: process.env.SECRET
     }, (jwt_payload, done) => done(null, jwt_payload)));
 };
+
+// module.exports = passport => {
+//     passport.use(new JwtStrategy({
+//         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+//         secretOrKey: process.env.SECRET
+//     }, (jwt_payload, done) => {
+//         require("../models/User").findById(jwt_payload._id, function(err, user) {
+//             if (err || !user) {
+//                 return done(null, false);
+//             } else {
+//                 return done(null, user);
+//             }
+//         });
+//     }));
+// };

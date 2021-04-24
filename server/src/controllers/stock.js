@@ -34,7 +34,10 @@ const _export = (req, res, next) => {
 
 const getById = (req, res, next) => {
     const {articleId} = req.params;
-    require("../models/Stock").findById(articleId, function (err, article) {
+    require("../models/Stock")
+    .findById(articleId)
+    .populate("location")
+    .exec(function (err, article) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."});
         } if (!article) {
@@ -126,6 +129,33 @@ const getById = (req, res, next) => {
                             "tags": article.parameters.surface.tags,
                         }
                     }
+                ),
+                "location": !article.location ? (
+                    {
+                        "title": "",
+                        "address": "",
+                        "postalcode": "",
+                        "city": "",
+                        "country": "",
+                        "tel": "",
+                        "fax": "",
+                        "email": "",
+                        "price_info": ""
+                    }
+                )
+                :
+                (
+                    {
+                        "title": article.location.title,
+                        "address": article.location.address,
+                        "postalcode": article.location.postalcode,
+                        "city": article.location.city,
+                        "country": article.location.country,
+                        "tel": article.location.tel,
+                        "fax": article.location.fax,
+                        "email": article.location.email,
+                        "price_info": !!article.location.stockInfo ? article.location.stockInfo.intercompany_price_information : "",
+                    }
                 )
             }});
         }
@@ -134,7 +164,9 @@ const getById = (req, res, next) => {
 
 const getByArt = (req, res, next) => {
     const {opco, artNr} = req.params;
-    require("../models/Stock").findOne({opco, artNr}, function(err, article) {
+    require("../models/Stock")
+    .findOne({opco, artNr})
+    .exec(function(err, article) {
         if (!!err || !article) {
             res.status(200).json({
                 "description": "",

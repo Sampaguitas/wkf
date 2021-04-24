@@ -12,7 +12,7 @@ aws.config.update({
 module.exports = (document) => {
   return new Promise(function(resolve) {
       if (!document.stockFilters) {
-        require("./processReject")(document._id).then( () => resolve());
+        require("./exportReject")(document._id).then( () => resolve());
       } else {
         const { sort, dropdown, selectedIds } = document.stockFilters;
         matchDropdown(selectedIds, dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
@@ -20,7 +20,7 @@ module.exports = (document) => {
                 ...require("../pipelines/stock_pipelines/first_stage")(myMatch, sort)
             ]).exec(function(error, result) {
                 if (!!error || !result) {
-                    require("./processReject")(document._id).then( () => resolve());
+                    require("./exportReject")(document._id).then( () => resolve());
                 } else {
                     var workbook = new Excel.Workbook();
                     var worksheet = workbook.addWorksheet('My Sheet');
@@ -78,8 +78,8 @@ module.exports = (document) => {
                         Body: stream,
                         Key: path.join('exports', `${document._id}.xlsx`)
                     }).promise())
-                    .then(() => require("./processFinalise")(document._id, result.length).then( () => resolve()))
-                    .catch(() => require("./processReject")(document._id).then( () => resolve()));
+                    .then(() => require("./exportFinalise")(document._id, result.length).then( () => resolve()))
+                    .catch(() => require("./exportReject")(document._id).then( () => resolve()));
                 }
             });
         });

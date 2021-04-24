@@ -91,4 +91,13 @@ const StockSchema = new Schema({
     timestamps: true
 });
 
+StockSchema.virtual("location", {
+    ref: "opcos",
+    localField: "opco",
+    foreignField: "stockInfo.capex_file_code",
+    justOne: true
+});
+
+StockSchema.set('toJSON', { virtuals: true });
+
 module.exports = Stock = mongoose.model("stocks", StockSchema);

@@ -1,6 +1,8 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
+import { saveAs } from 'file-saver';
+
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
@@ -47,8 +49,13 @@ export default class Import extends React.Component {
             selectedRows: [],
             retrieving: false,
             loading: false,
-            // loaded: false,
-            // submitted: false,
+            //
+            showParam: false,
+            paramName: "",
+            paramKey: Date.now(),
+            uploadingParam: false,
+            downloadingParam: false,
+            //
             showSearch: false,
             menuItem: "Import data",
             settingsColWidth: {},
@@ -89,6 +96,12 @@ export default class Import extends React.Component {
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
+        //DUF param
+        this.toggleParam = this.toggleParam.bind(this);
+        this.handleChangeParam = this.handleChangeParam.bind(this);
+        this.handleDownloadParam = this.handleDownloadParam.bind(this);
+        this.handleUploadParam = this.handleUploadParam.bind(this);
+        this.paramInput = React.createRef();
     }
 
 
@@ -555,25 +568,125 @@ export default class Import extends React.Component {
         }
     }
 
+    toggleParam(event) {
+        event.preventDefault();
+        const { showParam } = this.state;
+        this.setState({
+            showParam: !showParam,
+            alert: {
+                type:'',
+                message:''
+            },
+            paramKey: Date.now(),
+            paramName: '',
+        });
+    }
+
+    handleChangeParam(event) {
+        if(event.target.files.length > 0) {
+          this.setState({
+              ...this.state,
+              paramName: event.target.files[0].name
+          });
+        }
+    }
+
+    handleDownloadParam(event){
+        event.preventDefault();
+        const { downloadingParam } = this.state;
+        if (!downloadingParam) {
+          this.setState({
+            downloadingParam: true
+          }, () => {
+            const requestOptions = {
+              method: 'GET',
+              headers: { ...authHeader(), 'Content-Type': 'application/json'},
+            }
+            return fetch(`${process.env.REACT_APP_API_URI}/server/imports/downloadParam`, requestOptions)
+            .then(responce => {
+                if (responce.status === 401) {
+                        localStorage.removeItem('user');
+                        window.location.reload(true);
+                } else if (responce.status === 400) {
+                    this.setState({
+                        downloadingParam: false,
+                        alert: {
+                            type: 'alert-danger',
+                            message: 'an error has occured'  
+                        }
+                    });
+                } else {
+                    this.setState({
+                        downloadingParam: false
+                    }, () => responce.blob().then(blob => saveAs(blob, 'param.xls')));
+                }
+            })
+            .catch( () => {
+              localStorage.removeItem('user');
+              window.location.reload(true);
+            });
+          });
+        }
+    }
+
+    handleUploadParam(event) {
+        event.preventDefault();
+        const { uploadingParam } = this.state
+        if(!uploadingParam && !!this.paramInput.current) {
+          this.setState({uploadingParam: true});
+          var data = new FormData()
+          data.append('file', this.paramInput.current.files[0]);
+          const requestOptions = {
+              method: 'POST',
+              headers: { ...authHeader()}, //, 'Content-Type': 'application/json'
+              body: data
+          }
+          return fetch(`${process.env.REACT_APP_API_URI}/server/imports/uploadParam`, requestOptions)
+          .then(responce => responce.text().then(text => {
+              const data = text && JSON.parse(text);
+              if (responce.status === 401) {
+                      localStorage.removeItem('user');
+                      window.location.reload(true);
+              } else {
+                this.setState({
+                    uploadingParam: false,
+                    alert: {
+                        type: responce.status === 200 ? 'alert-success' : 'alert-danger',
+                        message: data.message
+                    }
+                }, () => this.getDocument());
+              }
+          }))
+          .catch( () => {
+            localStorage.removeItem('user');
+            window.location.reload(true);
+          });         
+        }
+    }
+
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
         const { params, focused, dropdown } = this.state;
+        const { showParam, paramName, paramKey, uploadingParam, downloadingParam } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
-                {alert.message &&
+                {alert.message && !showParam &&
                     <div className={`alert ${alert.type}`}>{alert.message}
                         <button className="close" onClick={(event) => this.handleClearAlert(event)}>
                             <span aria-hidden="true"><FontAwesomeIcon icon="times" /></span>
                         </button>
                     </div>
                 }
-                <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
+                <div id="setting" className={alert.message && !showParam ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        </button>
+                        <button title="Import Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleParam}>
+                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2"/>Params</span>
                         </button>
                     </div>
                     <div className="body-section">
@@ -691,6 +804,65 @@ export default class Import extends React.Component {
                                     <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
                                 </button>
                                 <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
+                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
+                    <Modal
+                      show={showParam}
+                      hideModal={this.toggleParam}
+                      title="Import Params"
+                      size="modal-lg"
+                    >
+                        <div className="col-12">
+                            {alert.message &&
+                              <div className="row">
+                                <div className="col-12" style={{marginLeft:'0px', marginRight: '0px', paddingLeft: '0px', paddingRight: '0px'}}>
+                                  <div className={`alert ${alert.type}`}> {alert.message}
+                                    <button className="close" onClick={(event) => this.handleClearAlert(event)}>
+                                        <span aria-hidden="true"><FontAwesomeIcon icon="times"/></span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            }
+                            <div className="row">
+                                <form
+                                  className="col-12 mb-3 ml-0 mr-0  pl-0 pr-0"
+                                  encType="multipart/form-data"
+                                  onSubmit={this.handleUploadParam}
+                                >
+                                    <div className="input-group">
+                                      <div className="input-group-prepend">
+                                        <span className="input-group-text" style={{width: '100px', fontSize: "10px"}}>Select Document</span>
+                                        <input
+                                            type="file"
+                                            name="paramInput"
+                                            id="paramInput"
+                                            ref={this.paramInput}
+                                            className="custom-file-input"
+                                            style={{opacity: 0, position: 'absolute', pointerEvents: 'none', width: '1px'}}
+                                            onChange={this.handleChangeParam}
+                                            key={paramKey}
+                                        />
+                                      </div>
+                                      <label type="text" className="form-control text-left" htmlFor="paramInput" style={{display:'inline-block', padding: '7px'}}>{paramName ? paramName : 'Choose file...'}</label>
+                                      <div className="input-group-append">
+                                        <button type="submit" className="btn btn-sm btn-outline-leeuwen-blue" disabled={!this.paramInput.current ? true : false}>
+                                            <span><FontAwesomeIcon icon={uploadingParam ? "spinner" : "upload"} className={uploadingParam ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Upload</span>
+                                        </button>
+                                        <button className="btn btn-sm btn-outline-leeuwen-blue" onClick={this.handleDownloadParam}>
+                                            <span><FontAwesomeIcon icon={downloadingParam ? "spinner" : "download"} className={downloadingParam ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Download</span>
+                                        </button> 
+                                      </div>       
+                                    </div>
+                                </form>                    
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <div className="row">
+                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleParam}>
                                     <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
                                 </button>
                             </div>

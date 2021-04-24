@@ -13,7 +13,8 @@ import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
 import Param from "../../components/param";
-import TabStockInfo from "../../components/tab-stock-info";
+import TabStockLocation from "../../components/tab-stock-location";
+import TabStockArticle from "../../components/tab-stock-article";
 import TabStockPurchase from "../../components/tab-stock-purchase";
 import TabStockSuppliers from "../../components/tab-stock-suppliers";
 import TabStockParams from "../../components/tab-stock-params";
@@ -132,14 +133,22 @@ export default class Stock extends React.Component {
             tabs: [
                 {
                     index: 0, 
-                    id: "stock",
-                    label: "Stock",
-                    component: TabStockInfo, 
+                    id: "location",
+                    label: "Location",
+                    component: TabStockLocation, 
                     active: true, 
                     isLoaded: false
                 },
                 {
                     index: 1, 
+                    id: "article",
+                    label: "Article",
+                    component: TabStockArticle, 
+                    active: false, 
+                    isLoaded: false
+                },
+                {
+                    index: 2, 
                     id: "suppliers",
                     label: "Suppliers",
                     component: TabStockSuppliers, 
@@ -147,7 +156,7 @@ export default class Stock extends React.Component {
                     isLoaded: false
                 },
                 {
-                    index: 2,
+                    index: 3,
                     id: "purchase",
                     label: "Purchase",
                     component: TabStockPurchase,
@@ -155,7 +164,7 @@ export default class Stock extends React.Component {
                     isLoaded: false
                 },
                 {
-                    index: 3,
+                    index: 4,
                     id: "params",
                     label: "Params",
                     component: TabStockParams,
@@ -724,6 +733,48 @@ export default class Stock extends React.Component {
                     }
                 }
             },
+            tabs: [
+                {
+                    index: 0, 
+                    id: "location",
+                    label: "Location",
+                    component: TabStockLocation, 
+                    active: true, 
+                    isLoaded: false
+                },
+                {
+                    index: 1, 
+                    id: "article",
+                    label: "Article",
+                    component: TabStockArticle, 
+                    active: false, 
+                    isLoaded: false
+                },
+                {
+                    index: 2, 
+                    id: "suppliers",
+                    label: "Suppliers",
+                    component: TabStockSuppliers, 
+                    active: false, 
+                    isLoaded: false
+                },
+                {
+                    index: 3,
+                    id: "purchase",
+                    label: "Purchase",
+                    component: TabStockPurchase,
+                    active: false,
+                    isLoaded: false
+                },
+                {
+                    index: 4,
+                    id: "params",
+                    label: "Params",
+                    component: TabStockParams,
+                    active: false,
+                    isLoaded: false
+                }
+            ],
             retrievingArticle: false,
             showArticle: !showArticle
         });

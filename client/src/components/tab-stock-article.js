@@ -3,13 +3,13 @@ import Skeleton from "react-loading-skeleton";
 import getDateFormat from "../functions/getDateFormat";
 import typeToString from "../functions/typeToString";
 
-export default class TabStockInfo extends React.Component {
+export default class TabStockArticle extends React.Component {
 
     render() {
         const { article, retrievingArticle } = this.props
         return (
             <section>
-                <div className="table-responsive" id="stock_info">
+                <div className="table-responsive" id="article">
                     <table className="table table-hover">
                         <tbody>
                             <tr>
@@ -19,10 +19,6 @@ export default class TabStockInfo extends React.Component {
                             <tr>
                                 <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "artNr"}</th>
                                 <td className="w-60">{retrievingArticle? <Skeleton /> : article.artNr}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "opco"}</th>
-                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.opco}</td>
                             </tr>
                             <tr>
                                 <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>

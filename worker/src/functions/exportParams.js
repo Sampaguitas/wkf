@@ -17,9 +17,8 @@ module.exports = (document) => {
             ...require("../pipelines/param_pipelines/first_stage")(myMatch)
         ]).exec(function(error, result) {
             if (!!error || !result) {
-                require("./processReject")(document._id).then( () => resolve());
+                require("./exportReject")(document._id).then( () => resolve());
             } else {
-                console.log(result.length);
                 var s3_template = new aws.S3();
                 var workbook = new Excel.Workbook();
                 workbook.xlsx.read(s3_template.getObject({
@@ -65,8 +64,8 @@ module.exports = (document) => {
                         Body: stream,
                         Key: path.join('exports', `${document._id}.xlsx`)
                     }).promise())
-                    .then(() => require("./processFinalise")(document._id, result.length).then( () => resolve()))
-                    .catch(() => require("./processReject")(document._id).then( () => resolve()));
+                    .then(() => require("./exportFinalise")(document._id, result.length).then( () => resolve()))
+                    .catch(() => require("./exportReject")(document._id).then( () => resolve()));
                 });
             }
         });

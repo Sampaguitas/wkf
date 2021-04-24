@@ -9,19 +9,48 @@ mongoose
 
 let isProcessing = false;
 
+// var generateFile = new CronJob("*/10 * * * * *", function() {
+//     if (!isProcessing) {
+//       isProcessing = true;
+//       require("./functions/exportFindOne")().then(res => {
+//         switch(res.type) {
+//             case "stocks": require("./functions/exportStocks")(res).then( () => isProcessing = false);
+//             break;
+//             case "params": require("./functions/exportParams")(res).then( () => isProcessing = false);
+//             break;
+//           default: require("./functions/exportReject")(res._id).then( () => isProcessing = false);
+//         }
+//       }).catch( () => isProcessing = false);
+//     }
+// }, null, true, "Europe/London");
+
 var generateFile = new CronJob("*/10 * * * * *", function() {
-    if (!isProcessing) {
-      isProcessing = true;
-      require("./functions/processFindOne")().then(res => {
-        switch(res.type) {
-            case "stocks": require("./functions/genStocks")(res).then( () => isProcessing = false);
-            break;
-            case "params": require("./functions/genParams")(res).then( () => isProcessing = false);
-            break;
-          default: require("./functions/processReject")(res._id).then( () => isProcessing = false);
-        }
-      }).catch( () => isProcessing = false);
-    }
+  if (!isProcessing) {
+    isProcessing = true;
+    require("./functions/exportFindOne")().then(res => {
+      switch(res.type) {
+          case "stocks": require("./functions/exportStocks")(res).then( () => processImports().then( () => isProcessing = false));
+          break;
+          case "params": require("./functions/exportParams")(res).then( () => processImports().then( () => isProcessing = false));
+          break;
+        default: require("./functions/exportReject")(res._id).then( () => processImports().then( () => isProcessing = false));
+      }
+    }).catch( () => processImports().then( () => isProcessing = false));
+  }
 }, null, true, "Europe/London");
+
+function processImports() {
+  return new Promise(function(resolve) {
+    require("./functions/importFindOne")().then(res => {
+      switch(res.type) {
+          case "stocks": require("./functions/importStocks")(res).then( () => resolve());
+          break;
+          case "params": require("./functions/importParams")(res).then( () => resolve());
+          break;
+        default: require("./functions/importReject")(res._id).then( () => resolve());
+      }
+    }).catch( () => resolve());
+  });
+}
 
 generateFile.start();
