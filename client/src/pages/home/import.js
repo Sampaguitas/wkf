@@ -632,7 +632,7 @@ export default class Import extends React.Component {
                 } else {
                     this.setState({
                         downloadingParam: false
-                    }, () => responce.blob().then(blob => saveAs(blob, 'param.xls')));
+                    }, () => responce.blob().then(blob => saveAs(blob, 'duf_params.xlsm')));
                 }
             })
             .catch( () => {

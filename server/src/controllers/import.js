@@ -241,7 +241,7 @@ const downloadParam = (req, res, next) => {
         var s3 = new aws.S3();
         s3.getObject({
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key: path.join('templates', `duf_params.xls`)
+            Key: path.join('templates', `duf_params.xlsm`)
         }).createReadStream()
         .on('error', () => {
             res.status(400).json({message: "The file could not be located."});
