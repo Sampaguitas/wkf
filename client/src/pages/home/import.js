@@ -31,14 +31,18 @@ export default class Import extends React.Component {
                 isAscending: true,
             },
             dropdown: {
-                user:"",
-                processType:"",
-                createdAt: ""
+                type: "",
+                status: "",
+                user: "",
+                createdAt: "",
+                expiresAt: ""
             },
             params: {
-                user: { value: "", placeholder: "User", options: [], hover: "", page: 0 },
-                processType: { value: "", placeholder: "processType", options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 }
+                type: { value: "", placeholder: "type", options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "status", options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "user", options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 },
+                expiresAt: { value: "", placeholder: "expiresAt", options: [], hover: "", page: 0 }
             },
             focused: "",
             alert: {
@@ -138,9 +142,11 @@ export default class Import extends React.Component {
             this.getDocuments();
         }
 
+        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type", 0);
+        if (this.state.params.status.value !== prevState.params.status.value) this.getDropdownOptions("status", 0);
         if (this.state.params.user.value !== prevState.params.user.value) this.getDropdownOptions("user", 0);
-        if (this.state.params.processType.value !== prevState.params.processType.value) this.getDropdownOptions("processType", 0);
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
+        if (this.state.params.expiresAt.value !== prevState.params.expiresAt.value) this.getDropdownOptions("expiresAt", 0);
 
         if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -237,7 +243,7 @@ export default class Import extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/processes/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/imports/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -348,10 +354,12 @@ export default class Import extends React.Component {
                             selectedRows={selectedRows}
                             callback={this.updateSelectedRows}
                         />
-                        <TableData colIndex="1" value={element.processType} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="2" value={element.message} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="3" value={element.user} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="1" value={element.type} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="2" value={element.user} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="3" value={element.message} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
                         <TableData colIndex="4" value={element.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="5" value={element.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="6" value={element.status} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
                     </tr>
                 );
             });
@@ -359,6 +367,8 @@ export default class Import extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -379,14 +389,18 @@ export default class Import extends React.Component {
                 isAscending: true,
             },
             dropdown: {
-                user:"",
-                processType:"",
-                createdAt:"",
+                type: "",
+                status: "",
+                user: "",
+                createdAt: "",
+                expiresAt: ""
             },
             params: {
-                user: { value: "", placeholder: "User", options: [], hover: "", page: 0 },
-                processType: { value: "", placeholder: "processType", options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 }
+                type: { value: "", placeholder: "type", options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "status", options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "user", options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 },
+                expiresAt: { value: "", placeholder: "expiresAt", options: [], hover: "", page: 0 }
             },
             focused: "",
         });
@@ -407,7 +421,7 @@ export default class Import extends React.Component {
                     page: page || 0
                 })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/processes/getDrop/${key}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/imports/getDrop/${key}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -702,7 +716,7 @@ export default class Import extends React.Component {
                                             <TableHeader
                                                 type="text"
                                                 title="Type"
-                                                name="processType"
+                                                name="type"
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
@@ -713,8 +727,9 @@ export default class Import extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="Status"
-                                                name="message"
+                                                title="User"
+                                                name="user"
+                                                width="150px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
@@ -724,9 +739,8 @@ export default class Import extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="User"
-                                                name="user"
-                                                width="150px"
+                                                title="Import Logs"
+                                                name="message"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="3"
@@ -746,7 +760,30 @@ export default class Import extends React.Component {
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
                                             />
-                                            
+                                            <TableHeader
+                                                type="text"
+                                                title="Expires"
+                                                name="expiresAt"
+                                                width="80px"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="5"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeader
+                                                type="text"
+                                                title="Status"
+                                                name="status"
+                                                width="80px"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="6"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
                                         </tr>
                                     </thead>
                                     <tbody className="full-height">

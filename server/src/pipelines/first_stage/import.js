@@ -13,9 +13,15 @@ module.exports = (myMatch, format) => {
         },
         {
             "$project": {
-                "type": 1,
+                "type": {
+                    "$cond": {
+                        "if": {"$eq": ["$type", "stocks"]},
+                        "then": { "$concat": ["$type", " (", "$opco", ")"] },
+                        "else": "$type" 
+                    }
+                },
                 "status": 1,
-                "lines": 1,
+                "message": 1,
                 "user": "$user.name",
                 "createdAt": 1,
                 "expiresAt": 1,
