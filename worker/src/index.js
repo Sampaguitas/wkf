@@ -24,14 +24,8 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.get("/ping", (req, res, next) => {
-  res.status(200).json({ message: "pong"});
-});
-
-//without nginx
-app.get("/worker/ping", (req, res, next) => {
-  res.status(200).json({ message: "pong"});
-});
+app.use("/ping", require("./routes/ping"));
+app.use("/worker/ping", require("./routes/ping"));
 
 let isProcessing = false;
 
@@ -80,12 +74,13 @@ function processImports() {
 }
 
 var pingpong = new CronJob("0 */10 * * * *", function() {
-  const requestOptions = {
+    const requestOptions = {
       method: 'GET',
       headers: { 'Content-Type': 'application/json'},
-  }
-  fetch(`${process.env.REACT_APP_API_URI}/server/ping/`, requestOptions)
-  .then( () => console.log("pong"));
+    }
+    fetch(`${process.env.REACT_APP_API_URI}/server/ping/`, requestOptions)
+    .then( () => console.log("pong"))
+    .catch( () => console.log("pong"));
 }, null, true, "Europe/London");
 
 generateFile.start();
