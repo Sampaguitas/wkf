@@ -15,7 +15,7 @@ const getById = (req, res, next) => {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!doc) {
-            res.status(400).json({ message: "Could not retrieve process information." });
+            res.status(400).json({ message: "Could not retrieve export information." });
         } else {
             res.json({doc: doc});
         }

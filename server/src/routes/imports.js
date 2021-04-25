@@ -14,5 +14,4 @@ router.get("/downloadParam", passport.authenticate("jwt", { session: false }), i
 router.post("/uploadParam", passport.authenticate("jwt", { session: false }), upload.single("file"), importController.uploadParam);
 router.post("/uploadStock", upload.single("file"), importController.uploadStock);
 
-
 module.exports = router;

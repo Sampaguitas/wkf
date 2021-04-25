@@ -1,11 +1,37 @@
-const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const app = require("express")();
 var CronJob = require("cron").CronJob
+app.use(require("cors")());
+const fetch = require("node-fetch");
 
-mongoose
+//bodyParser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//Passport config file
+app.use(passport.initialize());
+require("./models/index.js");
+require("./config/passport")(passport);
+
+require("mongoose")
 .set("useFindAndModify", false)
 .connect(process.env.MONGO_URI,{useNewUrlParser:true, useUnifiedTopology: true})
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
+
+// Listen on port
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`Server running on ${port}`));
+
+app.get("/ping", (req, res, next) => {
+  res.status(200).json({ message: "pong"});
+});
+
+//without nginx
+app.get("/worker/ping", (req, res, next) => {
+  res.status(200).json({ message: "pong"});
+});
 
 let isProcessing = false;
 
@@ -53,4 +79,14 @@ function processImports() {
   });
 }
 
+var pingpong = new CronJob("0 */10 * * * *", function() {
+  const requestOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json'},
+  }
+  fetch(`${process.env.REACT_APP_API_URI}/server/ping/`, requestOptions)
+  .then( () => console.log("pong"));
+}, null, true, "Europe/London");
+
 generateFile.start();
+pingpong.start();
