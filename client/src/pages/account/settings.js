@@ -321,7 +321,7 @@ export default class Settings extends React.Component {
                         email: element.email
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${element._id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${!!element._id ? element._id : ""}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         upserting: false,
