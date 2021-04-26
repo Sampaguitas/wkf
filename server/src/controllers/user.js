@@ -86,7 +86,7 @@ const reqPwd = (req, res, next) => {
                             subject: "Reset your account password",
                             html: "<h2>Capex work file</h2>" +
                             "<p>Hi,</p>" +
-                            `<p>Please click on the following <a href=${process.env.REACT_APP_API_URI}/resetPwd/?id=${user._id}&token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
+                            `<p>Please click on the following <a href=${process.env.REACT_APP_CL_URI}/resetPwd/?id=${user._id}&token=${encodeURI(token)}>link</a> within the next hour to reset your password,</p>` +
                             "<p>Thanks,</p>" +
                             "<br/>" +
                             "<p>Global Project Organisation (GPO)</p>" +

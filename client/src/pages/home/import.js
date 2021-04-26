@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
 import { saveAs } from 'file-saver';
@@ -103,7 +104,6 @@ export default class Import extends React.Component {
         //DUF param
         this.toggleParam = this.toggleParam.bind(this);
         this.handleChangeParam = this.handleChangeParam.bind(this);
-        this.handleDownloadParam = this.handleDownloadParam.bind(this);
         this.handleUploadParam = this.handleUploadParam.bind(this);
         this.paramInput = React.createRef();
     }
@@ -605,44 +605,6 @@ export default class Import extends React.Component {
         }
     }
 
-    handleDownloadParam(event){
-        event.preventDefault();
-        const { downloadingParam } = this.state;
-        if (!downloadingParam) {
-          this.setState({
-            downloadingParam: true
-          }, () => {
-            const requestOptions = {
-              method: 'GET',
-              headers: { ...authHeader(), 'Content-Type': 'application/json'},
-            }
-            return fetch(`${process.env.REACT_APP_API_URI}/server/imports/downloadParam`, requestOptions)
-            .then(responce => {
-                if (responce.status === 401) {
-                        localStorage.removeItem('user');
-                        window.location.reload(true);
-                } else if (responce.status === 400) {
-                    this.setState({
-                        downloadingParam: false,
-                        alert: {
-                            type: 'alert-danger',
-                            message: 'an error has occured'  
-                        }
-                    });
-                } else {
-                    this.setState({
-                        downloadingParam: false
-                    }, () => responce.blob().then(blob => saveAs(blob, 'duf_params.xlsm')));
-                }
-            })
-            .catch( () => {
-              localStorage.removeItem('user');
-              window.location.reload(true);
-            });
-          });
-        }
-    }
-
     handleUploadParam(event) {
         event.preventDefault();
         const { uploadingParam } = this.state
@@ -889,9 +851,9 @@ export default class Import extends React.Component {
                                         <button type="submit" className="btn btn-sm btn-outline-leeuwen-blue" disabled={!this.paramInput.current ? true : false}>
                                             <span><FontAwesomeIcon icon={uploadingParam ? "spinner" : "upload"} className={uploadingParam ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Upload</span>
                                         </button>
-                                        <button className="btn btn-sm btn-outline-leeuwen-blue" onClick={this.handleDownloadParam}>
-                                            <span><FontAwesomeIcon icon={downloadingParam ? "spinner" : "download"} className={downloadingParam ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Download</span>
-                                        </button> 
+                                        <Link className="btn btn-sm btn-outline-leeuwen-blue" to={{pathname: "//vanleeuwenwkf.s3.eu-west-3.amazonaws.com/templates/duf_params.xlsm"}} target="_blank">
+                                            <span><FontAwesomeIcon icon="download" className="fa mr-2"/>Download</span>
+                                        </Link> 
                                       </div>       
                                     </div>
                                 </form>                    

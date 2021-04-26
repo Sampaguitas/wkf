@@ -444,3 +444,7 @@ table .w-90 { width:90%; }
 .nav-link {
   font-size: 16px;
 }
+
+.btn-sm, .btn-group-sm > .btn {
+  padding: 0.375rem 0.75rem;
+}

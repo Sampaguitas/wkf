@@ -13,7 +13,7 @@ const getById = (req, res, next) => {
 
     const {importId} = req.params;
 
-    require("../models/Imports").findById(importId, function (err, doc) {
+    require("../models/Import").findById(importId, function (err, doc) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!doc) {
@@ -266,6 +266,28 @@ function matchDropdown() {
     });
 }
 
+const test = (req, res, next) => {
+    require("../models/Import").aggregate([
+        {
+            "$match": {
+                "expiresAt": { "$lte": new Date }
+            }
+        },
+        {
+            "$group": {
+                "_id": null,
+                "_ids": { "$push": "$_id" }
+            }
+        }
+    ]).exec(function(err, data) {
+        if (!!err || data.length < 1) {
+            res.status(400).json({"message": "toto"});
+        } else {
+            res.status(200).send(data[0].importIds);
+        }
+    });
+}
+
 
 
 const importController = {
@@ -274,7 +296,8 @@ const importController = {
     getDrop,
     uploadStock,
     uploadParam,
-    downloadParam
+    downloadParam,
+    test
 };
 
 module.exports = importController;
