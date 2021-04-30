@@ -24,25 +24,7 @@ require("mongoose")
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on ${port}`));
 
-app.use("/ping", require("./routes/ping"));
-app.use("/worker/ping", require("./routes/ping"));
-
 let isProcessing = false;
-
-// var generateFile = new CronJob("*/10 * * * * *", function() {
-//     if (!isProcessing) {
-//       isProcessing = true;
-//       require("./functions/exportFindOne")().then(res => {
-//         switch(res.type) {
-//             case "stocks": require("./functions/exportStocks")(res).then( () => isProcessing = false);
-//             break;
-//             case "params": require("./functions/exportParams")(res).then( () => isProcessing = false);
-//             break;
-//           default: require("./functions/exportReject")(res._id).then( () => isProcessing = false);
-//         }
-//       }).catch( () => isProcessing = false);
-//     }
-// }, null, true, "Europe/London");
 
 var generateFile = new CronJob("*/10 * * * * *", function() {
   if (!isProcessing) {
@@ -73,15 +55,4 @@ function processImports() {
   });
 }
 
-var pingpong = new CronJob("0 */10 * * * *", function() {
-    const requestOptions = {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json'},
-    }
-    fetch(`${process.env.REACT_APP_API_URI}/server/ping/`, requestOptions)
-    .then( () => console.log("pong"))
-    .catch( () => console.log("pong"));
-}, null, true, "Europe/London");
-
 generateFile.start();
-pingpong.start();

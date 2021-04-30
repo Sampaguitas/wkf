@@ -17,7 +17,6 @@ module.exports = (document) => {
         require("./importReject")(document._id).then( () => resolve());
     } else {
         require("../functions/getRate")(document.currency, "EUR").then(rate => {
-            console.log("rate:", rate);
             var s3 = new aws.S3();
             s3.getObject({
                 Bucket: process.env.AWS_BUCKET_NAME,
@@ -121,7 +120,6 @@ return new Promise(function(resolve) {
         }
         require("../models/Stock").findOneAndUpdate(filter, update, options, function(err, res) {
             if (!!err || !res) {
-                console.log("err:", err);
                 resolve({
                     isRejected: true,
                     isUpserted: false,
@@ -140,21 +138,25 @@ return new Promise(function(resolve) {
 
 function deleteStock(row, index, opco, accountId) {
     return new Promise(function(resolve) {
-        let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
-        require("../models/Stock").findOneAndDelete(filter, function(err, res) {
-            if (!!err) {
-                resolve({
-                    isRejected: true,
-                    isUpserted: false,
-                    row: index + 1,
-                    reason: "an error has occured2."
-                });
-            } else {
-                resolve({
-                    isRejected: false,
-                    isUpserted: true 
-                });
-            }
+        resolve({
+            isRejected: false,
+            isUpserted: true 
         });
+        // let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
+        // require("../models/Stock").findOneAndDelete(filter, function(err, res) {
+        //     if (!!err) {
+        //         resolve({
+        //             isRejected: true,
+        //             isUpserted: false,
+        //             row: index + 1,
+        //             reason: "an error has occured2."
+        //         });
+        //     } else {
+        //         resolve({
+        //             isRejected: false,
+        //             isUpserted: true 
+        //         });
+        //     }
+        // });
     });
 }

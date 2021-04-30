@@ -32,7 +32,6 @@ app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
 app.use("/processes", require("./routes/processes"));
 app.use("/imports", require("./routes/imports"));
-app.use("/ping", require("./routes/ping"));
 
 //without nginx
 app.use("/server/dropdowns", require("./routes/dropdowns"));
@@ -41,7 +40,6 @@ app.use("/server/stocks", require("./routes/stocks"));
 app.use("/server/users", require("./routes/users"));
 app.use("/server/processes", require("./routes/processes"));
 app.use("/server/imports", require("./routes/imports"));
-app.use("/server/ping", require("./routes/ping"));
 
 let isProcessing = false;
 var updateRates = new CronJob("0 0 0 * * *", function() {
@@ -53,15 +51,4 @@ var updateRates = new CronJob("0 0 0 * * *", function() {
   }
 }, null, true, "Europe/London")
 
-var pingpong = new CronJob("0 */10 * * * *", function() {
-    const requestOptions = {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json'},
-    }
-    fetch(`${process.env.REACT_APP_WK_URI}/worker/ping/`, requestOptions)
-    .then( () => console.log("pong"))
-    .catch( () => console.log("pong"));
-}, null, true, "Europe/London");
-
 updateRates.start();
-pingpong.start();
