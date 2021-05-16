@@ -1,7 +1,6 @@
 var aws = require("aws-sdk");
 var path = require('path');
 var Excel = require('exceljs');
-var Stream = require('stream');
 
 aws.config.update({
     accessKeyId: process.env.ACCESS_KEY_ID,
@@ -13,7 +12,6 @@ module.exports = (document) => {
   return new Promise(function(resolve) {
     let myPromises = [];
     let nRejected = 0;
-    let nUpserted = 0;
     let rejections = [];
     if (!document.accountId) {
         require("./importReject")(document._id).then( () => resolve())
@@ -28,7 +26,7 @@ module.exports = (document) => {
             worksheet = workbook.getWorksheet('Sheet1');
                 const lastRow = worksheet.rowCount;
                 if (lastRow < 3) {
-                    let message = `${nRejected + nUpserted} processed, ${nRejected} rejected, ${nUpserted} upserted.`;
+                    let message = `${nRejected} processed, ${nRejected} rejected, 0 modified, 0 removed.`;
                     require("./importFinalise")(document._id, 0, message, []).then( () => resolve()); 
                 } else {
                     for (let lineIndex = 3; lineIndex < lastRow + 1; lineIndex++) {
@@ -43,24 +41,31 @@ module.exports = (document) => {
                         let length = worksheet.getCell(`N${lineIndex}`).value;
                         let end = worksheet.getCell(`O${lineIndex}`).value;
                         let surface = worksheet.getCell(`P${lineIndex}`).value;
-    
-                        myPromises.push(updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, lineIndex, accountId.accountId));
+                        if (!artNr || !sizeOne || !type || !grade) {
+                            nRejected++;
+                            rejections.push({
+                                "row": lineIndex,
+                                "reason": "artNr, sizeOne, type or grade is missing."
+                            });
+                        } else {
+                            myPromises.push(updateOperation(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, lineIndex, accountId.accountId));
+                        }
                     }
     
-                    Promise.all(myPromises).then(myResults => {
-                        myResults.map((result) => {
-                            if (result.isRejected) {
-                                nRejected++;
-                                rejections.push({
-                                    "row": result.row,
-                                    "reason": result.reason
-                                });
+                    Promise.all(myPromises).then(operations => {
+                        require("../models/Stock").bulkWrite([
+                            operations
+                        ], {
+                            // writeConcern : { w : "majority", wtimeout : 100 },
+                            ordered : false
+                        }).then(res => {
+                            if (!!res.result) {
+                                let message = `${lastRow - 2} processed, ${nRejected + res.result.writeErrors.length} rejected, ${res.result.nModified} modified, ${res.result.nRemoved} removed.`;
+                                require("./importFinalise")(document._id, 0, message, rejections).then( () => resolve());
                             } else {
-                                nUpserted++;
+                                require("./importReject")(document._id).then( () => resolve());
                             }
                         });
-                        let message = `${nRejected + nUpserted} processed, ${nRejected} rejected, ${nUpserted} upserted.`;
-                        require("./importFinalise")(document._id, myResults.length, message, rejections).then( () => resolve())
                     });
                 }
         }).catch( () => require("./importReject")(document._id).then( () => resolve()));
@@ -68,38 +73,15 @@ module.exports = (document) => {
   });
 }
 
-function updateParam(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, index, accountId) {
+function updateOperation(artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, index, accountId) {
     return new Promise(function(resolve) {
-            if (!artNr || !sizeOne || !type || !grade) {
-                resolve({
-                    "isRejected": true,
-                    "row": index,
-                    "reason": "artNr, sizeOne, type or grade is missing."
-                });
-            } else {
-                require("./getParam")(sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface)
-                .then(parameters => {
-                    require("../models/Stock").updateMany({
-                        "artNr": artNr,
-                        "accountId": accountId
-                    },
-                    {
-                        "parameters": parameters
-                    },
-                    function(errUpdate, docs) {
-                        if (!!errUpdate) {
-                            resolve({
-                                "isRejected": true,
-                                "row": index,
-                                "reason": "Could not update param."
-                            });
-                        } else {
-                            resolve({
-                                "isRejected": false
-                            });
-                        }
-                    });
-                });
-            }
+        require("./getParam")(sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface)
+        .then(parameters => {
+            
+            let filter = { artNr, accountId };
+            let update = { parameters };
+            
+            resolve( { "updateMany": { filter, update } } );
+        });
     });
 }

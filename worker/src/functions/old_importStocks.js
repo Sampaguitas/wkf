@@ -11,6 +11,7 @@ module.exports = (document) => {
   return new Promise(function(resolve) {
     let myPromises = [];
     let nRejected = 0;
+    let nUpserted = 0;
     let rejections = [];
     if (!document.system ||  !document.currency || !document.opco) {
         require("./importReject")(document._id).then( () => resolve());
@@ -27,52 +28,54 @@ module.exports = (document) => {
                     const rows = file.Body.toString().replace(/\r*/g,"").split("\n"); //buffer
                     let rowsLength = rows.length;
                     if (rowsLength < 3) {
-                        let message = `${nRejected} processed, ${nRejected} rejected, 0 modified, 0 removed.`;
+                        let message = `${nRejected + nUpserted} processed, ${nRejected} rejected, ${nUpserted} upserted.`;
                         require("./importFinalise")(document._id, 0, message, []).then( () => resolve());
                     } else {
                         for (var i = 1; i < rowsLength - 1; i++) {
                             let row = rows[i].split("\t");
                             if (row.length != 21) {
-                                nRejected++;
-                                rejections.push({
-                                    "row": i + 1,
-                                    "reason": "line does not contain 21 fields."
+                                myPromises.push({
+                                    isRejected: true,
+                                    isUpserted: false,
+                                    // row: i + 1,
+                                    // reason: "line does not contain 21 fields."
                                 });
                             } else if (!["LB", "FT", "ST", "KG", "M"].includes(require("../functions/getString")(row[10]))) {
-                                nRejected++;
-                                rejections.push({
-                                    "row": i + 1,
-                                    "reason": "unknown unit of mesurement."
+                                myPromises.push({
+                                    isRejected: true,
+                                    isUpserted: false,
+                                    // row: i + 1,
+                                    // reason: "unknown unit of mesurement."
                                 });
                             } else {
                                 if (!Number(row[5]) && !Number(row[6])) {
-                                    // nRejected++;
-                                    // rejections.push({
-                                    //     "row": i + 1,
-                                    //     "reason": "GIP and RV are be empty."
-                                    // });
-                                    myPromises.push(deleteOperation(row, document.opco, document.accountId));
+                                    myPromises.push({
+                                        isRejected: false,
+                                        isUpserted: true 
+                                    });
+                                    // myPromises.push(deleteStock(row, i, document.opco, document.accountId));
                                 }  else {
-                                    myPromises.push(updateOperation(row, document.opco, document.accountId, document.system, rate));
+                                    myPromises.push(updateStock(row, i, document.opco, document.accountId, document.system, rate));
                                 }
                             }
                         }
-
-                        Promise.all(myPromises).then(bulkOperations => {
-                            require("../models/Stock").bulkWrite([
-                                ...bulkOperations
-                            ], {
-                                // writeConcern : { w : "majority", wtimeout : 100 },
-                                ordered : false
-                            }).then(res => {
-                                if (!!res.result) {
-                                    let message = `${rowsLength - 1} processed, ${nRejected + res.result.writeErrors.length} rejected, ${res.result.nModified} modified, ${res.result.nRemoved} removed.`;
-                                    require("./importFinalise")(document._id, 0, message, rejections).then( () => resolve());
-                                } else {
-                                    require("./importReject")(document._id).then( () => resolve());
+        
+                        Promise.all(myPromises).then(myResults => {
+                            myResults.map(result => {
+                                if (!!result.isRejected) {
+                                    nRejected++;
+                                    // rejections.push({
+                                    //     "row": result.row,
+                                    //     "reason": result.reason
+                                    // });
+                                } else if (!!result.isUpserted) {
+                                    nUpserted++;
                                 }
                             });
+                            let message = `${nRejected + nUpserted} processed, ${nRejected} rejected, ${nUpserted} upserted.`;
+                            require("../functions/importFinalise")(document._id, myResults.length, message, rejections).then( () => resolve())
                         });
+        
                     }
                 }
             });
@@ -83,11 +86,11 @@ module.exports = (document) => {
   });
 }
 
-function updateOperation(row, opco, accountId, system, rate) {
-    return new Promise(function(resolve) {
+function updateStock(row, index, opco, accountId, system, rate) {
+return new Promise(function(resolve) {
         let uom = require("../functions/getString")(row[10]);
         let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
-        // let options = { new: true, upsert: true }
+        let options = { new: true, upsert: true }
         let update = {
             $set: {
                 "description": require("./getString")(row[3]),
@@ -121,15 +124,45 @@ function updateOperation(row, opco, accountId, system, rate) {
                 }
             }
         }
-
-        resolve( { "updateOne": { "filter": filter, "update": update, "upsert": true } } );
-
+        require("../models/Stock").findOneAndUpdate(filter, update, options, function(err, res) {
+            if (!!err || !res) {
+                resolve({
+                    isRejected: true,
+                    isUpserted: false,
+                    // row: index + 1,
+                    // reason: "an error has occured1."
+                });
+            } else {
+                resolve({
+                    isRejected: false,
+                    isUpserted: true 
+                });
+            }
+        });
     });
 }
 
-function deleteOperation(row, opco, accountId) {
-    return new Promise(function(resolve) {
-        let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
-        resolve( { "deleteOne": { "filter": filter } } );
-    });
-}
+// function deleteStock(row, index, opco, accountId) {
+//     return new Promise(function(resolve) {
+//         resolve({
+//             isRejected: false,
+//             isUpserted: true 
+//         });
+//         let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
+//         require("../models/Stock").findOneAndDelete(filter, function(err, res) {
+//             if (!!err) {
+//                 resolve({
+//                     isRejected: true,
+//                     isUpserted: false,
+//                     row: index + 1,
+//                     reason: "an error has occured2."
+//                 });
+//             } else {
+//                 resolve({
+//                     isRejected: false,
+//                     isUpserted: true 
+//                 });
+//             }
+//         });
+//     });
+// }
