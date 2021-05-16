@@ -661,7 +661,7 @@ export default class Import extends React.Component {
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
-                        <button title="Import Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleParam}>
+                        <button title="Import Params" className="btn btn-sm btn-gray mr-2" onClick={this.toggleParam}>
                             <span><FontAwesomeIcon icon="file-download" className="fa mr-2"/>Params</span>
                         </button>
                     </div>

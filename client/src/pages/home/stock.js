@@ -1137,10 +1137,10 @@ export default class Stock extends React.Component {
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
-                        <button title="Export Stock" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
+                        <button title="Export Stock" className="btn btn-sm btn-gray mr-2" onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Stock</span>
                         </button>
-                        <button title="Export Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
+                        <button title="Export Params" className="btn btn-sm btn-gray mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Params</span>
                         </button>
                     </div>
@@ -1317,7 +1317,7 @@ export default class Stock extends React.Component {
                     <Modal
                         show={showArticle}
                         hideModal={this.toggleModalArticle}
-                        title={article.description ? article.description : "Article"}
+                        title={"Stock Info"}
                         size="modal-lg"
                     >
                         <div id="modal-tabs">
@@ -1330,6 +1330,7 @@ export default class Stock extends React.Component {
                                     </li>                        
                                 )}
                             </ul>
+                            
                             <div className="tab-content" id="modal-nav-tabContent">
                                 {alert.message &&
                                     <div className={`alert ${alert.type}`}>{alert.message}

@@ -17,6 +17,10 @@ export default class TabStockArticle extends React.Component {
                                 <td className="w-60">{retrievingArticle? <Skeleton /> : article.vlunar}</td>
                             </tr>
                             <tr>
+                                <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "description"}</th>
+                                <td className="w-60">{retrievingArticle? <Skeleton /> : article.description}</td>
+                            </tr>
+                            <tr>
                                 <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "artNr"}</th>
                                 <td className="w-60">{retrievingArticle? <Skeleton /> : article.artNr}</td>
                             </tr>
