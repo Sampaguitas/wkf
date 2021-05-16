@@ -10,9 +10,9 @@ export default class Layout extends React.Component {
         return (
             <div className="full-height">
                 <div className="full-height">
-                    <HeaderBarMenu id="headerbar" className={collapsed ? "collapsed" : ""} collapsed={collapsed} toggleCollapse={toggleCollapse}/>
-                    <SideBarMenu className={collapsed ? "collapsed" : ""} menuItem={menuItem} collapsed={collapsed} toggleCollapse={toggleCollapse}/>
-                        <div id="content" className={collapsed ? "collapsed" : ""} style={{height: `calc(100% - 100px)`}}>
+                    <HeaderBarMenu id="headerbar" className={collapsed  || window.screen.availWidth < 1026 ? "collapsed" : ""} collapsed={collapsed} toggleCollapse={toggleCollapse}/>
+                    <SideBarMenu className={collapsed  || window.screen.availWidth < 1026 ? "collapsed" : ""} menuItem={menuItem} collapsed={collapsed} toggleCollapse={toggleCollapse}/>
+                        <div id="content" className={collapsed  || window.screen.availWidth < 1026 ? "collapsed" : ""} style={{height: `calc(100% - 100px)`}}>
                             {this.props.children}
                         </div>
                     <Footer />

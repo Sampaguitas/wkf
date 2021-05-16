@@ -46,9 +46,9 @@ export default class SideBarMenu extends React.Component {
         return (
             <div>
                 {localStorage.getItem("user") !== null && 
-                    <div id="sidebar-menu" className={collapsed ? "collapsed" : undefined}>
+                    <div id="sidebar-menu" className={collapsed || window.screen.availWidth < 1026 ? "collapsed" : undefined}>
                         <NavLink to={{ pathname: "/" }} tag="div" className="sidebar-logo">
-                            <img alt="logo" src={collapsed ? icon : logo} />
+                            <img alt="logo" src={collapsed || window.screen.availWidth < 1026 ? icon : logo} />
                         </NavLink>
                         <ul className="default-list menu-list">
                             {this.generateMenu()}

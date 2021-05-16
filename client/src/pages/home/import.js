@@ -666,8 +666,8 @@ export default class Import extends React.Component {
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 40px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
-                            <div id="table-container" className="table-responsive custom-table-container" >
+                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                            <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
                                         <tr>

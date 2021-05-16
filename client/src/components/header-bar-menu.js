@@ -12,9 +12,9 @@ export default class HeaderBarMenu extends React.Component {
         const { collapsed } = this.props;
         return (
             <div>
-                <div className = { collapsed ? "header-bar-menu collapsed" : "header-bar-menu" } >
-                    <nav className={collapsed ? "navbar navbar-expand-lg navbar-light bg-light sticky-top collapsed" : "navbar navbar-expand-lg navbar-light bg-light sticky-top"} >
-                        <span className={collapsed ? "navbars collapsed" : "navbars"} onClick={this.props.toggleCollapse} >
+                <div className = { collapsed || window.screen.availWidth < 1026 ? "header-bar-menu collapsed" : "header-bar-menu" } >
+                    <nav className={collapsed || window.screen.availWidth < 1026 ? "navbar navbar-expand-lg navbar-light bg-light sticky-top collapsed" : "navbar navbar-expand-lg navbar-light bg-light sticky-top"} >
+                        <span className={collapsed || window.screen.availWidth < 1026 ? "navbars collapsed small-hide" : "navbars"} onClick={this.props.toggleCollapse} >
                             <span><FontAwesomeIcon icon="bars" className="fa-lg"/></span>
                         </span>
                         <form className="form-inline ml-auto pull-right">

@@ -1138,15 +1138,15 @@ export default class Stock extends React.Component {
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
                         <button title="Export Stock" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Exp. Stock</span>
+                            <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Stock</span>
                         </button>
                         <button title="Export Params" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Exp. Params</span>
+                            <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Params</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 40px)" }}>
-                            <div id="table-container" className="table-responsive custom-table-container" >
+                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}>
+                            <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
                                         <tr>
