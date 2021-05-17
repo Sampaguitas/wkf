@@ -201,6 +201,7 @@ export default class Stock extends React.Component {
         };
 
         this.resize = this.resize.bind(this);
+        this.handleRefresh = this.handleRefresh.bind(this);
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
@@ -355,6 +356,12 @@ export default class Stock extends React.Component {
         //     }
         // });
 
+    }
+
+    handleRefresh(event) {
+        event.preventDefault();
+        const { currentPage } = this.state.paginate;
+        this.getDocuments(currentPage);
     }
 
     resize() {
@@ -844,7 +851,7 @@ export default class Stock extends React.Component {
     generateBody() {
         const { stocks, retrievingStocks, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(stocks) || !retrievingStocks) {
+        if (!retrievingStocks) {
             stocks.map((stock) => {
                 tempRows.push(
                     <tr key={stock._id}>
@@ -1142,6 +1149,9 @@ export default class Stock extends React.Component {
                         </button>
                         <button title="Export Params" className="btn btn-sm btn-gray mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Params</span>
+                        </button>
+                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
+                            <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
                     </div>
                     <div className="body-section">

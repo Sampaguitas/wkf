@@ -77,7 +77,7 @@ export default class Import extends React.Component {
                 third: 3
             }
         };
-
+        this.handleRefresh = this.handleRefresh.bind(this);
         this.resize = this.resize.bind(this);
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
@@ -113,7 +113,7 @@ export default class Import extends React.Component {
 
     componentDidMount() {
         const tableContainer = document.getElementById("table-container");
-        this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
+        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
         this.setState({
             paginate: {
                 ...this.state.paginate,
@@ -122,8 +122,14 @@ export default class Import extends React.Component {
         }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
-    componentWillUnmount() {
-        clearInterval(this.interval);
+    // componentWillUnmount() {
+    //     clearInterval(this.interval);
+    // }
+
+    handleRefresh(event) {
+        event.preventDefault();
+        const { currentPage } = this.state.paginate;
+        this.getDocuments(currentPage);
     }
 
     resize() {
@@ -344,7 +350,7 @@ export default class Import extends React.Component {
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(elements) || !retrieving) {
+        if (!retrieving) {
             elements.map((element) => {
                 tempRows.push(
                     <tr key={element._id}>
@@ -663,6 +669,9 @@ export default class Import extends React.Component {
                         </button>
                         <button title="Import Params" className="btn btn-sm btn-gray mr-2" onClick={this.toggleParam}>
                             <span><FontAwesomeIcon icon="file-download" className="fa mr-2"/>Params</span>
+                        </button>
+                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
+                            <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
                     </div>
                     <div className="body-section">

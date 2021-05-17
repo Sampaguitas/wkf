@@ -343,8 +343,8 @@ const getAll = (req, res, next) => {
                                 "_id": 1
                             }
                         },
+                        { "$limit": pageSize + ((nextPage - 1) * pageSize) },
                         { "$skip": ((nextPage - 1) * pageSize) },
-                        { "$limit": pageSize },
                         {
                             "$project": {
                                 "_id": 1,

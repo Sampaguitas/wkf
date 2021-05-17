@@ -473,7 +473,7 @@ export default class Settings extends React.Component {
     generateBody() {
         const { elements, retrieving, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
-        if (!_.isEmpty(elements) || !retrieving) {
+        if (!retrieving) {
             elements.map((element) => {
                 tempRows.push(
                     <tr key={element._id}>

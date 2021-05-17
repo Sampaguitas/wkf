@@ -16,10 +16,10 @@ module.exports = (name, page) => {
             }
         },
         {
-            "$skip": 10 * page
+            "$limit": 10 + (10 * page)
         },
         {
-            "$limit": 10
+            "$skip": 10 * page
         },
         {
             "$group": {

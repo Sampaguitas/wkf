@@ -34,8 +34,9 @@ const getAll = (req, res, next) => {
                                 "_id": 1
                             }
                         },
-                        { "$skip": ((nextPage - 1) * pageSize) },
-                        { "$limit": pageSize },
+                        { "$limit": pageSize + ((nextPage - 1) * pageSize) },
+                        { "$skip": ((nextPage - 1) * pageSize) }
+                        
                     ],
                     "pagination": [
                         ...require("../pipelines/first_stage/process")(myMatch, format),

@@ -231,8 +231,9 @@ const getAll = (req, res, next) => {
                                 "_id": 1
                             }
                         },
-                        { "$skip": ((nextPage - 1) * pageSize) },
-                        { "$limit": pageSize },
+                        { "$limit": pageSize + ((nextPage - 1) * pageSize) },
+                        { "$skip": ((nextPage - 1) * pageSize) }
+                        
                         
                     ],
                     "pagination": [
@@ -445,10 +446,10 @@ const getDrop = (req, res, next) => {
                         }
                     },
                     {
-                        "$skip": 10 * page
+                        "$limit": 10 + (10 * page)
                     },
                     {
-                        "$limit": 10
+                        "$skip": 10 * page
                     },
                     {
                         "$group": {
@@ -549,10 +550,10 @@ const getDrop = (req, res, next) => {
                                     }
                                 },
                                 {
-                                    "$skip": 10 * page
+                                    "$limit": 10 + (10 * page)
                                 },
                                 {
-                                    "$limit": 10
+                                    "$skip": 10 * page
                                 },
                                 {
                                     "$group": {
@@ -625,10 +626,10 @@ const getDrop = (req, res, next) => {
                             }
                         },
                         {
-                            "$skip": 10 * page
+                            "$limit": 10 + (10 * page)
                         },
                         {
-                            "$limit": 10
+                            "$skip": 10 * page
                         },
                         {
                             "$group": {
@@ -697,10 +698,10 @@ const getDrop = (req, res, next) => {
                         }
                     },
                     {
-                        "$skip": 10 * page
+                        "$limit": 10 + (10 * page)
                     },
                     {
-                        "$limit": 10
+                        "$skip": 10 * page
                     },
                     {
                         "$group": {
