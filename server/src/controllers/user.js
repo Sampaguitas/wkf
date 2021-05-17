@@ -395,17 +395,17 @@ const getDrop = (req, res, next) => {
                     ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                     {
                         "$group": {
-                            "_id": null,
-                            "data":{ "$addToSet": `$${key}`}
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
-                    } 
+                        res.status(200).json(result)
+                    }
                 });
                 break;
             case "isAdmin":
@@ -413,17 +413,17 @@ const getDrop = (req, res, next) => {
                     ...require("../pipelines/first_stage/user")(myMatch, user.accountId),
                     {
                         "$group": {
-                            "_id": null,
-                            "data":{ "$addToSet": `$${key}X`}
+                            "_id": `$${key}X`,
+                            "name": {"$first":`$$ROOT.${key}X`},
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
-                    } 
+                        res.status(200).json(result)
+                    }
                 });
                 break;
             default: res.status(200).json([]);

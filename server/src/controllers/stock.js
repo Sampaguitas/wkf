@@ -232,9 +232,25 @@ const getAll = (req, res, next) => {
                             }
                         },
                         { "$limit": pageSize + ((nextPage - 1) * pageSize) },
-                        { "$skip": ((nextPage - 1) * pageSize) }
-                        
-                        
+                        { "$skip": ((nextPage - 1) * pageSize) },
+                        {
+                            "$lookup": {
+                                "from": "opcos",
+                                "localField": "opco",
+                                "foreignField": "stockInfo.capex_file_code",
+                                "as": "opco"
+                            }
+                        },
+                        {
+                            "$addFields": {
+                                "opco": { "$arrayElemAt": ["$opco", 0]}
+                            }
+                        },
+                        {
+                            "$addFields": {
+                                "opco": "$opco.stockInfo.name"
+                            }
+                        }
                     ],
                     "pagination": [
                         ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
@@ -270,22 +286,58 @@ const getDrop = (req, res, next) => {
     const user = req.user
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
         switch(key) {
-            case "opco":
             case "artNr":
                 require("../models/Stock").aggregate([
                     ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$group": {
-                            "_id": null,
-                            "data":{ "$addToSet": `$${key}`}
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "opco":
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": "opcos",
+                            "localField": "_id",
+                            "foreignField": "stockInfo.capex_file_code",
+                            "as": "opcos"
+                        }
+                    },
+                    {
+                        "$addFields": {
+                            "opco": { "$arrayElemAt": ["$opcos", 0 ] }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 1,
+                            "name": "$opco.stockInfo.name"
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
                     } 
                 });
                 break;
@@ -295,101 +347,42 @@ const getDrop = (req, res, next) => {
                     ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
                         "$group": {
-                            "_id": null,
-                            "data":{ "$addToSet": `$parameters.${key=== "steelType" ? "grade" : "type"}.${key}`}
+                            "_id": `$parameters.${key=== "steelType" ? "grade" : "type"}.${key}`,
+                            "name":{"$first":`$$ROOT.parameters.${key=== "steelType" ? "grade" : "type"}.${key}`}
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
+                        res.status(200).json(result)
                     } 
                 });
                 break;
             case "type":
+            case "grade":
             case "end":
             case "surface":
                 require("../models/Stock").aggregate([
                     ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
                     {
-                        "$project": {
-                            "data": `$parameters.${key}.tags`
-                        }
-                    },
-                    {
-                        "$unwind": "$data"
+                        "$unwind": `$parameters.${key}.tags`
                     },
                     {
                         "$group": {
-                            "_id": null,
-                            "data":{ "$addToSet": `$data`}
+                            "_id": `$parameters.${key}.tags`,
+                            "name": {"$first":`$$ROOT.parameters.${key}.tags`},
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
+                        res.status(200).json(result)
                     } 
                 });
-                break;
-            case "grade":
-                // require("../models/Grade").aggregate([
-                //     {
-                //         "$match": {
-                //             "isMultiple": { "$ne": true }
-                //         }
-                //     },
-                //     {
-                //         "$group": {
-                //             "_id": null,
-                //             "data":{ "$addToSet": `$name`}
-                //         }
-                //     },
-                //     {
-                //         "$project":{
-                //             "_id": 0
-                //         }
-                //     }
-                // ]).exec(function(err, uniques) {
-                //     if (!!err || uniques.length !== 1 || !uniques[0].hasOwnProperty("data")) {
-                //         res.status(200).json([])
-                //     } else {
-                        require("../models/Stock").aggregate([
-                            ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
-                            {
-                                "$project": {
-                                    "data": `$parameters.${key}.tags`
-                                }
-                            },
-                            {
-                                "$unwind": "$data"
-                            },
-                            {
-                                "$group": {
-                                    "_id": null,
-                                    "data":{ "$addToSet": `$data`}
-                                }
-                            },
-                            // {
-                            //     "$project": {
-                            //         "data": { "$setIntersection":  [ uniques[0].data, "$data"] }
-                            //     }
-                            // },
-                            ...require("../pipelines/projection/drop")(name, page)
-                        ]).exec(function(error, result) {
-                            if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                                res.status(200).json([]);
-                            } else {
-                                res.status(200).json(result[0].data);
-                            } 
-                        }); 
-                    // }
-                // });
-                
                 break;
             case "sizeOne":
             case "wallOne":
@@ -404,7 +397,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$unwind": {
-                            "path": "$tags",
+                            "path": `$tags`,
                             "includeArrayIndex": "arrayIndex"
                         }
                     },
@@ -418,12 +411,12 @@ const getDrop = (req, res, next) => {
                             "unitIndex": {
                                 "$switch": {
                                     "branches": [
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(STD|XS|XXS)$/ } }, "then": 0 },
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^S\d*S?$/ } }, "then": 1 },
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d| |\/)*"$/ } }, "then": 2 },
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^DN \d*$/ } }, "then": 3 },
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* mm$/ } }, "then": 4 },
-                                        { "case": { "$regexMatch": { "input": "$tags", "regex": /^(\d|\.)* in$/ } }, "then": 5 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^(STD|XS|XXS)$/ } }, "then": 0 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^S\d*S?$/ } }, "then": 1 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^(\d| |\/)*"$/ } }, "then": 2 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^DN \d*$/ } }, "then": 3 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^(\d|\.)* mm$/ } }, "then": 4 },
+                                        { "case": { "$regexMatch": { "input": `$tags`, "regex": /^(\d|\.)* in$/ } }, "then": 5 },
                                     ],
                                     "default": 6
                                 }
@@ -432,9 +425,9 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$group": {
-                            "_id": "$tags",
+                            "_id": `$tags`,
                             "unitIndex": { "$first": "$unitIndex" },
-                            "mm": { "$first": "$mm" },
+                            "mm": { "$first": `$mm` },
                             "arrayIndex": { "$first": "$arrayIndex" }
                         }
                     },
@@ -452,22 +445,17 @@ const getDrop = (req, res, next) => {
                         "$skip": 10 * page
                     },
                     {
-                        "$group": {
-                            "_id": null,
-                            "data": { "$push": "$_id" }
-                        }
-                    },
-                    {
                         "$project":{
-                            "_id": 0
+                            "_id": 1,
+                            "name": "$_id",
                         }
                     }
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
-                    }
+                        res.status(200).json(result)
+                    } 
                 });
                 break;
             case "sizeTwo":
@@ -504,8 +492,8 @@ const getDrop = (req, res, next) => {
                                 },
                                 {
                                     "$project": {
-                                        "tags": "$tags",
-                                        "mm": "$mm",
+                                        "tags": 1,
+                                        "mm": 1,
                                     }
                                 },
                                 {
@@ -556,24 +544,19 @@ const getDrop = (req, res, next) => {
                                     "$skip": 10 * page
                                 },
                                 {
-                                    "$group": {
-                                        "_id": null,
-                                        "data": { "$push": "$_id" }
-                                    }
-                                },
-                                {
                                     "$project":{
-                                        "_id": 0
+                                        "_id": 1,
+                                        "name": "$_id",
                                     }
                                 }
                             ]).exec(function(error, result) {
-                                if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                                    res.status(200).json([]);
+                                if (!!error || !result) {
+                                    res.status(200).json([])
                                 } else {
-                                    res.status(200).json(result[0].data);
-                                }
+                                    res.status(200).json(result)
+                                } 
                             });
-                        } 
+                        }
                     });
                 } else {
                     require("../models/Stock").aggregate([
@@ -632,21 +615,16 @@ const getDrop = (req, res, next) => {
                             "$skip": 10 * page
                         },
                         {
-                            "$group": {
-                                "_id": null,
-                                "data": { "$push": "$_id" }
-                            }
-                        },
-                        {
                             "$project":{
-                                "_id": 0
+                                "_id": 1,
+                                "name": "$_id",
                             }
                         }
                     ]).exec(function(error, result) {
-                        if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                            res.status(200).json([]);
+                        if (!!error || !result) {
+                            res.status(200).json([])
                         } else {
-                            res.status(200).json(result[0].data);
+                            res.status(200).json(result)
                         } 
                     });
 
@@ -704,22 +682,17 @@ const getDrop = (req, res, next) => {
                         "$skip": 10 * page
                     },
                     {
-                        "$group": {
-                            "_id": null,
-                            "data": { "$push": "$_id" }
-                        }
-                    },
-                    {
                         "$project":{
-                            "_id": 0
+                            "_id": 1,
+                            "name": "$_id",
                         }
                     }
                 ]).exec(function(error, result) {
-                    if (!!error || result.length !== 1 || !result[0].hasOwnProperty("data")) {
-                        res.status(200).json([]);
+                    if (!!error || !result) {
+                        res.status(200).json([])
                     } else {
-                        res.status(200).json(result[0].data);
-                    }
+                        res.status(200).json(result)
+                    } 
                 });
                 break;
             default: res.status(200).json([]);

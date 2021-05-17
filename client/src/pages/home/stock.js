@@ -24,7 +24,6 @@ export default class Stock extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentUser: {},
             article: {
                 opco: "",
                 artNr: "",
@@ -95,35 +94,20 @@ export default class Stock extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                opco: "",
-                artNr: "",
-                pffType: "",
-                steelType: "",
-                sizeOne: "",
-                sizeTwo: "",
-                wallOne: "",
-                wallTwo: "",
-                type: "",
-                grade: "",
-                length: "",
-                end: "",
-                surface: ""
-            },
             params: {
-                pffType: { value: "", placeholder: "PFF type", options: [], hover: "", page: 0 },
-                steelType: { value: "", placeholder: "Steel type", options: [], hover: "", page: 0 },
-                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "", page: 0 },
-                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "", page: 0 },
-                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "", page: 0 },
-                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "", page: 0 },
-                type: { value: "", placeholder: "Article type", options: [], hover: "", page: 0 },
-                grade: { value: "", placeholder: "Material grade", options: [], hover: "", page: 0 },
-                length: { value: "", placeholder: "Length", options: [], hover: "", page: 0 },
-                end: { value: "", placeholder: "Ends", options: [], hover: "", page: 0 },
-                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "", page: 0 },
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "", page: 0 },
-                artNr: { value: "", placeholder: "ArtNr", options: [], hover: "", page: 0 },
+                pffType: { value: "", placeholder: "PFF type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "Steel type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                wallOne: { value: "", placeholder: "Wall thickness 1", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Article type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade: { value: "", placeholder: "Material grade", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                artNr: { value: "", placeholder: "ArtNr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
             alert: {
@@ -232,129 +216,36 @@ export default class Stock extends React.Component {
     }
 
     componentDidMount() {
-        const { paginate, params } = this.state;
-        let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
-        if (!!currentUser) {
-            this.setState({
-                currentUser: currentUser,
-                paginate: {
-                    ...paginate,
-                    pageSize: getPageSize(tableContainer.clientHeight)
-                }
-            }, () => this.getDocuments());
-        } else {
-            localStorage.removeItem("user");
-            window.location.reload(true);
-        }
 
-        // const fields = document.getElementById("fields");
-        // fields.addEventListener("keydown", event => {
-        //     if (Object.keys(params).includes(event.target.id)) {
-        //         let name = event.target.id;
-        //         switch(event.key) {
-        //             case "ArrowDown":
-        //                 if (!_.isEmpty(this.state.params[name].options)) {
-        //                     let selectedIndex = this.state.params[name].options.findIndex(element => _.isEqual(element, this.state.params[name].hover));
-        //                     if (selectedIndex === -1) {
-        //                         this.setState({
-        //                             params: {
-        //                                 ...this.state.params,
-        //                                 [name]: {
-        //                                     ...this.state.params[name],
-        //                                     hover: this.state.params[name].options[0]
-        //                                 }
-        //                             },
-        //                             dropdown: {
-        //                                 ...this.state.dropdown,
-        //                                 [name]: this.state.params[name].options[0],
-        //                             }
-        //                         });
-        //                     } else if (selectedIndex < this.state.params[name].options.length - 1) {
-        //                         this.setState({
-        //                             params: {
-        //                                 ...this.state.params,
-        //                                 [name]: {
-        //                                     ...this.state.params[name],
-        //                                     hover: this.state.params[name].options[selectedIndex + 1]
-        //                                 }
-        //                             },
-        //                             dropdown: {
-        //                                 ...this.state.dropdown,
-        //                                 [name]: this.state.params[name].options[selectedIndex + 1]
-        //                             }
-        //                         });
-        //                     }
-        //                 }
-        //                 break;
-        //             case "ArrowUp":
-        //                 if (!_.isEmpty(this.state.params[name].options)) {
-        //                     let selectedIndex = this.state.params[name].options.findIndex(element => _.isEqual(element, this.state.params[name].hover));
-        //                 if (selectedIndex > 0) {
-        //                         this.setState({
-        //                             params: {
-        //                                 ...this.state.params,
-        //                                 [name]: {
-        //                                     ...this.state.params[name],
-        //                                     hover: this.state.params[name].options[selectedIndex - 1]
-        //                                 }
-        //                             },
-        //                             dropdown: {
-        //                                 ...this.state.dropdown,
-        //                                 [name]: this.state.params[name].options[selectedIndex - 1]
-        //                             }
-        //                         });
-        //                     }
-        //                 }
-        //                 break;
-        //             case "Enter":
-        //                 let selected = this.state.params[name].options.find(element => _.isEqual(element, this.state.params[name].hover));
-        //                 if (!_.isUndefined(selected)) {
-        //                     this.setState({
-        //                         params: {
-        //                             ...this.state.params,
-        //                             [name]: {
-        //                                 ...this.state.params[name],
-        //                                 options: [],
-        //                                 value: "",
-        //                                 hover: ""
-        //                             }
-        //                         },
-        //                         dropdown: {
-        //                             ...this.state.dropdown,
-        //                             [name]: selected._id,
-        //                         },
-        //                         focused: "",
-        //                     });
-        //                     let myInput = document.getElementById(name);
-        //                     myInput.blur();
-        //                 }
-        //                 break;
-        //             case "Escape":
-        //                 this.setState({
-        //                     params: {
-        //                         ...this.state.params,
-        //                         [name]: {
-        //                             ...this.state.params[name],
-        //                             options: [],
-        //                             value: "",
-        //                             hover: "",
-        //                         }
-        //                     },
-        //                     dropdown: {
-        //                         ...this.state.dropdown,
-        //                         [name]: "",
-        //                     },
-        //                     focused: "",
-        //                 });
-        //                 let myInput = document.getElementById(name);
-        //                 myInput.blur();
-        //                 break;
-        //             default: // do nothing;
-        //                 break;
-        //         }
-        //     }
-        // });
+        document.getElementById("stock").addEventListener("click", event => {
+            if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
+                if (!!this.state.focused) {
+                    this.setState({
+                        params: {
+                            ...this.state.params,
+                            [this.state.focused]: {
+                                ...this.state.params[this.state.focused],
+                                value: "",
+                                options: [],
+                                hover: "",
+                                page: 0
+                            }
+                        },
+                        focused: ""
+                    });
+                } else {
+                    this.setState({focused: ""});
+                }
+            }
+        });
+
+        this.setState({
+            paginate: {
+                ...this.state.paginate,
+                pageSize: getPageSize(tableContainer.clientHeight)
+            }
+        }, () => this.getDocuments(this.state.paginate.currentPage));
 
     }
 
@@ -365,22 +256,35 @@ export default class Stock extends React.Component {
     }
 
     resize() {
-        const { paginate } = this.state;
         const tableContainer = document.getElementById("table-container");
         this.setState({
             paginate: {
-                ...paginate,
+                ...this.state.paginate,
                 pageSize: getPageSize(tableContainer.clientHeight)
             }
-        }, () => this.getDocuments());
+        }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, dropdown, paginate, stocks, selectedRows } = this.state;
+        const { sort, paginate, stocks, selectedRows } = this.state;
         
-        if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
+        if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
+
+        if (this.state.params.pffType.selection._id !== prevState.params.pffType.selection._id) this.getDocuments();
+        if (this.state.params.steelType.selection._id !== prevState.params.steelType.selection._id) this.getDocuments();
+        if (this.state.params.sizeOne.selection._id !== prevState.params.sizeOne.selection._id) this.getDocuments();
+        if (this.state.params.sizeTwo.selection._id !== prevState.params.sizeTwo.selection._id) this.getDocuments();
+        if (this.state.params.wallOne.selection._id !== prevState.params.wallOne.selection._id) this.getDocuments();
+        if (this.state.params.wallTwo.selection._id !== prevState.params.wallTwo.selection._id) this.getDocuments();
+        if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments();
+        if (this.state.params.grade.selection._id !== prevState.params.grade.selection._id) this.getDocuments();
+        if (this.state.params.length.selection._id !== prevState.params.length.selection._id) this.getDocuments();
+        if (this.state.params.end.selection._id !== prevState.params.end.selection._id) this.getDocuments();
+        if (this.state.params.surface.selection._id !== prevState.params.surface.selection._id) this.getDocuments();
+        if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments();
+        if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments();
         
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
@@ -466,7 +370,7 @@ export default class Stock extends React.Component {
 
     handleExport(event, type) {
         event.preventDefault();
-        const { sort, dropdown, exportingParams, exportingStocks, selectedRows } = this.state;
+        const { sort, params, exportingParams, exportingStocks, selectedRows } = this.state;
         if (["params", "stocks"].includes(type) && !exportingParams && !exportingStocks) {
             
             this.setState({
@@ -478,7 +382,21 @@ export default class Stock extends React.Component {
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
                         sort: sort,
-                        dropdown: dropdown,
+                        dropdown: {
+                            pffType: params.pffType.selection._id,
+                            steelType: params.steelType.selection._id,
+                            sizeOne: params.sizeOne.selection._id,
+                            sizeTwo: params.sizeTwo.selection._id,
+                            wallOne: params.wallOne.selection._id,
+                            wallTwo: params.wallTwo.selection._id,
+                            type: params.type.selection._id,
+                            grade: params.grade.selection._id,
+                            length: params.length.selection._id,
+                            end: params.end.selection._id,
+                            surface: params.surface.selection._id,
+                            opco: params.opco.selection._id,
+                            artNr: params.artNr.selection._id,
+                        },
                         selectedIds: selectedRows
                     })
                 };
@@ -514,7 +432,7 @@ export default class Stock extends React.Component {
     }
 
     getDocuments(nextPage) {
-        const {paginate, sort, dropdown} = this.state;
+        const {paginate, sort, params} = this.state;
         if (!!paginate.pageSize) {
             this.setState({
                 retrievingStocks: true
@@ -524,7 +442,21 @@ export default class Stock extends React.Component {
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
                         sort: sort,
-                        dropdown: dropdown,
+                        dropdown: {
+                            pffType: params.pffType.selection._id,
+                            steelType: params.steelType.selection._id,
+                            sizeOne: params.sizeOne.selection._id,
+                            sizeTwo: params.sizeTwo.selection._id,
+                            wallOne: params.wallOne.selection._id,
+                            wallTwo: params.wallTwo.selection._id,
+                            type: params.type.selection._id,
+                            grade: params.grade.selection._id,
+                            length: params.length.selection._id,
+                            end: params.end.selection._id,
+                            surface: params.surface.selection._id,
+                            opco: params.opco.selection._id,
+                            artNr: params.artNr.selection._id,
+                        },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
@@ -849,7 +781,7 @@ export default class Stock extends React.Component {
     }
 
     generateBody() {
-        const { stocks, retrievingStocks, currentUser, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
+        const { stocks, retrievingStocks, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
         if (!retrievingStocks) {
             stocks.map((stock) => {
@@ -902,42 +834,27 @@ export default class Stock extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                opco: "",
-                artNr: "",
-                pffType: "",
-                steelType: "",
-                sizeOne: "",
-                sizeTwo: "",
-                wallOne: "",
-                wallTwo: "",
-                type: "",
-                grade: "",
-                length: "",
-                end: "",
-                surface: ""
-            },
             params: {
-                pffType: { value: "", placeholder: "PFF type", options: [], hover: "", page: 0 },
-                steelType: { value: "", placeholder: "Steel type", options: [], hover: "", page: 0 },
-                sizeOne: { value: "", placeholder: "Outside diameter 1", options: [], hover: "", page: 0 },
-                sizeTwo: { value: "", placeholder: "Outside diameter 2", options: [], hover: "", page: 0 },
-                wallOne: { value: "", placeholder: "Wall thickness 1", options: [], hover: "", page: 0 },
-                wallTwo: { value: "", placeholder: "Wall thickness 2", options: [], hover: "", page: 0 },
-                type: { value: "", placeholder: "Article type", options: [], hover: "", page: 0 },
-                grade: { value: "", placeholder: "Material grade", options: [], hover: "", page: 0 },
-                length: { value: "", placeholder: "Length", options: [], hover: "", page: 0 },
-                end: { value: "", placeholder: "Ends", options: [], hover: "", page: 0 },
-                surface: { value: "", placeholder: "Surface treatment", options: [], hover: "", page: 0 },
-                opco: { value: "", placeholder: "OPCO", options: [], hover: "", page: 0 },
-                artNr: { value: "", placeholder: "Art Nr", options: [], hover: "", page: 0 },
+                pffType: { value: "", placeholder: "PFF type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "Steel type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                sizeOne: { value: "", placeholder: "Outside diameter 1", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                sizeTwo: { value: "", placeholder: "Outside diameter 2", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                wallOne: { value: "", placeholder: "Wall thickness 1", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                wallTwo: { value: "", placeholder: "Wall thickness 2", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Article type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade: { value: "", placeholder: "Material grade", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                artNr: { value: "", placeholder: "Art Nr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
         });
     }
 
     getDropdownOptions(key, page) {
-        const { focused, sort, dropdown } = this.state;
+        const { focused, sort } = this.state;
         this.setState({
             loading: true
         }, () => {
@@ -946,7 +863,21 @@ export default class Stock extends React.Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({
                     sort: sort,
-                    dropdown: dropdown,
+                    dropdown: {
+                        pffType: this.state.params.pffType.selection._id,
+                        steelType: this.state.params.steelType.selection._id,
+                        sizeOne: this.state.params.sizeOne.selection._id,
+                        sizeTwo: this.state.params.sizeTwo.selection._id,
+                        wallOne: this.state.params.wallOne.selection._id,
+                        wallTwo: this.state.params.wallTwo.selection._id,
+                        type: this.state.params.type.selection._id,
+                        grade: this.state.params.grade.selection._id,
+                        length: this.state.params.length.selection._id,
+                        end: this.state.params.end.selection._id,
+                        surface: this.state.params.surface.selection._id,
+                        opco: this.state.params.opco.selection._id,
+                        artNr: this.state.params.artNr.selection._id,
+                    },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
@@ -1001,16 +932,16 @@ export default class Stock extends React.Component {
                 [name]: {
                     ...this.state.params[name],
                     value: value,
+                    selection: {
+                        _id: "",
+                        name: ""
+                    }
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: ""
             }
         });
     }
 
-    handleSelectDropdown(event, name, selection) {
+    handleSelectDropdown(event, name, selectionId, selectionName) {
         event.preventDefault();
         this.setState({
             params: {
@@ -1019,12 +950,12 @@ export default class Stock extends React.Component {
                     ...this.state.params[name],
                     value: "",
                     options: [],
+                    selection: {
+                        _id: selectionId,
+                        name: selectionName
+                    },
                     hover: "",
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: selection
             },
             focused: ""
         })
@@ -1042,7 +973,7 @@ export default class Stock extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     },
                     [focused]: {
@@ -1061,7 +992,7 @@ export default class Stock extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     }
                 },
@@ -1085,21 +1016,21 @@ export default class Stock extends React.Component {
 
     toggleDropDown(event, name) {
         event.preventDefault();
-        const { params, dropdown, focused } = this.state;
-        if (!!_.isEqual(focused, name) || !!dropdown[name]) {
+        const { focused } = this.state;
+        if (!!_.isEqual(focused, name) || !!this.state.params[name].selection.name) {
             this.setState({
                 params: {
-                    ...params,
+                    ...this.state.params,
                     [name]: {
-                        ...params[name],
+                        ...this.state.params[name],
                         options: [],
                         value: "",
+                        selection: {
+                            _id: "",
+                            name: ""
+                        },
                         hover: ""
                     }
-                },
-                dropdown: {
-                    ...dropdown,
-                    [name]: ""
                 },
                 focused: "",
             });
@@ -1108,7 +1039,7 @@ export default class Stock extends React.Component {
         } else {
             let myInput = document.getElementById(name);
             myInput.focus();
-            myInput.select();
+            // myInput.select();
         }
     }
 
@@ -1127,7 +1058,7 @@ export default class Stock extends React.Component {
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, article, retrievingArticle, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
-        const { params, focused, dropdown } = this.state;
+        const { params, focused } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -1139,7 +1070,7 @@ export default class Stock extends React.Component {
                         </button>
                     </div>
                 }
-                <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
+                <div id="stock" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
@@ -1167,7 +1098,7 @@ export default class Stock extends React.Component {
                                             <TableHeader
                                                 title="opco"
                                                 name="opco"
-                                                width="80px"
+                                                width="230px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="0"
@@ -1299,7 +1230,7 @@ export default class Stock extends React.Component {
                                         focused={focused}
                                         value={params[key].value}
                                         placeholder={params[key].placeholder}
-                                        selection={dropdown[key]}
+                                        selection={params[key].selection}
                                         options={params[key].options}
                                         hover={this.state.params[key].hover}
                                         page={params[key].page}

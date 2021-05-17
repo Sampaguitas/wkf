@@ -2,17 +2,17 @@ const escape = require("../../functions/escape");
 
 module.exports = (name, page) => {
     return [
-        {
-            "$unwind": "$data"
-        },
+        // {
+        //     "$unwind": "$data"
+        // },
         {
             "$match": {
-                "data": { "$regex": new RegExp(escape(name),"i") }
+                "name": { "$regex": new RegExp(escape(name),"i") }
             }
         },
         {
             "$sort": {
-                "data": 1
+                "name": 1
             }
         },
         {
@@ -21,16 +21,16 @@ module.exports = (name, page) => {
         {
             "$skip": 10 * page
         },
-        {
-            "$group": {
-                "_id": null,
-                "data":{ "$push": `$data`}
-            }
-        },
-        {
-            "$project":{
-                "_id": 0
-            }
-        }
+        // {
+        //     "$group": {
+        //         "_id": null,
+        //         "data":{ "$push": `$data`}
+        //     }
+        // },
+        // {
+        //     "$project":{
+        //         "_id": 0
+        //     }
+        // }
     ];
 }

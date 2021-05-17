@@ -27,19 +27,12 @@ export default class Export extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                type:"",
-                status:"",
-                user:"",
-                createdAt:"",
-                expiresAt: ""
-            },
             params: {
-                type: { value: "", placeholder: "Type", options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "Status", options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "User", options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 },
-                expiresAt: { value: "", placeholder: "expiresAt", options: [], hover: "", page: 0 }
+                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
             alert: {
@@ -108,6 +101,29 @@ export default class Export extends React.Component {
     componentDidMount() {
         const tableContainer = document.getElementById("table-container");
         // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
+
+        document.getElementById("export").addEventListener("click", event => {
+            if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
+                if (!!this.state.focused) {
+                    this.setState({
+                        params: {
+                            ...this.state.params,
+                            [this.state.focused]: {
+                                ...this.state.params[this.state.focused],
+                                value: "",
+                                options: [],
+                                hover: "",
+                                page: 0
+                            }
+                        },
+                        focused: ""
+                    });
+                } else {
+                    this.setState({focused: ""});
+                }
+            }
+        });
+
         this.setState({
             paginate: {
                 ...this.state.paginate,
@@ -131,10 +147,16 @@ export default class Export extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, dropdown, paginate, elements, selectedRows } = this.state;
-        if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
+        const { sort, paginate, elements, selectedRows } = this.state;
+        if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
+
+        if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments();
+        if (this.state.params.status.selection._id !== prevState.params.status.selection._id) this.getDocuments();
+        if (this.state.params.user.selection._id !== prevState.params.user.selection._id) this.getDocuments();
+        if (this.state.params.createdAt.selection._id !== prevState.params.createdAt.selection._id) this.getDocuments();
+        if (this.state.params.expiresAt.selection._id !== prevState.params.expiresAt.selection._id) this.getDocuments();
 
         if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type", 0);
         if (this.state.params.status.value !== prevState.params.status.value) this.getDropdownOptions("status", 0);
@@ -224,7 +246,7 @@ export default class Export extends React.Component {
 
 
     getDocuments(nextPage) {
-        const { paginate, sort, dropdown } = this.state;
+        const { paginate, sort, params } = this.state;
         if (!!paginate.pageSize) {
             this.setState({
                 retrieving: true
@@ -234,7 +256,13 @@ export default class Export extends React.Component {
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
                         sort: sort,
-                        dropdown: dropdown,
+                        dropdown: {
+                            type: params.type.selection._id,
+                            status: params.status.selection._id,
+                            user: params.user.selection._id,
+                            createdAt: params.createdAt.selection._id,
+                            expiresAt: params.expiresAt.selection._id,
+                        },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
@@ -420,26 +448,20 @@ export default class Export extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                type:"",
-                status:"",
-                user:"",
-                createdAt:"",
-                expiresAt: ""
-            },
             params: {
-                type: { value: "", placeholder: "Type", options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "Status", options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "User", options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", options: [], hover: "", page: 0 },
-                expiresAt: { value: "", placeholder: "expiresAt", options: [], hover: "", page: 0 }
+                ...this.state.params,
+                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
         });
     }
 
     getDropdownOptions(key, page) {
-        const { focused, sort, dropdown } = this.state;
+        const { focused, sort } = this.state;
         this.setState({
             loading: true
         }, () => {
@@ -448,7 +470,13 @@ export default class Export extends React.Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({
                     sort: sort,
-                    dropdown: dropdown,
+                    dropdown: {
+                        type: this.state.params.type.selection._id,
+                        status: this.state.params.status.selection._id,
+                        user: this.state.params.user.selection._id,
+                        createdAt: this.state.params.createdAt.selection._id,
+                        expiresAt: this.state.params.expiresAt.selection._id,
+                    },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
@@ -503,16 +531,16 @@ export default class Export extends React.Component {
                 [name]: {
                     ...this.state.params[name],
                     value: value,
+                    selection: {
+                        _id: "",
+                        name: ""
+                    }
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: ""
             }
         });
     }
 
-    handleSelectDropdown(event, name, selection) {
+    handleSelectDropdown(event, name, selectionId, selectionName) {
         event.preventDefault();
         this.setState({
             params: {
@@ -521,12 +549,12 @@ export default class Export extends React.Component {
                     ...this.state.params[name],
                     value: "",
                     options: [],
+                    selection: {
+                        _id: selectionId,
+                        name: selectionName
+                    },
                     hover: "",
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: selection
             },
             focused: ""
         })
@@ -544,7 +572,7 @@ export default class Export extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     },
                     [focused]: {
@@ -563,7 +591,7 @@ export default class Export extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     }
                 },
@@ -587,21 +615,21 @@ export default class Export extends React.Component {
 
     toggleDropDown(event, name) {
         event.preventDefault();
-        const { params, dropdown, focused } = this.state;
-        if (!!_.isEqual(focused, name) || !!dropdown[name]) {
+        const { focused } = this.state;
+        if (!!_.isEqual(focused, name) || !!this.state.params[name].selection.name) {
             this.setState({
                 params: {
-                    ...params,
+                    ...this.state.params,
                     [name]: {
-                        ...params[name],
+                        ...this.state.params[name],
                         options: [],
                         value: "",
+                        selection: {
+                            _id: "",
+                            name: ""
+                        },
                         hover: ""
                     }
-                },
-                dropdown: {
-                    ...dropdown,
-                    [name]: ""
                 },
                 focused: "",
             });
@@ -610,14 +638,14 @@ export default class Export extends React.Component {
         } else {
             let myInput = document.getElementById(name);
             myInput.focus();
-            myInput.select();
+            // myInput.select();
         }
     }
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
-        const { params, focused, dropdown } = this.state;
+        const { params, focused } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -629,7 +657,7 @@ export default class Export extends React.Component {
                         </button>
                     </div>
                 }
-                <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
+                <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
@@ -744,7 +772,7 @@ export default class Export extends React.Component {
                                         focused={focused}
                                         value={params[key].value}
                                         placeholder={params[key].placeholder}
-                                        selection={dropdown[key]}
+                                        selection={params[key].selection}
                                         options={params[key].options}
                                         hover={this.state.params[key].hover}
                                         page={params[key].page}

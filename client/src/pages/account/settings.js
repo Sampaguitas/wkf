@@ -30,15 +30,10 @@ export default class Settings extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                name: "",
-                email: "",
-                isAdmin: ""
-            },
             params: {
-                name: { value: "", placeholder: "Name", options: [], hover: "", page: 0 },
-                email: { value: "", placeholder: "Email", options: [], hover: "", page: 0 },
-                isAdmin: { value: "", placeholder: "isAdmin", options: [], hover: "", page: 0 }
+                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isAdmin: { value: "", placeholder: "isAdmin", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
             alert: {
@@ -80,7 +75,6 @@ export default class Settings extends React.Component {
         this.hideModal = this.hideModal.bind(this);
         this.handleChangeUser = this.handleChangeUser.bind(this);
         // this.handleChangeHeader = this.handleChangeHeader.bind(this);
-        //dropdown
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
         this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
@@ -107,6 +101,29 @@ export default class Settings extends React.Component {
         const { paginate } = this.state;
         let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
+
+        document.getElementById("setting").addEventListener("click", event => {
+            if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
+                if (!!this.state.focused) {
+                    this.setState({
+                        params: {
+                            ...this.state.params,
+                            [this.state.focused]: {
+                                ...this.state.params[this.state.focused],
+                                value: "",
+                                options: [],
+                                hover: "",
+                                page: 0
+                            }
+                        },
+                        focused: ""
+                    });
+                } else {
+                    this.setState({focused: ""});
+                }
+            }
+        });
+
         if (!!currentUser) {
             this.setState({
                 currentUser: currentUser,
@@ -133,10 +150,14 @@ export default class Settings extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, dropdown, paginate, elements, selectedRows } = this.state;
-        if (sort !== prevState.sort || dropdown !== prevState.dropdown || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
+        const { sort, paginate, elements, selectedRows } = this.state;
+        if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
+
+        if (this.state.params.name.selection._id !== prevState.params.name.selection._id) this.getDocuments();
+        if (this.state.params.email.selection._id !== prevState.params.email.selection._id) this.getDocuments();
+        if (this.state.params.isAdmin.selection._id !== prevState.params.isAdmin.selection._id) this.getDocuments();
 
         if (this.state.params.name.value !== prevState.params.name.value) this.getDropdownOptions("name", 0);
         if (this.state.params.email.value !== prevState.params.email.value) this.getDropdownOptions("email", 0);
@@ -254,7 +275,7 @@ export default class Settings extends React.Component {
     // }
 
     getDocuments(nextPage) {
-        const { paginate, sort, dropdown } = this.state;
+        const { paginate, sort, params } = this.state;
         if (!!paginate.pageSize) {
             this.setState({
                 retrieving: true
@@ -264,7 +285,11 @@ export default class Settings extends React.Component {
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
                         sort: sort,
-                        dropdown: dropdown,
+                        dropdown: {
+                            name: params.name.selection._id,
+                            email: params.email.selection._id,
+                            isAdmin: params.isAdmin.selection._id,
+                        },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
@@ -520,22 +545,17 @@ export default class Settings extends React.Component {
                 name: "",
                 isAscending: true,
             },
-            dropdown: {
-                name: "",
-                email: "",
-                isAdmin: ""
-            },
             params: {
-                name: { value: "", placeholder: "Name", options: [], hover: "", page: 0 },
-                email: { value: "", placeholder: "Email", options: [], hover: "", page: 0 },
-                isAdmin: { value: "", placeholder: "isAdmin", options: [], hover: "", page: 0 }
+                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isAdmin: { value: "", placeholder: "isAdmin", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
         });
     }
 
     getDropdownOptions(key, page) {
-        const { focused, sort, dropdown } = this.state;
+        const { focused, sort, params } = this.state;
         this.setState({
             loading: true
         }, () => {
@@ -544,7 +564,11 @@ export default class Settings extends React.Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({
                     sort: sort,
-                    dropdown: dropdown,
+                    dropdown: {
+                        name: params.name.selection._id,
+                        email: params.email.selection._id,
+                        isAdmin: params.isAdmin.selection._id,
+                    },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
@@ -599,16 +623,16 @@ export default class Settings extends React.Component {
                 [name]: {
                     ...this.state.params[name],
                     value: value,
+                    selection: {
+                        _id: "",
+                        name: ""
+                    }
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: ""
             }
         });
     }
 
-    handleSelectDropdown(event, name, selection) {
+    handleSelectDropdown(event, name, selectionId, selectionName) {
         event.preventDefault();
         this.setState({
             params: {
@@ -617,12 +641,12 @@ export default class Settings extends React.Component {
                     ...this.state.params[name],
                     value: "",
                     options: [],
+                    selection: {
+                        _id: selectionId,
+                        name: selectionName
+                    },
                     hover: "",
                 }
-            },
-            dropdown: {
-                ...this.state.dropdown,
-                [name]: selection
             },
             focused: ""
         })
@@ -640,7 +664,7 @@ export default class Settings extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     },
                     [focused]: {
@@ -659,7 +683,7 @@ export default class Settings extends React.Component {
                     [name]: {
                         ...this.state.params[name],
                         options: [],
-                        value: this.state.dropdown[name],
+                        value: this.state.params[name].selection.name,
                         hover: ""
                     }
                 },
@@ -683,21 +707,21 @@ export default class Settings extends React.Component {
 
     toggleDropDown(event, name) {
         event.preventDefault();
-        const { params, dropdown, focused } = this.state;
-        if (!!_.isEqual(focused, name) || !!dropdown[name]) {
+        const { focused } = this.state;
+        if (!!_.isEqual(focused, name) || !!this.state.params[name].selection.name) {
             this.setState({
                 params: {
-                    ...params,
+                    ...this.state.params,
                     [name]: {
-                        ...params[name],
+                        ...this.state.params[name],
                         options: [],
                         value: "",
+                        selection: {
+                            _id: "",
+                            name: ""
+                        },
                         hover: ""
                     }
-                },
-                dropdown: {
-                    ...dropdown,
-                    [name]: ""
                 },
                 focused: "",
             });
@@ -706,14 +730,14 @@ export default class Settings extends React.Component {
         } else {
             let myInput = document.getElementById(name);
             myInput.focus();
-            myInput.select();
+            // myInput.select();
         }
     }
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, element, sort, showSearch, showUser, settingsColWidth, upserting, deleting, selectAllRows } = this.state;
-        const { params, focused, dropdown } = this.state;
+        const { params, focused } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -817,7 +841,7 @@ export default class Settings extends React.Component {
                                         focused={focused}
                                         value={params[key].value}
                                         placeholder={params[key].placeholder}
-                                        selection={dropdown[key]}
+                                        selection={params[key].selection}
                                         options={params[key].options}
                                         hover={this.state.params[key].hover}
                                         page={params[key].page}
