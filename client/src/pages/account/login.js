@@ -77,46 +77,43 @@ export default class Login extends React.Component{
     render() {
         const { alert, email, password, loggingIn } = this.state;
         return(
-            <div id="login-card" className="row justify-content-center align-self-center">
-                <div className="card card-login">
-                    <div className="card-body">
+            <div className="container full-height" style={{overflowY: "auto"}}>
+                <section className="card-login">
                         <img src={logo} className="img-fluid" alt="Van Leeuwen Pipe and Tube"/>
-                    <br />
-                    <img src={rdb} className="img-fluid mt-2" alt="Reconciliation Database" />
-                    <hr />
-                    <form name="form" onSubmit={this.handleLogin}>
-                        <InputIcon
-                            title="Email"
-                            name="email"
-                            type="email"
-                            value={email}
-                            onChange={this.handleChange}
-                            placeholder="Email"
-                            icon="user"
-                            submitted={loggingIn}
-                            autoComplete="email"
-                        />
-                        <InputIcon
-                            title="Password"
-                            name="password"
-                            type="password"
-                            value={password}
-                            onChange={this.handleChange}
-                            placeholder="Password"
-                            icon="lock"
-                            submitted={loggingIn}
-                            autoComplete="current-password"
-                        />
+                        <img src={rdb} className="img-fluid mt-2" alt="European Stock Management (ESM)" />
                         <hr />
-                        <button type="submit" className="btn btn-sm btn-block btn-leeuwen"> 
-                            <span><FontAwesomeIcon icon={loggingIn ? "spinner" : "sign-in-alt"} className={loggingIn ? "fa-pulse fa fa-fw mr-2" : "fa mr-2"}/>Login</span>
-                        </button>
-                        <NavLink to={{ pathname: "/reqpwd" }} className="btn btn-link btn-sm" tag="a">Forgot your password?</NavLink>
-                        <br />
-                        {alert.message && (<div className={`alert ${alert.type}`}>{alert.message}</div>)}
-                    </form>
-                    </div>
-                </div>
+                        <form name="form" onSubmit={this.handleLogin}>
+                            <InputIcon
+                                title="Email"
+                                name="email"
+                                type="email"
+                                value={email}
+                                onChange={this.handleChange}
+                                placeholder="Email"
+                                icon="user"
+                                submitted={loggingIn}
+                                autoComplete="email"
+                            />
+                            <InputIcon
+                                title="Password"
+                                name="password"
+                                type="password"
+                                value={password}
+                                onChange={this.handleChange}
+                                placeholder="Password"
+                                icon="lock"
+                                submitted={loggingIn}
+                                autoComplete="current-password"
+                            />
+                            <hr />
+                            <button type="submit" className="btn btn-sm btn-block btn-leeuwen"> 
+                                <span><FontAwesomeIcon icon={loggingIn ? "spinner" : "sign-in-alt"} className={loggingIn ? "fa-pulse fa fa-fw mr-2" : "fa mr-2"}/>Login</span>
+                            </button>
+                            <NavLink to={{ pathname: "/reqpwd" }} className="btn btn-link btn-sm" tag="a">Forgot your password?</NavLink>
+                            <br />
+                            {alert.message && (<div className={`alert ${alert.type}`}>{alert.message}</div>)}
+                        </form>
+                    </section>
             </div>
         );
     }

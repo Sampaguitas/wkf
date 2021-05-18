@@ -12,7 +12,7 @@ aws.config.update({
 module.exports = (document) => {
   return new Promise(function(resolve) {
     const { dropdown, selectedIds } = document.stockFilters;
-    matchDropdown(selectedIds, dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface).then(myMatch => {
+    matchDropdown(selectedIds, dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
         require("../models/Stock").aggregate([
             ...require("../pipelines/param_pipelines/first_stage")(myMatch)
         ]).exec(function(error, result) {
@@ -79,7 +79,7 @@ function matchDropdown() {
         let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
         if (regexOutlet.test(myArgs[9])  || myArgs[3] === "FORGED_OLETS") {
             require("../functions/getSizeMm")(myArgs[6]).then(mm => {
-                resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+                resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock"].reduce(function(acc, cur, index) {
                     if (cur === "selectedIds" && myArgs[index].length > 0) {
                         acc[`_id`] = { "$in": myArgs[index] };
                     } else if (cur !== "selectedIds" && !!myArgs[index]) {
@@ -92,6 +92,8 @@ function matchDropdown() {
                         } else if (cur === "sizeTwo" && mm !== null) {
                             acc[`parameters.sizeTwo.mm`] = { $lte: mm };
                             acc[`parameters.sizeThree.mm`] = { $gte: mm };
+                        } else if (cur === "stock") {
+                            acc["qty"] = { "$gt": 0 };
                         } else {
                             acc[`parameters.${cur}.tags`] = myArgs[index];
                         }
@@ -100,7 +102,7 @@ function matchDropdown() {
                 },{}));
             });
         } else {
-            resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface"].reduce(function(acc, cur, index) {
+            resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock"].reduce(function(acc, cur, index) {
                 if (cur === "selectedIds" && myArgs[index].length > 0) {
                     acc[`_id`] = { "$in": myArgs[index] };
                 } else if (cur !== "selectedIds" && !!myArgs[index]) {
@@ -110,6 +112,8 @@ function matchDropdown() {
                         acc[`parameters.type.pffType`] = myArgs[index];
                     } else if (cur === "steelType") {
                         acc[`parameters.grade.steelType`] = myArgs[index];
+                    } else if (cur === "stock") {
+                        acc["qty"] = { "$gt": 0 };
                     } else {
                         acc[`parameters.${cur}.tags`] = myArgs[index];
                     }

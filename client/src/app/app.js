@@ -10,11 +10,13 @@ import ReqPwd from "../pages/account/reqpwd";
 import ResetPwd from "../pages/account/resetpwd";
 import NotFound from "../pages/account/notfound";
 import Settings from "../pages/account/settings";
+import CurrencyTable from "../pages/account/currencytable";
 import User from "../pages/account/user";
 import Stock from "../pages/home/stock";
 import BuyOut from "../pages/home/buyout";
 import Export from "../pages/home/export";
 import Import from "../pages/home/import";
+
 
 library.add(fas, far, fal);
 
@@ -48,6 +50,9 @@ export default class App extends React.Component {
               <Route path="/resetpwd">
                 <ResetPwd />
               </Route>
+              {/* <Route path="/currencytable">
+                <CurrencyTable />
+              </Route> */}
               <PrivateRoute exact path="/" user={user}>
                 <Stock user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>

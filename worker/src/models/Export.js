@@ -46,6 +46,9 @@ const ExportSchema = new Schema({
             "surface": {
                 "type": String,
             },
+            "stock": {
+                "type": Boolean,
+            }
         },
         "sort": {
             "name": {

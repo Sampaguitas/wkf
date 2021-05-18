@@ -71,47 +71,37 @@ export default class ReqPwd extends Component {
   render() {
     const { alert, email, requesting } = this.state;
     return (
-      <div
-        id="requestpwd-card"
-        className="row justify-content-center align-self-center"
-      >
-      <div className="card card-login">
-          <div className="card-body">
-              <img
-                  src={logo}
-                  className="img-fluid"
-                  alt="Van Leeuwen Pipe and Tube"
-              />
-              <br />
-              <img src={rdb} className="img-fluid mt-2" alt="Reconciliation Database" />
-              <hr />
-              <p>Please provide your email address and we"ll send you instructions on how to change your password.</p>
-              <form
-                  name="form"
-                  onSubmit={this.handleRequest}
-              >
-                  <InputIcon
-                    title="Email"
-                    name="email"
-                    type="email"
-                    value={email}
-                    onChange={this.handleChange}
-                    placeholder="Email"
-                    icon="user"
-                    requesting={requesting}
-                    autoComplete="email"
-                  />
-                  <hr />
-                  <button type="submit" className="btn btn-sm btn-block btn-leeuwen">
-                    <span><FontAwesomeIcon icon={requesting ? "spinner" : "hand-point-right"} className={requesting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Submit</span>
-                  </button>
-                  <NavLink to={{ pathname: "/login" }} className="btn btn-link btn-sm" tag="a"> Go back to login page</NavLink>
-                  <br />
-                  {alert.message && <div className={`alert ${alert.type}`}>{alert.message}</div>}
-              </form>
-              </div>
-          </div>
-      </div>
+        <div className="container full-height" style={{overflowY: "auto"}}>
+          <section className="card-login">
+            <img src={logo} className="img-fluid" alt="Van Leeuwen Pipe and Tube"/>
+            <img src={rdb} className="img-fluid mt-2" alt="European Stock Management (ESM)" />
+            <hr />
+            <p>Please provide your email address and we"ll send you instructions on how to change your password.</p>
+            <form
+                name="form"
+                onSubmit={this.handleRequest}
+            >
+                <InputIcon
+                  title="Email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={this.handleChange}
+                  placeholder="Email"
+                  icon="user"
+                  requesting={requesting}
+                  autoComplete="email"
+                />
+                <hr />
+                <button type="submit" className="btn btn-sm btn-block btn-leeuwen">
+                  <span><FontAwesomeIcon icon={requesting ? "spinner" : "hand-point-right"} className={requesting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Submit</span>
+                </button>
+                <NavLink to={{ pathname: "/login" }} className="btn btn-link btn-sm" tag="a"> Go back to login page</NavLink>
+                <br />
+                {alert.message && <div className={`alert ${alert.type}`}>{alert.message}</div>}
+            </form>
+          </section>
+        </div>
     );
   }
 }

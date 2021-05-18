@@ -104,10 +104,11 @@ export default class Stock extends React.Component {
                 type: { value: "", placeholder: "Article type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 grade: { value: "", placeholder: "Material grade", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                _end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "ArtNr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
             alert: {
@@ -283,10 +284,11 @@ export default class Stock extends React.Component {
         if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.grade.selection._id !== prevState.params.grade.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.length.selection._id !== prevState.params.length.selection._id) this.getDocuments() && this.updateDisabled();
-        if (this.state.params.end.selection._id !== prevState.params.end.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params._end.selection._id !== prevState.params._end.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.surface.selection._id !== prevState.params.surface.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.stock.selection._id !== prevState.params.stock.selection._id) this.getDocuments() && this.updateDisabled();
         
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
@@ -297,10 +299,11 @@ export default class Stock extends React.Component {
         if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type", 0);
         if (this.state.params.grade.value !== prevState.params.grade.value) this.getDropdownOptions("grade", 0);
         if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length", 0);
-        if (this.state.params.end.value !== prevState.params.end.value) this.getDropdownOptions("end", 0);
+        if (this.state.params._end.value !== prevState.params._end.value) this.getDropdownOptions("_end", 0);
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface", 0);
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco", 0);
         if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr", 0);
+        if (this.state.params.stock.value !== prevState.params.stock.value) this.getDropdownOptions("stock", 0);
 
         if (stocks !== prevState.stocks) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -412,10 +415,11 @@ export default class Stock extends React.Component {
                             type: params.type.selection._id,
                             grade: params.grade.selection._id,
                             length: params.length.selection._id,
-                            end: params.end.selection._id,
+                            end: params._end.selection._id,
                             surface: params.surface.selection._id,
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
+                            stock: params.stock.selection._id,
                         },
                         selectedIds: selectedRows
                     })
@@ -472,10 +476,11 @@ export default class Stock extends React.Component {
                             type: params.type.selection._id,
                             grade: params.grade.selection._id,
                             length: params.length.selection._id,
-                            end: params.end.selection._id,
+                            end: params._end.selection._id,
                             surface: params.surface.selection._id,
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
+                            stock: params.stock.selection._id,
                         },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
@@ -864,10 +869,11 @@ export default class Stock extends React.Component {
                 type: { value: "", placeholder: "Article type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 grade: { value: "", placeholder: "Material grade", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                _end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "Art Nr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
         });
@@ -893,16 +899,17 @@ export default class Stock extends React.Component {
                         type: this.state.params.type.selection._id,
                         grade: this.state.params.grade.selection._id,
                         length: this.state.params.length.selection._id,
-                        end: this.state.params.end.selection._id,
+                        end: this.state.params._end.selection._id,
                         surface: this.state.params.surface.selection._id,
                         opco: this.state.params.opco.selection._id,
                         artNr: this.state.params.artNr.selection._id,
+                        stock: this.state.params.stock.selection._id,
                     },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/getDrop/${key}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/getDrop/${(key).replace("_", "")}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,

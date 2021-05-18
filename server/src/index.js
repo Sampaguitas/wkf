@@ -28,18 +28,26 @@ app.listen(port, () => console.log(`Server running on ${port}`));
 
 app.use("/dropdowns", require("./routes/dropdowns"));
 app.use("/exports", require("./routes/exports"));
+app.use("/imports", require("./routes/imports"));
+app.use("/processes", require("./routes/processes"));
+app.use("/rates", require("./routes/rates"));
 app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
-app.use("/processes", require("./routes/processes"));
-app.use("/imports", require("./routes/imports"));
+
+
+
 
 //without nginx
 app.use("/server/dropdowns", require("./routes/dropdowns"));
+app.use("/server/imports", require("./routes/imports"));
 app.use("/server/exports", require("./routes/exports"));
+app.use("/server/processes", require("./routes/processes"));
+app.use("/server/rates", require("./routes/rates"));
 app.use("/server/stocks", require("./routes/stocks"));
 app.use("/server/users", require("./routes/users"));
-app.use("/server/processes", require("./routes/processes"));
-app.use("/server/imports", require("./routes/imports"));
+
+
+
 
 let isProcessing = false;
 var updateRates = new CronJob("0 0 0 * * *", function() {

@@ -151,15 +151,15 @@ body {
   font-size:1.25rem;
 }
 
-/* .card-login {
+.card-login {
   position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   max-width:500px;
-} */
+}
 
-.card-login {
+/* .card-login {
   position:absolute;
   top:0;
   bottom:0;
@@ -170,7 +170,7 @@ body {
   height: 400px;
   max-width: 100%;
   padding: 15px;
-}
+} */
 
 h1 {
   font-size: 2rem; /* 2.5rem 30px/16=2.5em */
