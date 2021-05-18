@@ -8,6 +8,7 @@ export default class TableData extends React.Component{
         const { colIndex, value, type, align, settingsColWidth, handleClick, handleDownlaod, eventId} = this.props
         return (
             <td
+              className="no-select"
               style={{
                 width: "auto",
                 whiteSpace: "nowrap",

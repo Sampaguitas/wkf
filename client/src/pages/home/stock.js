@@ -156,6 +156,7 @@ export default class Stock extends React.Component {
                     isLoaded: false
                 }
             ],
+            isDisabled: true,
             selectAllRows: false,
             selectedRows: [],
             retrievingStocks: false,
@@ -192,6 +193,7 @@ export default class Stock extends React.Component {
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleExport = this.handleExport.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
+        this.updateDisabled = this.updateDisabled.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
@@ -272,19 +274,19 @@ export default class Stock extends React.Component {
             this.getDocuments();
         }
 
-        if (this.state.params.pffType.selection._id !== prevState.params.pffType.selection._id) this.getDocuments();
-        if (this.state.params.steelType.selection._id !== prevState.params.steelType.selection._id) this.getDocuments();
-        if (this.state.params.sizeOne.selection._id !== prevState.params.sizeOne.selection._id) this.getDocuments();
-        if (this.state.params.sizeTwo.selection._id !== prevState.params.sizeTwo.selection._id) this.getDocuments();
-        if (this.state.params.wallOne.selection._id !== prevState.params.wallOne.selection._id) this.getDocuments();
-        if (this.state.params.wallTwo.selection._id !== prevState.params.wallTwo.selection._id) this.getDocuments();
-        if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments();
-        if (this.state.params.grade.selection._id !== prevState.params.grade.selection._id) this.getDocuments();
-        if (this.state.params.length.selection._id !== prevState.params.length.selection._id) this.getDocuments();
-        if (this.state.params.end.selection._id !== prevState.params.end.selection._id) this.getDocuments();
-        if (this.state.params.surface.selection._id !== prevState.params.surface.selection._id) this.getDocuments();
-        if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments();
-        if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments();
+        if (this.state.params.pffType.selection._id !== prevState.params.pffType.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.steelType.selection._id !== prevState.params.steelType.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.sizeOne.selection._id !== prevState.params.sizeOne.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.sizeTwo.selection._id !== prevState.params.sizeTwo.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.wallOne.selection._id !== prevState.params.wallOne.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.wallTwo.selection._id !== prevState.params.wallTwo.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.grade.selection._id !== prevState.params.grade.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.length.selection._id !== prevState.params.length.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.end.selection._id !== prevState.params.end.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.surface.selection._id !== prevState.params.surface.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments() && this.updateDisabled();
         
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
@@ -311,6 +313,24 @@ export default class Stock extends React.Component {
             this.setState({
                 selectedRows: remaining,
                 selectAllRows: false,
+            });
+        }
+
+        if (selectedRows !== prevState.selectedRows) this.updateDisabled();
+    }
+
+    updateDisabled() {
+        const { params, selectedRows } = this.state;
+        if (!_.isEmpty(selectedRows)) {
+            this.setState({
+                isDisabled: false
+            });
+        } else {
+            this.setState({
+                isDisabled: Object.keys(params).reduce(function(acc, cur) {
+                    if (acc === true && params[cur].selection._id !== "") acc = false;
+                    return acc;
+                }, true)
             });
         }
     }
@@ -1058,7 +1078,7 @@ export default class Stock extends React.Component {
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, article, retrievingArticle, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
-        const { params, focused } = this.state;
+        const { params, focused, isDisabled } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -1075,10 +1095,10 @@ export default class Stock extends React.Component {
                         <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
-                        <button title="Export Stock" className="btn btn-sm btn-gray mr-2" onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
+                        <button title="Export Stock" className="btn btn-sm btn-gray mr-2" disabled={isDisabled} onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Stock</span>
                         </button>
-                        <button title="Export Params" className="btn btn-sm btn-gray mr-2" onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
+                        <button title="Export Params" className="btn btn-sm btn-gray mr-2" disabled={isDisabled} onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Params</span>
                         </button>
                         <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
