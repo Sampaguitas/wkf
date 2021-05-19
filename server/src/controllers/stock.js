@@ -213,7 +213,8 @@ const getAll = (req, res, next) => {
     const { sort, dropdown } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
-    const user = req.user
+    const user = req.user;
+    const system = "IMPERIAL";
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
         require("../models/Stock").aggregate([
             {
@@ -248,7 +249,84 @@ const getAll = (req, res, next) => {
                         },
                         {
                             "$addFields": {
-                                "opco": "$opco.stockInfo.name"
+                                "opco": "$opco.stockInfo.name",
+                                "qty": {
+                                    "$cond": [ 
+                                        { "$eq": [system, "IMPERIAL"] },
+                                        {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$qty", 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$qty", 3.28084 ] } }
+                                                ],
+                                                "default": "$qty"
+                                            }
+                                        },
+                                        "$qty"
+                                    ]
+                                },
+                                "firstInStock": {
+                                    "$cond": [
+                                        { "$eq": [system, "IMPERIAL" ] },
+                                        {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
+                                                ],
+                                                "default": "$purchase.firstInStock"
+                                            }
+                                        },
+                                        "$purchase.firstInStock"
+                                    ],
+                                },
+                                "uom": {
+                                    "$cond": [
+                                        { "$eq": [system, "IMPERIAL" ] },
+                                        {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": "LB" },
+                                                    { "case": { "$eq": [ "$uom", "LB" ] }, "then": "LB" },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": "FT" },
+                                                    { "case": { "$eq": [ "$uom", "FT" ] }, "then": "FT" },
+                                                ],
+                                                "default": "ST"
+                                            }
+                                        },
+                                        "$uom"
+                                    ],
+                                },
+                                "gip": {
+                                    "$cond": [
+                                        { "$eq": [ system, "IMPERIAL" ] },
+                                        {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.gip", 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.gip", 3.28084 ] } }
+                                                ],
+                                                "default": "$price.gip"
+                                            }
+                                        },
+                                        "$price.gip"
+                                    ],
+                                },
+                                "rv": {
+                                    "$cond": [
+                                        { "$eq": [ system, "IMPERIAL" ] },
+                                        {
+                                            "$switch": {
+                                                "branches": [
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.rv", 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.rv", 3.28084 ] } }
+                                                ],
+                                                "default": "$price.rv"
+                                            }
+                                        },
+                                        "$price.rv"
+                                    ],
+                                },
                             }
                         }
                     ],
