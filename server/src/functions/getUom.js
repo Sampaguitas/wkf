@@ -1,9 +1,9 @@
 module.exports = (system, uom) => {
     if (system === "IMPERIAL") {
         switch(uom) {
-            case "KG":
+            case "KG": return "LB";
             case "LB": return "LB";
-            case "M":
+            case "M": return "FT";
             case "FT": return "FT";
             default: return "ST"; //"ST":
         }

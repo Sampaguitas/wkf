@@ -10,7 +10,8 @@ const login = (req, res, next) => {
     const email = req.body.email.toLowerCase();
     const {password} = req.body;
 
-    require("../models/User").findOne({ email }, { password:1, name: 1, isAdmin: 1, accountId: 1 })
+    require("../models/User")
+    .findOne({ email }, { password:1, name: 1, isAdmin: 1, accountId: 1, currency: 1, system: 1 })
     .then(user => {
         if (!user) {
             res.status(400).json({ message: "Wrong email or password." });
@@ -18,31 +19,37 @@ const login = (req, res, next) => {
             bcrypt.compare(password, user.password).then(isMatch => {
                 if (!isMatch) { 
                     res.status(400).json({ message: "Wrong email or password." });
-                } else {                       
-                    const payload = { 
-                        "_id": user._id,
-                        "name": user.name,
-                        "email": user.email,
-                        "isAdmin": user.isAdmin,
-                        "accountId": user.accountId
-                    };
-                    jwt.sign(
-                        payload,
-                        process.env.SECRET,
-                        { expiresIn: 86400 }, //day=86400, hour=3600 sec
-                        (err, token) => {
-                            if (err) {
-                                res.status(400).json({ message: "Could not generate token." });
-                            } else {
-                                res.json({
-                                    success: true,
-                                    token: "Bearer " + token,
-                                    _id: user._id,
-                                    isAdmin: payload.isAdmin,
-                                });
+                } else {
+                    require("../functions/getRate")("EUR", user.currency)
+                    .then(rate => {
+                        const payload = { 
+                            "_id": user._id,
+                            "name": user.name,
+                            "email": user.email,
+                            "isAdmin": user.isAdmin,
+                            "accountId": user.accountId,
+                            "currency": user.currency,
+                            "rate": rate,
+                            "system": user.system
+                        };
+                        jwt.sign(
+                            payload,
+                            process.env.SECRET,
+                            { expiresIn: 86400 }, //day=86400, hour=3600 sec
+                            (err, token) => {
+                                if (err) {
+                                    res.status(400).json({ message: "Could not generate token." });
+                                } else {
+                                    res.json({
+                                        success: true,
+                                        token: "Bearer " + token,
+                                        _id: user._id,
+                                        isAdmin: payload.isAdmin,
+                                    });
+                                }
                             }
-                        }
-                    );
+                        );
+                    }).catch(err => res.status(400).json({ message: err }));
                 }
             });
         }

@@ -30,7 +30,7 @@ export default class TabStockArticle extends React.Component {
                             </tr>
                             <tr>
                                 <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "weight"}</th>
-                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.weight, "number", getDateFormat())} KG`}</td>
+                                <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.weight, "number", getDateFormat())} ${article.weight_uom}`}</td>
                             </tr>
                             <tr>
                                 <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "gip"}</th>

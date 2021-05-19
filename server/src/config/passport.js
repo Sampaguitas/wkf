@@ -17,6 +17,7 @@ module.exports = passport => {
 //             if (err || !user) {
 //                 return done(null, false);
 //             } else {
+//                 console.log(user);
 //                 return done(null, user);
 //             }
 //         });

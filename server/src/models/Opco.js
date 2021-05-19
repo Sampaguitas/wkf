@@ -23,8 +23,9 @@ const OpcoSchema = new Schema({
     "email": {
         type: String
     },
-    "country": {
-        type: String
+    "countryId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "countries"
     },
     "stockInfo": {
         "esm_id": {
@@ -61,7 +62,15 @@ const OpcoSchema = new Schema({
     }
 },
 {
-    "timestamps": true
+    "timestamps": true,
+    "toJSON": { "virtuals": true }
+});
+
+OpcoSchema.virtual("country", {
+    ref: "countries",
+    localField: "countryId",
+    foreignField: "_id",
+    justOne: true
 });
 
 module.exports = Opco = mongoose.model("opcos", OpcoSchema);

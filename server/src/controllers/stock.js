@@ -34,9 +34,18 @@ const _export = (req, res, next) => {
 
 const getById = (req, res, next) => {
     const {articleId} = req.params;
+    const system = req.user.system || "METRIC";
+    const currency = req.user.currency || "EUR";
+    const rate = req.user.rate || 1;
+
     require("../models/Stock")
     .findById(articleId)
-    .populate("location")
+    .populate({
+        "path": "location",
+        "populate": {
+            "path": "country"
+        }
+    })
     .exec(function (err, article) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."});
@@ -48,26 +57,28 @@ const getById = (req, res, next) => {
                 "artNr": article.artNr,
                 "description": article.description,
                 "vlunar": article.vlunar,
-                "qty": article.qty,
-                "uom": article.uom,
-                "weight": article.weight,
+                "qty": require("../functions/getQty")(system, article.uom, article.qty),
+                "uom": require("../functions/getUom")(system, article.uom),
+                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
+                "weight_uom": require("../functions/getWeightUom")(system),
                 "price": {
-                    "gip": article.price.gip,
-                    "rv": article.price.rv,
+                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, rate),
+                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, rate),
+                    "currency": currency
                 },
                 "purchase": {
                     "supplier": article.purchase.supplier,
-                    "qty": article.purchase.qty,
-                    "firstInStock": article.purchase.firstInStock,
+                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
+                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
                     "deliveryDate": article.purchase.deliveryDate
                 },
                 "supplier": {
                     "names": article.supplier.names,
                     "qtys": [
-                        article.supplier.qtys[0],
-                        article.supplier.qtys[1],
-                        article.supplier.qtys[2],
-                        article.supplier.qtys[3]
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3])
                     ]
                 },
                 "parameters": !article.parameters ? 
@@ -150,7 +161,7 @@ const getById = (req, res, next) => {
                         "address": article.location.address,
                         "postalcode": article.location.postalcode,
                         "city": article.location.city,
-                        "country": article.location.country,
+                        "country": article.location.country.name,
                         "tel": article.location.tel,
                         "fax": article.location.fax,
                         "email": article.location.email,
@@ -164,6 +175,7 @@ const getById = (req, res, next) => {
 
 const getByArt = (req, res, next) => {
     const {opco, artNr} = req.params;
+    const system = "METRIC";
     require("../models/Stock")
     .findOne({opco, artNr})
     .exec(function(err, article) {
@@ -182,25 +194,25 @@ const getByArt = (req, res, next) => {
         } else {
             res.status(200).json({
                 "description": article.description,
-                "qty": article.qty,
-                "weight": article.weight,
+                "qty": require("../functions/getQty")(system, article.uom, article.qty),
+                "weight": require("../functions/getWeight")(system, article.uom, article.weight),
                 "price": {
-                    "gip": article.price.gip,
-                    "rv": article.price.rv,
+                    "gip": require("../functions/getPrice")(system, article.uom, article.price.gip, 1),
+                    "rv": require("../functions/getPrice")(system, article.uom, article.price.rv, 1),
                 },
                 "purchase": {
                     "supplier": article.purchase.supplier,
-                    "qty": article.purchase.qty,
-                    "firstInStock": article.purchase.firstInStock,
+                    "qty": require("../functions/getQty")(system, article.uom, article.purchase.qty),
+                    "firstInStock": require("../functions/getQty")(system, article.uom, article.purchase.firstInStock),
                     "deliveryDate": !!article.purchase.deliveryDate ? moment(article.purchase.deliveryDate).format("LL") : ""
                 },
                 "supplier": {
                     "names": article.supplier.names,
                     "qtys": [
-                        article.supplier.qtys[0],
-                        article.supplier.qtys[1],
-                        article.supplier.qtys[2],
-                        article.supplier.qtys[3]
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[0]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[1]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[2]),
+                        require("../functions/getQty")(system, article.uom, article.supplier.qtys[3]),
                     ]
                 }
             });
@@ -213,14 +225,19 @@ const getAll = (req, res, next) => {
     const { sort, dropdown } = req.body;
     const nextPage = req.body.nextPage || 1;
     const pageSize = req.body.pageSize || 20;
-    const user = req.user;
-    const system = "IMPERIAL";
+    
+    const accountId = req.user.accountId;
+    const system = req.user.system || "METRIC";
+    const currency = req.user.currency || "EUR";
+    const rate = req.user.rate || 1;
+    console.log(rate);
+
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
         require("../models/Stock").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                         {
                             "$project": {
                                 "parameters": 0,
@@ -303,13 +320,13 @@ const getAll = (req, res, next) => {
                                         {
                                             "$switch": {
                                                 "branches": [
-                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.gip", 2.204623 ] } },
-                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.gip", 3.28084 ] } }
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$gip", rate, 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$gip", rate, 3.28084 ] } }
                                                 ],
-                                                "default": "$price.gip"
+                                                "default": { "$multiply": [ "$gip", rate ] }
                                             }
                                         },
-                                        "$price.gip"
+                                        { "$multiply": [ "$gip", rate ] }
                                     ],
                                 },
                                 "rv": {
@@ -318,20 +335,21 @@ const getAll = (req, res, next) => {
                                         {
                                             "$switch": {
                                                 "branches": [
-                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$price.rv", 2.204623 ] } },
-                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$price.rv", 3.28084 ] } }
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$rv", rate, 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$rv", rate, 3.28084 ] } }
                                                 ],
-                                                "default": "$price.rv"
+                                                "default": { "$multiply": [ "$rv", rate ] }
                                             }
                                         },
-                                        "$price.rv"
+                                        { "$multiply": [ "$rv", rate ] }
                                     ],
                                 },
+                                "currency": currency,
                             }
                         }
                     ],
                     "pagination": [
-                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {

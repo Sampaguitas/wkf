@@ -20,7 +20,6 @@ module.exports = (myMatch, accountId) => {
                 "uom": 1,
                 "gip": "$price.gip",
                 "rv": "$price.rv",
-                "currency": "EUR",
                 "parameters": 1
             },
 

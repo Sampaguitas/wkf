@@ -30,6 +30,7 @@ export default class Stock extends React.Component {
                 description: "",
                 vlunar: "",
                 weight: 0,
+                weight_uom: "",
                 uom: "",
                 qty: 0,
                 price: {
@@ -532,6 +533,7 @@ export default class Stock extends React.Component {
                 description: "",
                 vlunar: "",
                 weight: 0,
+                weight_uom: "",
                 uom: "",
                 qty: 0,
                 price: {
@@ -638,6 +640,7 @@ export default class Stock extends React.Component {
                 description: "",
                 vlunar: "",
                 weight: 0,
+                weight_uom: "",
                 uom: "",
                 qty: 0,
                 price: {

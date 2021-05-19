@@ -20,6 +20,14 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    "currency":{
+        type: String,
+        default: "EUR"
+    },
+    "system":{
+        type: String,
+        default: "METRIC"
+    },
     "accountId": {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "accounts"

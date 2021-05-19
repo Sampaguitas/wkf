@@ -1,23 +1,17 @@
-module.exports = (currency) => {
+module.exports = function getRate(rateFrom, rateTo) {
     return new Promise(function(resolve, reject) {
-        if (!currency || currency === "EUR") {
-            resolve({
-                currency: "EUR",
-                rate: 1
-            })
+        if (!rateFrom || !rateTo) {
+            reject("argument is missing.");
         } else {
-            require("../models/Currency").findById("EUR", function (errRateFrom, resRateFrom) {
+            require("../models/Currency").findById(rateFrom, function (errRateFrom, resRateFrom) {
                 if (!!errRateFrom || !resRateFrom || !resRateFrom.usdPerUnit) {
-                    reject("could not retreive exchange rate.");
+                    reject("could not find rate from");
                 } else {
-                    require("../models/Currency").findById(currency, function (errRateTo, resRateTo) {
+                    require("../models/Currency").findById(rateTo, function (errRateTo, resRateTo) {
                         if (!!errRateTo || !resRateTo || !resRateTo.unitPerUsd) {
-                            reject("could not retreive exchange rate.");
+                            reject("could not find rate to");
                         } else {
-                            resolve({
-                                currency: currency,
-                                rate: resRateFrom.usdPerUnit * resRateTo.unitPerUsd
-                            });
+                            resolve(require("./roundTo")(resRateFrom.usdPerUnit * resRateTo.unitPerUsd, 6));
                         }
                     });
                 }
