@@ -4,6 +4,14 @@ const app = require("express")();
 var CronJob = require("cron").CronJob
 app.use(require("cors")());
 const fetch = require("node-fetch");
+var aws = require('aws-sdk');
+var path = require('path');
+
+aws.config.update({
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  region: process.env.REGION
+});
 
 //bodyParser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -55,4 +63,12 @@ function processImports() {
   });
 }
 
+var purgeFiles = new CronJob("0 0 0 * * *", function() {
+  require("./functions/purgeImports")();
+  require("./functions/purgeExports")();
+}, null, true, "Europe/London");
+
 generateFile.start();
+purgeFiles.start();
+
+

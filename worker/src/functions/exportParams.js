@@ -35,22 +35,23 @@ module.exports = (document) => {
                             }
                             //fill all lines
                             result.map(function (line, lineIndex) {
-                                worksheet.getCell(`A${lineIndex + 3}`).value = line._id;
-                                worksheet.getCell(`B${lineIndex + 3}`).value = line.description;
+                                worksheet.getCell(`A${lineIndex + 3}`).value = line.opco;
+                                worksheet.getCell(`B${lineIndex + 3}`).value = line.artNr;
+                                worksheet.getCell(`C${lineIndex + 3}`).value = line.description;
                                 //blank col on C
-                                worksheet.getCell(`D${lineIndex + 3}`).value = line.steelType;
-                                worksheet.getCell(`E${lineIndex + 3}`).value = line.pffType;
+                                worksheet.getCell(`E${lineIndex + 3}`).value = line.steelType;
+                                worksheet.getCell(`F${lineIndex + 3}`).value = line.pffType;
                                 //blank col on D
-                                worksheet.getCell(`G${lineIndex + 3}`).value = line.sizeOne;
-                                worksheet.getCell(`H${lineIndex + 3}`).value = line.sizeTwo;
-                                worksheet.getCell(`I${lineIndex + 3}`).value = line.sizeThree;
-                                worksheet.getCell(`J${lineIndex + 3}`).value = line.wallOne;
-                                worksheet.getCell(`K${lineIndex + 3}`).value = line.wallTwo;
-                                worksheet.getCell(`L${lineIndex + 3}`).value = line.type;
-                                worksheet.getCell(`M${lineIndex + 3}`).value = line.grade;
-                                worksheet.getCell(`N${lineIndex + 3}`).value = line.length;
-                                worksheet.getCell(`O${lineIndex + 3}`).value = line.end;
-                                worksheet.getCell(`P${lineIndex + 3}`).value = line.surface;
+                                worksheet.getCell(`H${lineIndex + 3}`).value = line.sizeOne;
+                                worksheet.getCell(`I${lineIndex + 3}`).value = line.sizeTwo;
+                                worksheet.getCell(`J${lineIndex + 3}`).value = line.sizeThree;
+                                worksheet.getCell(`K${lineIndex + 3}`).value = line.wallOne;
+                                worksheet.getCell(`L${lineIndex + 3}`).value = line.wallTwo;
+                                worksheet.getCell(`M${lineIndex + 3}`).value = line.type;
+                                worksheet.getCell(`N${lineIndex + 3}`).value = line.grade;
+                                worksheet.getCell(`O${lineIndex + 3}`).value = line.length;
+                                worksheet.getCell(`P${lineIndex + 3}`).value = line.end;
+                                worksheet.getCell(`Q${lineIndex + 3}`).value = line.surface;
                             });
                         // }
                     // });

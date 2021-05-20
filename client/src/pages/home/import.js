@@ -642,34 +642,37 @@ export default class Import extends React.Component {
         event.preventDefault();
         const { uploadingParam } = this.state
         if(!uploadingParam && !!this.paramInput.current) {
-          this.setState({uploadingParam: true});
-          var data = new FormData()
-          data.append('file', this.paramInput.current.files[0]);
-          const requestOptions = {
-              method: 'POST',
-              headers: { ...authHeader()}, //, 'Content-Type': 'application/json'
-              body: data
-          }
-          return fetch(`${process.env.REACT_APP_API_URI}/server/imports/uploadParam`, requestOptions)
-          .then(responce => responce.text().then(text => {
-              const data = text && JSON.parse(text);
-              if (responce.status === 401) {
-                      localStorage.removeItem('user');
-                      window.location.reload(true);
-              } else {
-                this.setState({
-                    uploadingParam: false,
-                    alert: {
-                        type: responce.status === 200 ? 'alert-success' : 'alert-danger',
-                        message: data.message
+            this.setState({
+                uploadingParam: true
+            }, () => {
+                var data = new FormData()
+                data.append('file', this.paramInput.current.files[0]);
+                const requestOptions = {
+                    method: 'POST',
+                    headers: { ...authHeader()}, //, 'Content-Type': 'application/json'
+                    body: data
+                }
+                return fetch(`${process.env.REACT_APP_API_URI}/server/imports/uploadParam`, requestOptions)
+                .then(responce => responce.text().then(text => {
+                    const data = text && JSON.parse(text);
+                    if (responce.status === 401) {
+                            localStorage.removeItem('user');
+                            window.location.reload(true);
+                    } else {
+                      this.setState({
+                          uploadingParam: false,
+                          alert: {
+                              type: responce.status === 200 ? 'alert-success' : 'alert-danger',
+                              message: data.message
+                          }
+                      }, () => this.getDocuments());
                     }
-                }, () => this.getDocument());
-              }
-          }))
-          .catch( () => {
-            localStorage.removeItem('user');
-            window.location.reload(true);
-          });         
+                }))
+                .catch( () => {
+                  localStorage.removeItem('user');
+                  window.location.reload(true);
+                });
+            });      
         }
     }
 

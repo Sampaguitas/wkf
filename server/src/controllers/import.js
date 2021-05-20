@@ -192,23 +192,22 @@ const uploadStock = (req, res, next) => {
 }
 
 const uploadParam = (req, res, next) => {
-    
     const file = req.file;
     const user = req.user;
-
+    
     if(!user.isAdmin || !user.accountId) {
         res.status(401).send("Unauthorized");
     } else if (!file) {
         res.status(400).json({ message: "File is missing missing."});  
     } else if (path.extname(file.originalname) !== ".xlsx") {
-        res.status(400).json({ message: "Wrong file format." }); 
+        res.status(400).json({ message: "xlsxm format not supported: save your file as xlsx and try again." });
     } else {
         let timestamp = new mongoose.Types.ObjectId();
         var s3 = new aws.S3();
         s3.upload({
             Bucket: process.env.AWS_BUCKET_NAME,
             Body: file.buffer,
-            Key: path.join('imports', `${timestamp}.txt`)
+            Key: path.join('imports', `${timestamp}.xlsx`)
         }, function(error, data) {
             if (!!error || !data) {
                 res.status(400).json({ message: "Could not upload file." });

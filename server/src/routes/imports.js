@@ -13,7 +13,7 @@ router.post("/getAll", passport.authenticate("jwt", { session: false }), importC
 router.post("/getDrop/:key", passport.authenticate("jwt", { session: false }), importController.getDrop);
 router.get("/:importId", passport.authenticate("jwt", { session: false }), importController.getById);
 router.get("/downloadParam", passport.authenticate("jwt", { session: false }), importController.downloadParam);
-router.post("/uploadParam", passport.authenticate("jwt", { session: false }), upload.single("file"), importController.uploadParam);
+router.post("/uploadParam", upload.single("file"), passport.authenticate("jwt", { session: false }), importController.uploadParam); // 
 router.post("/uploadStock", upload.single("file"), importController.uploadStock);
 
 
