@@ -24,7 +24,6 @@ const _export = (req, res, next) => {
         .save()
         .then( () => res.status(200).json({message: "Export in progress." }))
         .catch( (err) => {
-            console.log("err:", err)
             res.status(400).json({message: "Export failed." })
         });
     } else {
@@ -241,6 +240,7 @@ const getAll = (req, res, next) => {
                         {
                             "$project": {
                                 "parameters": 0,
+                                "supplier": 0
                             }
                         },
                         { 
@@ -358,6 +358,36 @@ const getAll = (req, res, next) => {
                                 
                             }
                         }
+                    ],
+                    "suppliers": [
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                        {
+                            "$unwind": "$supplier.names",
+                        },
+                        {
+                            "$group": {
+                                "_id": null,
+                                "name": { "$addToSet": `$supplier.names` },
+                            }
+                        },
+                        {
+                            "$unwind": "$name",
+                        },
+                        {
+                            "$sort": { "name": 1 },
+                        },
+                        // {
+                        //     "$group": {
+                        //         "_id": null,
+                        //         "supplierNames": { "$push": `$supplierNames` },
+                        //     }
+                        // },
+                        {
+                            "$project": {
+                                "_id": "$name",
+                                "name": "$name"
+                            }
+                        },
                     ]
                 }
             },

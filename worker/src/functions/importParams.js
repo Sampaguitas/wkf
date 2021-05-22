@@ -49,13 +49,13 @@ module.exports = (document) => {
                                 "reason": "opco, artNr, sizeOne, type or grade is missing."
                             });
                         } else {
-                            myPromises.push(updateOperation(opco, artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, accountId.accountId));
+                            myPromises.push(updateOperation(opco, artNr, sizeOne, sizeTwo, sizeThree, wallOne, wallTwo, type, grade, length, end, surface, document.accountId));
                         }
                     }
     
-                    Promise.all(myPromises).then(operations => {
+                    Promise.all(myPromises).then(bulkOperations => {
                         require("../models/Stock").bulkWrite([
-                            operations
+                            ...bulkOperations
                         ], {
                             // writeConcern : { w : "majority", wtimeout : 100 },
                             ordered : false
@@ -82,7 +82,7 @@ function updateOperation(opco, artNr, sizeOne, sizeTwo, sizeThree, wallOne, wall
             let filter = { opco, artNr, accountId };
             let update = { parameters };
             
-            resolve( { "updateMany": { filter, update } } );
+            resolve( { "updateOne": { "filter": filter, "update": update } } );
         });
     });
 }

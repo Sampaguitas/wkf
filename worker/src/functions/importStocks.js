@@ -100,17 +100,17 @@ function updateOperation(row, opco, accountId, system, rate) {
                     "rv": require("./getPrice")(uom, Number(row[6]), rate)
                 },
                 "purchase": {
-                    "supplier": require("./getString")(row[11]),
+                    "supplier": require("./getSupplier")(row[11]),
                     "qty": require("./getQty")(uom, Number(row[7])),
                     "firstInStock": require("./getQty")(uom, Number(row[9])),
                     "deliveryDate": require("./getDate")(row[12])
                 },
                 "supplier": {
                     "names": [
-                        require("./getString")(row[13]),
-                        require("./getString")(row[14]),
-                        require("./getString")(row[15]),
-                        require("./getString")(row[16])
+                        require("./getSupplier")(row[13]),
+                        require("./getSupplier")(row[14]),
+                        require("./getSupplier")(row[15]),
+                        require("./getSupplier")(row[16])
                     ],
                     "qtys": [
                         require("./getQty")(uom, Number(row[17])),
