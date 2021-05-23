@@ -34,7 +34,7 @@ app.listen(port, () => console.log(`Server running on ${port}`));
 
 let isProcessing = false;
 
-var generateFile = new CronJob("*/10 * * * * *", function() {
+var generateFile = new CronJob("*/3 * * * * *", function() {
   if (!isProcessing) {
     isProcessing = true;
     require("./functions/exportFindOne")().then(res => {

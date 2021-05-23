@@ -4,8 +4,6 @@ services:
     depends_on:
       - client
       - server
-      # - service_param
-      # - service_stock
       - worker
     build:
       context: ./nginx
@@ -35,26 +33,6 @@ services:
       - "./server/src:/app/src"
     env_file:
       - ./env/server.env
-  # service_param:
-  #   build:
-  #     context: ./service_param
-  #     dockerfile: Dockerfile.dev
-  #   restart: on-failure
-  #   volumes:
-  #     - /app/node_modules
-  #     - "./service_param/src:/app/src"
-  #   env_file:
-  #     - ./env/server.env
-  # service_stock:
-  #   build:
-  #     context: ./service_stock
-  #     dockerfile: Dockerfile.dev
-  #   restart: on-failure
-  #   volumes:
-  #     - /app/node_modules
-  #     - "./service_stock/src:/app/src"
-  #   env_file:
-  #     - ./env/server.env
   worker:
     build:
       context: ./worker

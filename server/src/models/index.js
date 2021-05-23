@@ -8,7 +8,6 @@ require("./Grade");
 require("./Length");
 require("./Opco");
 require("./Pff");
-require("./Process");
 require("./Region");
 require("./Rpwd");
 require("./Size");

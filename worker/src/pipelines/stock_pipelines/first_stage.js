@@ -16,7 +16,7 @@ module.exports = (myMatch, sort) => {
                 "rv": "$price.rv",
                 "purchaseQty": "$purchase.qty",
                 "weight": 1,
-                "firstInStock": "$purchase.firstInStock",
+                "firstInStock": { "$ifNull": [ "$purchase.firstInStock", 0 ] },
                 "uom": 1,
                 "supplier": "$purchase.supplier",
                 "purchaseDeliveryDate": "$purchase.deliveryDate",

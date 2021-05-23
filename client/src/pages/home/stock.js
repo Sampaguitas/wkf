@@ -110,6 +110,7 @@ export default class Stock extends React.Component {
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "ArtNr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                // supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
             alert: {
@@ -290,6 +291,7 @@ export default class Stock extends React.Component {
         if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.stock.selection._id !== prevState.params.stock.selection._id) this.getDocuments() && this.updateDisabled();
+        // if (this.state.params.supplier.selection._id !== prevState.params.supplier.selection._id) this.getDocuments() && this.updateDisabled();
         
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
@@ -305,6 +307,7 @@ export default class Stock extends React.Component {
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco", 0);
         if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr", 0);
         if (this.state.params.stock.value !== prevState.params.stock.value) this.getDropdownOptions("stock", 0);
+        // if (this.state.params.supplier.value !== prevState.params.supplier.value) this.getDropdownOptions("supplier", 0);
 
         if (stocks !== prevState.stocks) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -421,6 +424,7 @@ export default class Stock extends React.Component {
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
+                            // supplier: params.supplier.selection._id,
                         },
                         selectedIds: selectedRows
                     })
@@ -482,6 +486,7 @@ export default class Stock extends React.Component {
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
+                            // supplier: params.supplier.selection._id,
                         },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
@@ -877,6 +882,7 @@ export default class Stock extends React.Component {
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "Art Nr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                // supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
         });
@@ -907,6 +913,7 @@ export default class Stock extends React.Component {
                         opco: this.state.params.opco.selection._id,
                         artNr: this.state.params.artNr.selection._id,
                         stock: this.state.params.stock.selection._id,
+                        // supplier: this.state.params.supplier.selection._id,
                     },
                     name: this.state.params[key].value,
                     page: page || 0

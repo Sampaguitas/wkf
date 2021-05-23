@@ -229,7 +229,6 @@ const getAll = (req, res, next) => {
     const system = req.user.system || "METRIC";
     const currency = req.user.currency || "EUR";
     const rate = req.user.rate || 1;
-    console.log(rate);
 
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
         require("../models/Stock").aggregate([
@@ -240,7 +239,7 @@ const getAll = (req, res, next) => {
                         {
                             "$project": {
                                 "parameters": 0,
-                                "supplier": 0
+                                // "supplierNames": 0
                             }
                         },
                         { 
@@ -288,13 +287,13 @@ const getAll = (req, res, next) => {
                                         {
                                             "$switch": {
                                                 "branches": [
-                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 2.204623 ] } },
-                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$purchase.firstInStock", 3.28084 ] } }
+                                                    { "case": { "$eq": [ "$uom", "KG" ] }, "then": { "$multiply": [ "$firstInStock", 2.204623 ] } },
+                                                    { "case": { "$eq": [ "$uom", "M" ] }, "then": { "$multiply": [ "$firstInStock", 3.28084 ] } }
                                                 ],
-                                                "default": "$purchase.firstInStock"
+                                                "default": "$firstInStock"
                                             }
                                         },
-                                        "$purchase.firstInStock"
+                                        "$firstInStock"
                                     ],
                                 },
                                 "uom": {
@@ -359,36 +358,27 @@ const getAll = (req, res, next) => {
                             }
                         }
                     ],
-                    "suppliers": [
-                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
-                        {
-                            "$unwind": "$supplier.names",
-                        },
-                        {
-                            "$group": {
-                                "_id": null,
-                                "name": { "$addToSet": `$supplier.names` },
-                            }
-                        },
-                        {
-                            "$unwind": "$name",
-                        },
-                        {
-                            "$sort": { "name": 1 },
-                        },
-                        // {
-                        //     "$group": {
-                        //         "_id": null,
-                        //         "supplierNames": { "$push": `$supplierNames` },
-                        //     }
-                        // },
-                        {
-                            "$project": {
-                                "_id": "$name",
-                                "name": "$name"
-                            }
-                        },
-                    ]
+                    // "suppliers": [
+                    //     ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                    //     {
+                    //         "$unwind": "$supplierNames",
+                    //     },
+                    //     {
+                    //         "$group": {
+                    //             "_id": `$supplierNames`,
+                    //             "name": { "$first": `$supplierNames` },
+                    //         }
+                    //     },
+                    //     {
+                    //         "$sort": { "name": 1 },
+                    //     },
+                    //     {
+                    //         "$limit": 10 + (10 * page)
+                    //     },
+                    //     {
+                    //         "$skip": 10 * page
+                    //     }
+                    // ]
                 }
             },
             {
@@ -396,7 +386,6 @@ const getAll = (req, res, next) => {
             }
         ]).exec(function(error, result) {
             if (!!error || !result) {
-                console.log(error)
                 res.status(200).json([]);
             } else {
                 res.status(200).json(result);
@@ -409,7 +398,7 @@ const getDrop = (req, res, next) => {
     const { dropdown, name } = req.body;
     const {key} = req.params;
     let page = req.body.page || 0;
-    const user = req.user
+    const {accountId} = req.user
     matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
         switch(key) {
             case "stock":
@@ -425,7 +414,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "artNr":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$group": {
                             "_id": `$${key}`,
@@ -443,7 +432,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "opco":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$group": {
                             "_id": `$${key}`,
@@ -481,7 +470,7 @@ const getDrop = (req, res, next) => {
             case "steelType":
             case "pffType":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$group": {
                             "_id": `$parameters.${key=== "steelType" ? "grade" : "type"}.${key}`,
@@ -502,7 +491,7 @@ const getDrop = (req, res, next) => {
             case "end":
             case "surface":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$unwind": `$parameters.${key}.tags`
                     },
@@ -525,7 +514,7 @@ const getDrop = (req, res, next) => {
             case "wallOne":
             case "wallTwo":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -598,7 +587,7 @@ const getDrop = (req, res, next) => {
             case "sizeTwo":
                 if (dropdown.pffType === "FORGED_OLETS" || regexOutlet.test(dropdown.type)) {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                         {
                             "$group": {
                                 "_id": null,
@@ -615,8 +604,6 @@ const getDrop = (req, res, next) => {
                         if (!!errTemp || temp.length !== 1 || !temp[0].hasOwnProperty("min") || !temp[0].hasOwnProperty("max")) {
                             res.status(200).json([]);
                         } else {
-                            console.log("min:", temp[0].min);
-                            console.log("max:", temp[0].max);
                             require("../models/Size").aggregate([
                                 {
                                     "$match": {
@@ -697,7 +684,7 @@ const getDrop = (req, res, next) => {
                     });
                 } else {
                     require("../models/Stock").aggregate([
-                        ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                         {
                             "$project": {
                                 "tags": `$parameters.${key}.tags`,
@@ -769,7 +756,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "length":
                 require("../models/Stock").aggregate([
-                    ...require("../pipelines/first_stage/stock")(myMatch, user.accountId),
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
                     {
                         "$project": {
                             "tags": `$parameters.${key}.tags`,
@@ -832,6 +819,40 @@ const getDrop = (req, res, next) => {
                     } 
                 });
                 break;
+            // case "supplier": 
+            // require("../models/Stock").aggregate([
+            //     ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+            //     {
+            //         "$unwind": "$supplierNames",
+            //     },
+            //     {
+            //         "$match": {
+            //             "supplierNames": { "$regex": new RegExp(escape(name),"i") }
+            //         }
+            //     },
+            //     {
+            //         "$group": {
+            //             "_id": `$supplierNames`,
+            //             "name": { "$first": `$supplierNames` },
+            //         }
+            //     },
+            //     {
+            //         "$sort": { "name": 1 },
+            //     },
+            //     {
+            //         "$limit": 10 + (10 * page)
+            //     },
+            //     {
+            //         "$skip": 10 * page
+            //     }
+            // ]).exec(function(error, result) {
+            //     if (!!error || !result) {
+            //         res.status(200).json([])
+            //     } else {
+            //         res.status(200).json(result)
+            //     } 
+            // });
+            // break;
             default: res.status(200).json([]);
         }
     });

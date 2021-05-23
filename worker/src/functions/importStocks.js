@@ -10,7 +10,10 @@ aws.config.update({
 module.exports = (document) => {
   return new Promise(function(resolve) {
     let myPromises = [];
+    let myBulks = [];
     let nRejected = 0;
+    let nModified = 0;
+    let nRemoved = 0;
     let rejections = [];
     if (!document.system ||  !document.currency || !document.opco) {
         require("./importReject")(document._id).then( () => resolve());
@@ -34,24 +37,19 @@ module.exports = (document) => {
                             let row = rows[i].split("\t");
                             if (row.length != 21) {
                                 nRejected++;
-                                rejections.push({
-                                    "row": i + 1,
-                                    "reason": "line does not contain 21 fields."
-                                });
+                                // rejections.push({
+                                //     "row": i + 1,
+                                //     "reason": "line does not contain 21 fields."
+                                // });
                             } else if (!["LB", "FT", "ST", "KG", "M"].includes(require("../functions/getString")(row[10]))) {
                                 nRejected++;
-                                rejections.push({
-                                    "row": i + 1,
-                                    "reason": "unknown unit of mesurement."
-                                });
+                                // rejections.push({
+                                //     "row": i + 1,
+                                //     "reason": "unknown unit of mesurement."
+                                // });
                             } else {
                                 if (!Number(row[5]) && !Number(row[6])) {
-                                    // nRejected++;
-                                    // rejections.push({
-                                    //     "row": i + 1,
-                                    //     "reason": "GIP and RV are be empty."
-                                    // });
-                                    myPromises.push(deleteOperation(row, document.opco, document.accountId));
+                                    // myPromises.push(deleteOperation(row, document.opco, document.accountId));
                                 }  else {
                                     myPromises.push(updateOperation(row, document.opco, document.accountId, document.system, rate));
                                 }
@@ -59,19 +57,35 @@ module.exports = (document) => {
                         }
 
                         Promise.all(myPromises).then(bulkOperations => {
-                            require("../models/Stock").bulkWrite([
-                                ...bulkOperations
-                            ], {
-                                // writeConcern : { w : "majority", wtimeout : 100 },
-                                ordered : false
-                            }).then(res => {
-                                if (!!res.result) {
-                                    let message = `${rowsLength - 1} processed, ${nRejected + res.result.writeErrors.length} rejected, ${res.result.nModified} modified, ${res.result.nRemoved} removed.`;
-                                    require("./importFinalise")(document._id, 0, message, rejections).then( () => resolve());
-                                } else {
-                                    require("./importReject")(document._id).then( () => resolve());
-                                }
+                            let chunks = require("./chunk")(bulkOperations, 10000);
+                            chunks.map(chunk => {
+                                myBulks.push(bulkWritePromise(chunk));
                             });
+                            
+                            Promise.all(myBulks).then(results => {
+                                results.map(result => {
+                                    nRejected += result.nRejected;
+                                    nModified += result.nModified;
+                                    nRemoved += result.nRemoved;
+                                });
+                                let message = `${rowsLength - 1} processed, ${nRejected} rejected, ${nModified} modified, ${nRemoved} removed.`;
+                                require("./importFinalise")(document._id, 0, message, rejections).then( () => resolve());
+                            });
+
+
+                            // require("../models/Stock").bulkWrite([
+                            //     ...bulkOperations
+                            // ], {
+                            //     writeConcern : { w : "majority", wtimeout : 100 },
+                            //     ordered : false
+                            // }).then(res => {
+                            //     if (!!res.result) {
+                            //         let message = `${rowsLength - 1} processed, ${nRejected + res.result.writeErrors.length} rejected, ${res.result.nModified} modified, ${res.result.nRemoved} removed.`;
+                            //         require("./importFinalise")(document._id, 0, message, rejections).then( () => resolve());
+                            //     } else {
+                            //         require("./importReject")(document._id).then( () => resolve());
+                            //     }
+                            // });
                         });
                     }
                 }
@@ -81,6 +95,30 @@ module.exports = (document) => {
         });
     }
   });
+}
+
+function bulkWritePromise(bulkOperations) {
+    return new Promise(function(resolve) {
+        require("../models/Stock").bulkWrite([
+            ...bulkOperations
+        ], {
+            ordered : false
+        }).then(res => {
+            if (!!res.result) {
+                resolve({
+                    nRejected: res.result.writeErrors.length || 0,
+                    nModified: res.result.nModified || 0,
+                    nRemoved: res.result.nRemoved || 0
+                });
+            } else {
+                resolve({
+                    nRejected: 0,
+                    nModified: 0,
+                    nRemoved: 0
+                });
+            }
+        });
+    });
 }
 
 function updateOperation(row, opco, accountId, system, rate) {
@@ -133,3 +171,4 @@ function deleteOperation(row, opco, accountId) {
         resolve( { "deleteOne": { "filter": filter } } );
     });
 }
+

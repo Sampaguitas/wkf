@@ -29,24 +29,38 @@ app.listen(port, () => console.log(`Server running on ${port}`));
 app.use("/dropdowns", require("./routes/dropdowns"));
 app.use("/exports", require("./routes/exports"));
 app.use("/imports", require("./routes/imports"));
-app.use("/processes", require("./routes/processes"));
 app.use("/rates", require("./routes/rates"));
 app.use("/stocks", require("./routes/stocks"));
 app.use("/users", require("./routes/users"));
-
-
+//params
+app.use("/ends", require("./routes/ends"));
+app.use("/grades", require("./routes/grades"));
+app.use("/lengths", require("./routes/lengths"));
+app.use("/pffs", require("./routes/pffs"));
+app.use("/sizes", require("./routes/sizes"));
+app.use("/steels", require("./routes/steels"));
+app.use("/surfaces", require("./routes/surfaces"));
+app.use("/types", require("./routes/types"));
+app.use("/walls", require("./routes/walls"));
 
 
 //without nginx
 app.use("/server/dropdowns", require("./routes/dropdowns"));
 app.use("/server/imports", require("./routes/imports"));
 app.use("/server/exports", require("./routes/exports"));
-app.use("/server/processes", require("./routes/processes"));
 app.use("/server/rates", require("./routes/rates"));
 app.use("/server/stocks", require("./routes/stocks"));
 app.use("/server/users", require("./routes/users"));
-
-
+//params
+app.use("/server/ends", require("./routes/ends"));
+app.use("/server/grades", require("./routes/grades"));
+app.use("/server/lengths", require("./routes/lengths"));
+app.use("/server/pffs", require("./routes/pffs"));
+app.use("/server/sizes", require("./routes/sizes"));
+app.use("/server/steels", require("./routes/steels"));
+app.use("/server/surfaces", require("./routes/surfaces"));
+app.use("/server/types", require("./routes/types"));
+app.use("/server/walls", require("./routes/walls"));
 
 
 let isProcessing = false;

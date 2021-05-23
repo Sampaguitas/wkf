@@ -140,7 +140,7 @@ const uploadStock = (req, res, next) => {
         .findOne({ email })
         .populate({ path: "account", populate: { path: "opcos", match: { "stockInfo.capex_file_code": opco } } })
         .exec(function(err, user) {
-            if (!!err || !user) { 
+            if (!!err || !user) {
                 res.status(400).json({ message: "User not found." });
             } else if (!user.isAdmin || !user.account || !user.account.uploadKey || user.account.opcos.length === 0) { 
                 res.status(401).send("Unauthorized");
@@ -177,9 +177,7 @@ const uploadStock = (req, res, next) => {
                                     newImport
                                     .save()
                                     .then( () => res.status(200).json({message: "Import in progress." }))
-                                    .catch( (err) => {
-                                        res.status(400).json({message: "Import failed." })
-                                    });
+                                    .catch( () => res.status(400).json({message: "Import failed." }));
                                 }
     
                             });
