@@ -17,6 +17,8 @@ import BuyOut from "../pages/home/buyout";
 import Export from "../pages/home/export";
 import Import from "../pages/home/import";
 
+import Params from "../pages/home/params/params";
+
 
 library.add(fas, far, fal);
 
@@ -70,6 +72,9 @@ export default class App extends React.Component {
               </PrivateRoute>
               <PrivateRoute exact path="/settings" user={user}>
                 <Settings user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/params" user={user}>
+                <Params user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
               <Route path="*">
                 <NotFound />

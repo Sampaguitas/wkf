@@ -15,12 +15,22 @@ export default class SideBarMenu extends React.Component {
             listMenu: [
                 { id: 0, title: "Stock", href: "/", icon: "warehouse" },
                 // { id: 1, title: "Buy-Out", href: "/buyout", icon: "shopping-cart" },
-                { id: 2, title: "Export data", href: "/export", icon: "file-upload" },
-                { id: 3, title: "Import data", href: "/import", icon: "file-download" }
+                { id: 1, title: "Export data", href: "/export", icon: "file-upload" },
+                { id: 2, title: "Import data", href: "/import", icon: "file-download" },
+                { id: 3, title: "Params", href: "/params", icon: "cog" }
             ]
         }
         this.handleItemOver = this.handleItemOver.bind(this);
     }
+
+    // { id: 0, title: "PFFs", href: "/pffs", icon: "cog" },
+    // { id: 0, title: "Steels", href: "/steels", icon: "cog" },
+    // { id: 0, title: "Types", href: "/types", icon: "cog" },
+    // { id: 0, title: "Grades", href: "/grades", icon: "cog" },
+    // { id: 0, title: "Sizes", href: "/sizes", icon: "cog" },
+    // { id: 0, title: "Walls", href: "/walls", icon: "cog" },
+    // { id: 0, title: "Lengths", href: "/lengths", icon: "cog" },
+    // { id: 0, title: "Surfaces", href: "/surfaces", icon: "cog" },
 
     handleItemOver(event, title){
         event.preventDefault();

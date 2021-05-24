@@ -495,3 +495,56 @@ table .w-90 { width:90%; }
     box-shadow: none!important;
     outline: 0;
 }
+
+
+.equal, .equal > div[class*='col-'] {  
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  flex:1 0 auto;
+}
+
+/* .equal > div[class*='col-']:hover {
+  background-color: lightgray;
+} */
+
+.navlink-card {
+  /* border-style: solid; */
+  /* border-color: lightgray; */
+  /* background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background-image: -webkit-gradient(linear, 0% 100%, 0% 0%, from(rgb(238, 238, 238)), to(rgb(255, 255, 255))); */
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  border-radius: 5px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 3px hsla(0,0%,4%,.1), 0 0 0 1px hsla(0,0%,4%,.1);
+}
+
+.navlink-card:hover {
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background-image: -webkit-gradient(linear, 0% 100%, 0% 0%, from(rgb(238, 238, 238)), to(rgb(255, 255, 255)));
+  /* background-image: -webkit-gradient(linear, 0% 100%, 0% 0%, from(lightgray), to(rgb(255, 255, 255))); */
+}
+
+.navlink-card:active {
+  background-image: -webkit-gradient(linear, 0% 100%, 0% 0%, from(darkgray), to(lightgray));
+}
+
+
+
+.navlink-card > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  color: #212529;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
