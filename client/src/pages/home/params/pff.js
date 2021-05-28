@@ -1,28 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
 import { saveAs } from 'file-saver';
+import authHeader from "../../../helpers/auth-header";
+import copyObject from "../../../functions/copyObject";
+import getPageSize from "../../../functions/getPageSize";
+import arrayRemove from "../../../functions/arrayRemove";
 
-import authHeader from "../../helpers/auth-header";
-import copyObject from "../../functions/copyObject";
-import getPageSize from "../../functions/getPageSize";
-import typeToString from "../../functions/typeToString";
-import getDateFormat from "../../functions/getDateFormat";
-import arrayRemove from "../../functions/arrayRemove";
-
-import TableSelectAll from '../../components/table-select-all';
-import TableSelectRow from '../../components/table-select-row';
-import TableHeader from "../../components/table-header";
-import TableData from "../../components/table-data";
-import Layout from "../../components/layout";
-import Modal from "../../components/modal";
-import Pagination from "../../components/pagination";
-import ParamSelect from "../../components/param-select";
-import ParamFile from "../../components/param-file";
+import TableSelectAll from '../../../components/table-select-all';
+import TableSelectRow from '../../../components/table-select-row';
+import TableHeader from "../../../components/table-header";
+import TableData from "../../../components/table-data";
+import Layout from "../../../components/layout";
+import Modal from "../../../components/modal";
+import Pagination from "../../../components/pagination";
+import ParamSelect from "../../../components/param";
 import _ from "lodash";
 
-export default class Import extends React.Component {
+export default class Pff extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -33,12 +28,11 @@ export default class Import extends React.Component {
                 isAscending: true,
             },
             params: {
-                type: { value: "", placeholder: "type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "user", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                file_param: { value: "", placeholder: "select file", selection: { _id: Date.now(), name: ""}, options: [], hover: "", page: 0 },
+                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
             alert: {
@@ -47,17 +41,14 @@ export default class Import extends React.Component {
             },
             selectAllRows: false,
             selectedRows: [],
+            // exporting: false,
             retrieving: false,
+            // upserting: false,
             loading: false,
-            //
-            showParam: false,
-            paramName: "",
-            paramKey: Date.now(),
-            uploadingParam: false,
-            downloadingParam: false,
-            //
+            // loaded: false,
+            // submitted: false,
             showSearch: false,
-            menuItem: "Import data",
+            menuItem: "Export data",
             settingsColWidth: {},
             paginate: {
                 pageSize: 0,
@@ -72,8 +63,9 @@ export default class Import extends React.Component {
                 third: 3
             }
         };
-        this.handleRefresh = this.handleRefresh.bind(this);
+
         this.resize = this.resize.bind(this);
+        this.handleRefresh = this.handleRefresh.bind(this);
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
@@ -82,6 +74,7 @@ export default class Import extends React.Component {
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
+        this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
         //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
@@ -96,22 +89,20 @@ export default class Import extends React.Component {
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
-        //DUF param
-        this.toggleParam = this.toggleParam.bind(this);
-        this.handleClearValue = this.handleClearValue.bind(this);
-        this.handleChangeFile = this.handleChangeFile.bind(this);
-        this.handleUploadParam = this.handleUploadParam.bind(this);
-        this.file_param = React.createRef();
     }
 
 
-    
+    handleRefresh(event) {
+        event.preventDefault();
+        const { currentPage } = this.state.paginate;
+        this.getDocuments(currentPage);
+    }
 
     componentDidMount() {
         const tableContainer = document.getElementById("table-container");
         // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
-        
-        document.getElementById("import").addEventListener("click", event => {
+
+        document.getElementById("export").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
                 if (!!this.state.focused) {
                     this.setState({
@@ -132,7 +123,7 @@ export default class Import extends React.Component {
                 }
             }
         });
-        
+
         this.setState({
             paginate: {
                 ...this.state.paginate,
@@ -141,11 +132,9 @@ export default class Import extends React.Component {
         }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
-    handleRefresh(event) {
-        event.preventDefault();
-        const { currentPage } = this.state.paginate;
-        this.getDocuments(currentPage);
-    }
+    // componentWillUnmount() {
+    //     clearInterval(this.interval);
+    // }
 
     resize() {
         const tableContainer = document.getElementById("table-container");
@@ -158,7 +147,7 @@ export default class Import extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, paginate, elements, selectedRows  } = this.state;
+        const { sort, paginate, elements, selectedRows } = this.state;
         if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
         }
@@ -254,6 +243,8 @@ export default class Import extends React.Component {
         });
     }
 
+
+
     getDocuments(nextPage) {
         const { paginate, sort, params } = this.state;
         if (!!paginate.pageSize) {
@@ -270,13 +261,13 @@ export default class Import extends React.Component {
                             status: params.status.selection._id,
                             user: params.user.selection._id,
                             createdAt: params.createdAt.selection._id,
-                            expiresAt: params.expiresAt.selection._id
+                            expiresAt: params.expiresAt.selection._id,
                         },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/imports/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -374,6 +365,44 @@ export default class Import extends React.Component {
         }       
     }
 
+    handleDownlaod(event, exportId) {
+        event.preventDefault();
+        const { downloadingExport } = this.state;
+        if (!!exportId && !downloadingExport) {
+            this.setState({
+                downloadingExport: true
+            }, () => {
+                const requestOptions = {
+                    method: "GET",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/download/${exportId}`, requestOptions)
+                .then(response => {
+                    this.setState({ downloadingExport: false });
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            localStorage.removeItem('user');
+                            window.location.reload(true);
+                        } else {
+                            response.text().then(text => {
+                                const data = text && JSON.parse(text);
+                                const resMsg = (data && data.message) || response.statusText;
+                                this.setState({
+                                    alert: {
+                                        type: "alert-danger",
+                                        message: resMsg
+                                    },
+                                });
+                            });
+                        }
+                    } else {
+                        response.blob().then(blob => saveAs(blob, "export.xlsx"));
+                    }
+                });
+            });
+        }
+    }
+
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
@@ -389,10 +418,9 @@ export default class Import extends React.Component {
                         />
                         <TableData colIndex="1" value={element.type} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
                         <TableData colIndex="2" value={element.user} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="3" value={element.message} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="4" value={element.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="5" value={element.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="6" value={element.status} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="3" value={element.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="4" value={element.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
+                        <TableData colIndex="5" value={element.status} type="text" settingsColWidth={settingsColWidth} handleDownlaod={this.handleDownlaod} eventId={element._id} />
                     </tr>
                 );
             });
@@ -400,7 +428,6 @@ export default class Import extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
-                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -423,9 +450,9 @@ export default class Import extends React.Component {
             },
             params: {
                 ...this.state.params,
-                type: { value: "", placeholder: "type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "user", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
@@ -434,7 +461,7 @@ export default class Import extends React.Component {
     }
 
     getDropdownOptions(key, page) {
-        const { focused, sort, params } = this.state;
+        const { focused, sort } = this.state;
         this.setState({
             loading: true
         }, () => {
@@ -444,17 +471,17 @@ export default class Import extends React.Component {
                 body: JSON.stringify({
                     sort: sort,
                     dropdown: {
-                        type: params.type.selection._id,
-                        status: params.status.selection._id,
-                        user: params.user.selection._id,
-                        createdAt: params.createdAt.selection._id,
-                        expiresAt: params.expiresAt.selection._id
+                        type: this.state.params.type.selection._id,
+                        status: this.state.params.status.selection._id,
+                        user: this.state.params.user.selection._id,
+                        createdAt: this.state.params.createdAt.selection._id,
+                        expiresAt: this.state.params.expiresAt.selection._id,
                     },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/imports/getDrop/${key}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getDrop/${key}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -588,13 +615,13 @@ export default class Import extends React.Component {
 
     toggleDropDown(event, name) {
         event.preventDefault();
-        const { params, focused } = this.state;
-        if (!!_.isEqual(focused, name) || !!params[name]) {
+        const { focused } = this.state;
+        if (!!_.isEqual(focused, name) || !!this.state.params[name].selection.name) {
             this.setState({
                 params: {
-                    ...params,
+                    ...this.state.params,
                     [name]: {
-                        ...params[name],
+                        ...this.state.params[name],
                         options: [],
                         value: "",
                         selection: {
@@ -615,129 +642,32 @@ export default class Import extends React.Component {
         }
     }
 
-    toggleParam(event) {
-        event.preventDefault();
-        const { showParam } = this.state;
-        this.setState({
-            showParam: !showParam,
-            alert: {
-                type:'',
-                message:''
-            },
-            params: {
-                ...this.state.params,
-                file_param: { value: "", placeholder: "select file", selection: { _id: Date.now(), name: ""}, options: [], hover: "", page: 0 },
-            }
-        });
-    }
-
-    handleClearValue(event, name) {
-        event.preventDefault();
-        this.setState({
-            params: {
-                ...this.state.params,
-                [name]: {
-                    ...this.state.params[name],
-                    value: "",
-                    selection: {
-                        _id: !!/^file_/.test(name) ? Date.now() : "",
-                        name: ""
-                    }
-                }
-            }
-        });
-    }
-
-    handleChangeFile(event, name) {
-        if(event.target.files.length > 0 && !!/^file_/.test(name)) {
-            this.setState({
-                params: {
-                    ...this.state.params,
-                    [name]: {
-                        ...this.state.params[name],
-                        value: event.target.files[0].name,
-                        selection: {
-                            _id: this.state.params[name].selection._id,
-                            name: event.target.files[0].name
-                        }
-                    }
-                }
-            });
-        //   this.setState({
-        //       ...this.state,
-        //       paramName: event.target.files[0].name
-        //   });
-        }
-    }
-
-    handleUploadParam(event) {
-        event.preventDefault();
-        const { uploadingParam } = this.state
-        if(!uploadingParam && !!this.file_param.current) {
-            this.setState({
-                uploadingParam: true
-            }, () => {
-                var data = new FormData()
-                data.append('file', this.file_param.current.files[0]);
-                const requestOptions = {
-                    method: 'POST',
-                    headers: { ...authHeader()}, //, 'Content-Type': 'application/json'
-                    body: data
-                }
-                return fetch(`${process.env.REACT_APP_API_URI}/server/imports/uploadParam`, requestOptions)
-                .then(responce => responce.text().then(text => {
-                    const data = text && JSON.parse(text);
-                    if (responce.status === 401) {
-                            localStorage.removeItem('user');
-                            window.location.reload(true);
-                    } else {
-                      this.setState({
-                          uploadingParam: false,
-                          alert: {
-                              type: responce.status === 200 ? 'alert-success' : 'alert-danger',
-                              message: data.message
-                          }
-                      }, () => this.getDocuments());
-                    }
-                }))
-                .catch( () => {
-                  localStorage.removeItem('user');
-                  window.location.reload(true);
-                });
-            });      
-        }
-    }
-
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
         const { params, focused } = this.state;
-        const { showParam, paramName, paramKey, uploadingParam, downloadingParam } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
-                {alert.message && !showParam &&
+                {alert.message &&
                     <div className={`alert ${alert.type}`}>{alert.message}
                         <button className="close" onClick={(event) => this.handleClearAlert(event)}>
                             <span aria-hidden="true"><FontAwesomeIcon icon="times" /></span>
                         </button>
                     </div>
                 }
-                <div id="import" className={alert.message && !showParam ? "main-section-alert" : "main-section"}>
+                <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
+                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
                         </button>
-                        <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
+                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
-                        </button>
-                        <button title="Import Params" className="btn btn-sm btn-gray" onClick={this.toggleParam}>
-                            <span><FontAwesomeIcon icon="file-download" className="fa mr-2"/>Params</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -762,21 +692,9 @@ export default class Import extends React.Component {
                                                 type="text"
                                                 title="User"
                                                 name="user"
-                                                width="150px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
-                                                colDoubleClick={this.colDoubleClick}
-                                                setColWidth={this.setColWidth}
-                                                settingsColWidth={settingsColWidth}
-                                            />
-                                            <TableHeader
-                                                type="text"
-                                                title="Import Logs"
-                                                name="message"
-                                                sort={sort}
-                                                toggleSort={this.toggleSort}
-                                                index="3"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -788,7 +706,7 @@ export default class Import extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="4"
+                                                index="3"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -800,7 +718,7 @@ export default class Import extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="5"
+                                                index="4"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -812,7 +730,7 @@ export default class Import extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="6"
+                                                index="5"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -841,173 +759,43 @@ export default class Import extends React.Component {
                     <Modal
                         show={showSearch}
                         hideModal={this.toggleModalSearch}
-                        clearModal={this.handleClearFields}
-                        title="Filters"
-                        // size="modal-lg"
+                        title="Search"
+                        size="modal-lg"
                     >
-                        <div className="modal-body">
-                            <div className="modal-body-content">
-                                <section id="fields" className="drop-section">
-                                    <div className="row row-cols-1">
-                                        <ParamSelect
-                                            key="0"
-                                            name="type"
-                                            isFocused={params.type.isFocused}
-                                            focused={focused}
-                                            value={params.type.value}
-                                            placeholder={params.type.placeholder}
-                                            selection={params.type.selection}
-                                            options={params.type.options}
-                                            hover={this.state.params.type.hover}
-                                            page={params.type.page}
-                                            onChange={this.handleChangeDropdown}
-                                            handleNext={this.handleNextDropdown}
-                                            handleSelect={this.handleSelectDropdown}
-                                            onFocus={this.onFocusDropdown}
-                                            onHover={this.onHoverDropdown}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                        <ParamSelect
-                                            key="0"
-                                            name="status"
-                                            isFocused={params.status.isFocused}
-                                            focused={focused}
-                                            value={params.status.value}
-                                            placeholder={params.status.placeholder}
-                                            selection={params.status.selection}
-                                            options={params.status.options}
-                                            hover={this.state.params.status.hover}
-                                            page={params.status.page}
-                                            onChange={this.handleChangeDropdown}
-                                            handleNext={this.handleNextDropdown}
-                                            handleSelect={this.handleSelectDropdown}
-                                            onFocus={this.onFocusDropdown}
-                                            onHover={this.onHoverDropdown}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                        <ParamSelect
-                                            key="0"
-                                            name="user"
-                                            isFocused={params.user.isFocused}
-                                            focused={focused}
-                                            value={params.user.value}
-                                            placeholder={params.user.placeholder}
-                                            selection={params.user.selection}
-                                            options={params.user.options}
-                                            hover={this.state.params.user.hover}
-                                            page={params.user.page}
-                                            onChange={this.handleChangeDropdown}
-                                            handleNext={this.handleNextDropdown}
-                                            handleSelect={this.handleSelectDropdown}
-                                            onFocus={this.onFocusDropdown}
-                                            onHover={this.onHoverDropdown}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                        <ParamSelect
-                                            key="0"
-                                            name="user"
-                                            isFocused={params.createdAt.isFocused}
-                                            focused={focused}
-                                            value={params.createdAt.value}
-                                            placeholder={params.createdAt.placeholder}
-                                            selection={params.createdAt.selection}
-                                            options={params.createdAt.options}
-                                            hover={this.state.params.createdAt.hover}
-                                            page={params.createdAt.page}
-                                            onChange={this.handleChangeDropdown}
-                                            handleNext={this.handleNextDropdown}
-                                            handleSelect={this.handleSelectDropdown}
-                                            onFocus={this.onFocusDropdown}
-                                            onHover={this.onHoverDropdown}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                        <ParamSelect
-                                            key="0"
-                                            name="user"
-                                            isFocused={params.expiresAt.isFocused}
-                                            focused={focused}
-                                            value={params.expiresAt.value}
-                                            placeholder={params.expiresAt.placeholder}
-                                            selection={params.expiresAt.selection}
-                                            options={params.expiresAt.options}
-                                            hover={this.state.params.expiresAt.hover}
-                                            page={params.expiresAt.page}
-                                            onChange={this.handleChangeDropdown}
-                                            handleNext={this.handleNextDropdown}
-                                            handleSelect={this.handleSelectDropdown}
-                                            onFocus={this.onFocusDropdown}
-                                            onHover={this.onHoverDropdown}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                    </div>
-                                </section>
+                        <section id="fields" className="drop-section">
+                            <div className="row row-cols-1 row-cols-md-2">
+                                {Object.keys(params).map(key => 
+                                    <ParamSelect
+                                        key={key}
+                                        name={key}
+                                        isFocused={params[key].isFocused}
+                                        focused={focused}
+                                        value={params[key].value}
+                                        placeholder={params[key].placeholder}
+                                        selection={params[key].selection}
+                                        options={params[key].options}
+                                        hover={this.state.params[key].hover}
+                                        page={params[key].page}
+                                        onChange={this.handleChangeDropdown}
+                                        handleNext={this.handleNextDropdown}
+                                        handleSelect={this.handleSelectDropdown}
+                                        onFocus={this.onFocusDropdown}
+                                        onHover={this.onHoverDropdown}
+                                        toggleDropDown={this.toggleDropDown}
+                                    />
+                                )}
                             </div>
-                        </div>
-                        
+                        </section>
                         <div className="modal-footer">
-                            <button className="modal-footer-button long" onClick={this.toggleModalSearch}>Show results ({typeToString(totalItems, "number", getDateFormat())})</button>
-                        </div>
-                    </Modal>
-                    <Modal
-                      show={showParam}
-                      hideModal={this.toggleParam}
-                      title="Params"
-                    //   size="modal-lg"
-                    >
-                        <form
-                            className=""
-                            encType="multipart/form-data"
-                            onSubmit={this.handleUploadParam}
-                        >
-                            <div className="modal-body">
-                                <div className="modal-body-content">
-                                    <div className="modal-body-content-section-title-container">
-                                        <div className="modal-body-content-section-title-row">
-                                            <div className="modal-body-content-section-title">
-                                                Download Template
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <section id="downloadtemplate" className="drop-section">
-                                        <div className="row row-cols-1">
-                                            <div className="col">
-                                                <div className="modal-body-content-section-info">Download and fill up enclosed template:</div>
-                                                <Link className="modal-body-content-section-link" to={{pathname: "//vanleeuwenwkf.s3.eu-west-3.amazonaws.com/templates/duf_params.xlsm"}} target="_blank">
-                                                    Download the template
-                                                </Link>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                    </section>
-                                    <section id="uploadfile" className="drop-section">
-                                        <div className="modal-body-content-section-title-container">
-                                            <div className="modal-body-content-section-title-row">
-                                                <div className="modal-body-content-section-title">
-                                                    Upload File
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="row row-cols-1">
-                                            <div className="col">
-                                                <div className="modal-body-content-section-info">Save the file as xslx before upload (xlsxm format is not supported).</div>
-                                            </div>
-                                            <ParamFile
-                                                name="file_param"
-                                                placeholder={params.file_param.placeholder}
-                                                onChange={this.handleChangeFile}
-                                                selection={params.file_param.selection}
-                                                ref={this.file_param}
-                                            />
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="submit" className="modal-footer-button long">
-                                <span><FontAwesomeIcon icon={uploadingParam ? "spinner" : "upload"} className={uploadingParam ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"}/>Upload</span>
+                            <div className="row">
+                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
+                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
+                                </button>
+                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
+                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </Modal>
                 </div>
             </Layout>

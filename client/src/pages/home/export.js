@@ -6,6 +6,8 @@ import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
 import arrayRemove from "../../functions/arrayRemove";
+import typeToString from "../../functions/typeToString";
+import getDateFormat from "../../functions/getDateFormat";
 
 import TableSelectAll from '../../components/table-select-all';
 import TableSelectRow from '../../components/table-select-row';
@@ -14,7 +16,7 @@ import TableData from "../../components/table-data";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
-import Param from "../../components/param";
+import ParamSelect from "../../components/param-select";
 import _ from "lodash";
 
 export default class Export extends React.Component {
@@ -659,15 +661,15 @@ export default class Export extends React.Component {
                 }
                 <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
-                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
+                        <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -759,42 +761,48 @@ export default class Export extends React.Component {
                     <Modal
                         show={showSearch}
                         hideModal={this.toggleModalSearch}
-                        title="Search"
-                        size="modal-lg"
+                        clearModal={this.handleClearFields}
+                        title="Filters"
+                        // size="modal-lg"
                     >
-                        <section id="fields" className="drop-section">
-                            <div className="row row-cols-1 row-cols-md-2">
-                                {Object.keys(params).map(key => 
-                                    <Param
-                                        key={key}
-                                        name={key}
-                                        isFocused={params[key].isFocused}
-                                        focused={focused}
-                                        value={params[key].value}
-                                        placeholder={params[key].placeholder}
-                                        selection={params[key].selection}
-                                        options={params[key].options}
-                                        hover={this.state.params[key].hover}
-                                        page={params[key].page}
-                                        onChange={this.handleChangeDropdown}
-                                        handleNextDropdown={this.handleNextDropdown}
-                                        handleSelect={this.handleSelectDropdown}
-                                        onFocus={this.onFocusDropdown}
-                                        onHover={this.onHoverDropdown}
-                                        toggleDropDown={this.toggleDropDown}
-                                    />
-                                )}
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                                <section id="fields" className="drop-section">
+                                    {/* <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Fields
+                                            </div>
+                                        </div>
+                                    </div> */}
+                                    <div className="row row-cols-1">
+                                        {Object.keys(params).map(key => 
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChangeDropdown}
+                                                handleNext={this.handleNextDropdown}
+                                                handleSelect={this.handleSelectDropdown}
+                                                onFocus={this.onFocusDropdown}
+                                                onHover={this.onHoverDropdown}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                            </section>
                             </div>
-                        </section>
+                        </div>
+                        
                         <div className="modal-footer">
-                            <div className="row">
-                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
-                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
-                                </button>
-                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
-                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
-                                </button>
-                            </div>
+                            <button className="modal-footer-button long" onClick={this.toggleModalSearch}>Show results ({typeToString(totalItems, "number", getDateFormat())})</button>
                         </div>
                     </Modal>
                 </div>

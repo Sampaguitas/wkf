@@ -17,7 +17,7 @@ module.exports = (myMatch, accountId) => {
                 "description": 1,
                 "qty": 1,
                 "firstInStock": "$purchase.firstInStock",
-                // "supplierNames": "$supplier.names",
+                "supplierNames": "$supplier.names",
                 "uom": 1,
                 "gip": "$price.gip",
                 "rv": "$price.rv",

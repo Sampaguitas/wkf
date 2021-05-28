@@ -12,12 +12,9 @@ import TableData from "../../components/table-data";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
-import Param from "../../components/param";
-import TabStockLocation from "../../components/tab-stock-location";
-import TabStockArticle from "../../components/tab-stock-article";
-import TabStockPurchase from "../../components/tab-stock-purchase";
-import TabStockSuppliers from "../../components/tab-stock-suppliers";
-import TabStockParams from "../../components/tab-stock-params";
+import ParamSelect from "../../components/param-select";
+import typeToString from "../../functions/typeToString";
+import getDateFormat from "../../functions/getDateFormat";
 import _ from "lodash";
 
 export default class Stock extends React.Component {
@@ -25,6 +22,17 @@ export default class Stock extends React.Component {
         super(props);
         this.state = {
             article: {
+                location: {
+                    title: "",
+                    address: "",
+                    postalcode: "",
+                    city: "",
+                    country: "",
+                    tel: "",
+                    fax: "",
+                    email: "",
+                    price_info: ""
+                },
                 opco: "",
                 artNr: "",
                 description: "",
@@ -117,48 +125,6 @@ export default class Stock extends React.Component {
                 type: "",
                 message: ""
             },
-            tabs: [
-                {
-                    index: 0, 
-                    id: "location",
-                    label: "Location",
-                    component: TabStockLocation, 
-                    active: true, 
-                    isLoaded: false
-                },
-                {
-                    index: 1, 
-                    id: "article",
-                    label: "Article",
-                    component: TabStockArticle, 
-                    active: false, 
-                    isLoaded: false
-                },
-                {
-                    index: 2, 
-                    id: "suppliers",
-                    label: "Suppliers",
-                    component: TabStockSuppliers, 
-                    active: false, 
-                    isLoaded: false
-                },
-                {
-                    index: 3,
-                    id: "purchase",
-                    label: "Purchase",
-                    component: TabStockPurchase,
-                    active: false,
-                    isLoaded: false
-                },
-                {
-                    index: 4,
-                    id: "params",
-                    label: "Params",
-                    component: TabStockParams,
-                    active: false,
-                    isLoaded: false
-                }
-            ],
             isDisabled: true,
             selectAllRows: false,
             selectedRows: [],
@@ -174,6 +140,8 @@ export default class Stock extends React.Component {
             showArticle: false,
             menuItem: "Stock",
             settingsColWidth: {},
+            suppliers: [],
+            selectedSuppliers: [],
             paginate: {
                 pageSize: 0,
                 currentPage: 1,
@@ -201,6 +169,7 @@ export default class Stock extends React.Component {
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
         this.generateBody = this.generateBody.bind(this);
+        this.generateSuppliers = this.generateSuppliers.bind(this);
         //dropdown
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
@@ -214,10 +183,11 @@ export default class Stock extends React.Component {
         this.getArticle = this.getArticle.bind(this);
         this.toggleModalArticle = this.toggleModalArticle.bind(this);
         //tabs
-        this.handleModalTabClick = this.handleModalTabClick.bind(this);
+        // this.handleModalTabClick = this.handleModalTabClick.bind(this);
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
+        this.updateSelectedSuppliers = this.updateSelectedSuppliers.bind(this);
     }
 
     componentDidMount() {
@@ -271,7 +241,7 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, paginate, stocks, selectedRows } = this.state;
+        const { sort, paginate, stocks, suppliers, selectedSuppliers, selectedRows } = this.state;
         
         if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
@@ -320,6 +290,19 @@ export default class Stock extends React.Component {
             this.setState({
                 selectedRows: remaining,
                 selectAllRows: false,
+            });
+        }
+
+        if (suppliers !== prevState.suppliers) {
+            let remaining = selectedSuppliers.reduce(function(acc, cur) {
+                let found = suppliers.find(element => _.isEqual(element, cur));
+                if (!_.isUndefined(found)){
+                  acc.push(cur);
+                }
+                return acc;
+            }, []);
+            this.setState({
+                selectedSuppliers: remaining,
             });
         }
 
@@ -513,6 +496,7 @@ export default class Stock extends React.Component {
                         } else {
                             this.setState({
                                 stocks: data[0].data,
+                                suppliers: data[0].suppliers || [],
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -533,6 +517,17 @@ export default class Stock extends React.Component {
         event.preventDefault();
         this.setState({
             article: {
+                location: {
+                    title: "",
+                    address: "",
+                    postalcode: "",
+                    city: "",
+                    country: "",
+                    tel: "",
+                    fax: "",
+                    email: "",
+                    price_info: ""
+                },
                 opco: "",
                 artNr: "",
                 description: "",
@@ -640,6 +635,17 @@ export default class Stock extends React.Component {
         const {showArticle} = this.state;
         this.setState({
             article: {
+                location: {
+                    title: "",
+                    address: "",
+                    postalcode: "",
+                    city: "",
+                    country: "",
+                    tel: "",
+                    fax: "",
+                    email: "",
+                    price_info: ""
+                },
                 opco: "",
                 artNr: "",
                 description: "",
@@ -705,48 +711,6 @@ export default class Stock extends React.Component {
                     }
                 }
             },
-            tabs: [
-                {
-                    index: 0, 
-                    id: "location",
-                    label: "Location",
-                    component: TabStockLocation, 
-                    active: true, 
-                    isLoaded: false
-                },
-                {
-                    index: 1, 
-                    id: "article",
-                    label: "Article",
-                    component: TabStockArticle, 
-                    active: false, 
-                    isLoaded: false
-                },
-                {
-                    index: 2, 
-                    id: "suppliers",
-                    label: "Suppliers",
-                    component: TabStockSuppliers, 
-                    active: false, 
-                    isLoaded: false
-                },
-                {
-                    index: 3,
-                    id: "purchase",
-                    label: "Purchase",
-                    component: TabStockPurchase,
-                    active: false,
-                    isLoaded: false
-                },
-                {
-                    index: 4,
-                    id: "params",
-                    label: "Params",
-                    component: TabStockParams,
-                    active: false,
-                    isLoaded: false
-                }
-            ],
             retrievingArticle: false,
             showArticle: !showArticle
         });
@@ -813,6 +777,15 @@ export default class Stock extends React.Component {
         }       
     }
 
+    updateSelectedSuppliers(id) {
+        const { selectedSuppliers } = this.state;
+        if (selectedSuppliers.includes(id)) {
+            this.setState({ selectedSuppliers: arrayRemove(selectedSuppliers, id) });
+        } else {
+          this.setState({ selectedSuppliers: [...selectedSuppliers, id] });
+        }
+    }
+
     generateBody() {
         const { stocks, retrievingStocks, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
         let tempRows = [];
@@ -858,6 +831,41 @@ export default class Stock extends React.Component {
             }
         }
         return tempRows;
+    }
+
+    generateSuppliers() {
+        const { suppliers, selectedsuppliers, retrievingStocks } = this.state;
+        let tempRows = [];
+        if (!retrievingStocks) {
+            suppliers.map( (supplier, index) => tempRows.push(
+            <div className="modal-body-content-section-checkbox-container" key={index}>
+                <div>
+                    <div className="modal-body-content-section-checkbox-text">{supplier}</div> 
+                </div>
+                <div className="modal-body-content-section-checkbox-checkbox-container">
+                    
+                </div>
+                
+            </div>));
+        } else {
+            for (let i = 0; i < 4; i++) {
+                tempRows.push(
+                    <div className="modal-body-content-section-checkbox-container" key={i}>
+                        <div>
+                            <div className="modal-body-content-section-checkbox-text"><Skeleton /></div>
+                        </div>
+                        <div className="modal-body-content-section-checkbox-checkbox-container">
+                    
+                        </div>
+                    </div>
+                );
+            }
+        }
+        return (
+            // <div className="row row-cols-1">
+                tempRows
+            // </div>
+        );
     }
 
     handleClearFields(event) {
@@ -1080,21 +1088,9 @@ export default class Stock extends React.Component {
         }
     }
 
-    handleModalTabClick(event, tab){
-        event.preventDefault();
-        const { tabs } = this.state; // 1. Get tabs from state
-        tabs.forEach((t) => {t.active = false}); //2. Reset all tabs
-        tab.isLoaded = true; // 3. set current tab as active
-        tab.active = true;
-        this.setState({
-            ...this.state,
-            tabs // 4. update state
-        })
-    }
-
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, article, retrievingArticle, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, tabs, selectAllRows } = this.state;
+        const { alert, menuItem, article, retrievingArticle, sort, showSearch, settingsColWidth, exportingParams, exportingStocks, showArticle, selectAllRows } = this.state; //tabs
         const { params, focused, isDisabled } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -1109,21 +1105,21 @@ export default class Stock extends React.Component {
                 }
                 <div id="stock" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
-                        <button title="Export Stock" className="btn btn-sm btn-gray mr-2" disabled={isDisabled} onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
+                        <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
+                            <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
+                        </button>
+                        <button title="Export Stock" className="btn btn-sm btn-gray" disabled={isDisabled} onClick={event => this.handleExport(event, "stocks")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingStocks ? "spinner" : "file-download"} className={exportingStocks ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Stock</span>
                         </button>
-                        <button title="Export Params" className="btn btn-sm btn-gray mr-2" disabled={isDisabled} onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
+                        <button title="Export Params" className="btn btn-sm btn-gray" disabled={isDisabled} onClick={event => this.handleExport(event, "params")}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon={exportingParams ? "spinner" : "file-download"} className={exportingParams ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Params</span>
-                        </button>
-                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
-                            <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}>
+                        <div className="row row-table-container">
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -1254,42 +1250,90 @@ export default class Stock extends React.Component {
                     <Modal
                         show={showSearch}
                         hideModal={this.toggleModalSearch}
-                        title="Search"
+                        clearModal={this.handleClearFields}
+                        title="Filters"
                         size="modal-lg"
                     >
-                        <section id="fields" className="drop-section">
-                            <div className="row row-cols-1 row-cols-md-2">
-                                {Object.keys(params).map(key => 
-                                    <Param
-                                        key={key}
-                                        name={key}
-                                        isFocused={params[key].isFocused}
-                                        focused={focused}
-                                        value={params[key].value}
-                                        placeholder={params[key].placeholder}
-                                        selection={params[key].selection}
-                                        options={params[key].options}
-                                        hover={this.state.params[key].hover}
-                                        page={params[key].page}
-                                        onChange={this.handleChangeDropdown}
-                                        handleNextDropdown={this.handleNextDropdown}
-                                        handleSelect={this.handleSelectDropdown}
-                                        onFocus={this.onFocusDropdown}
-                                        onHover={this.onHoverDropdown}
-                                        toggleDropDown={this.toggleDropDown}
-                                    />
-                                )}
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                                <section id="parameters" className="drop-section">
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Parameters
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index < 11 && 
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChangeDropdown}
+                                                handleNext={this.handleNextDropdown}
+                                                handleSelect={this.handleSelectDropdown}
+                                                onFocus={this.onFocusDropdown}
+                                                onHover={this.onHoverDropdown}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                                    <hr />
+                                </section>
+                                <section id="affiliates" className="drop-section">
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Affiliates
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index > 10 && 
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChangeDropdown}
+                                                handleNext={this.handleNextDropdown}
+                                                handleSelect={this.handleSelectDropdown}
+                                                onFocus={this.onFocusDropdown}
+                                                onHover={this.onHoverDropdown}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                                </section>
+                                <section id="parameters" className="drop-section">
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Suppliers
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {this.generateSuppliers()}
+                                </section>
                             </div>
-                        </section>
+                        </div>
+                        
                         <div className="modal-footer">
-                            <div className="row">
-                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
-                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
-                                </button>
-                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
-                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
-                                </button>
-                            </div>
+                            <button className="modal-footer-button long" onClick={this.toggleModalSearch}>Show results ({typeToString(totalItems, "number", getDateFormat())})</button>
                         </div>
                     </Modal>
                     <Modal
@@ -1298,48 +1342,228 @@ export default class Stock extends React.Component {
                         title={"Stock Info"}
                         size="modal-lg"
                     >
-                        <div id="modal-tabs">
-                            <ul className="nav nav-tabs">
-                                {tabs.map((tab) => 
-                                    <li className={tab.active ? "nav-item active" : "nav-item"} key={tab.index}>
-                                        <a className="nav-link" href={"#"+ tab.id} data-toggle="tab" onClick={event => this.handleModalTabClick(event,tab)} id={tab.id + "-tab"} aria-controls={tab.id} role="tab" draggable="false">
-                                            {tab.label}
-                                        </a>
-                                    </li>                        
-                                )}
-                            </ul>
-                            
-                            <div className="tab-content" id="modal-nav-tabContent">
-                                {alert.message &&
-                                    <div className={`alert ${alert.type}`}>{alert.message}
-                                        <button className="close" onClick={(event) => this.handleClearAlert(event)}>
-                                            <span aria-hidden="true"><FontAwesomeIcon icon="times"/></span>
-                                        </button>
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                                <section>
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Location
+                                            </div>
+                                        </div>
                                     </div>
-                                }
-                                {tabs.map(tab =>
-                                    <div
-                                        className={tab.active ? "tab-pane fade show active" : "tab-pane fade"}
-                                        id={tab.id}
-                                        role="tabpanel"
-                                        aria-labelledby={tab.id + "-tab"}
-                                        key={tab.index}
-                                    >
-                                        <tab.component 
-                                            tab={tab}
-                                            article={article}
-                                            retrievingArticle={retrievingArticle}
-                                        />
+                                    <div className="table-responsive" id="location">
+                                        <table className="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "title"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.title}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "address"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.address}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "postal code"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.postalcode}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "city"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.city}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "country"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.country}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "tel"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.tel}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "fax"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.fax}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "email"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.email}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "price info"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.location.price_info}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                )}
+                                    <hr />
+                                </section>
+                                <section>
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Article
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive" id="article">
+                                        <table className="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "vLunar"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.vlunar}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "description"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.description}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "artNr"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.artNr}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.qty, "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "weight"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.weight, "number", getDateFormat())} ${article.weight_uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "gip"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.gip, "number", getDateFormat())} EUR`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "rv"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.price.rv, "number", getDateFormat())} EUR`}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr />
+                                </section>
+                                <section>
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Suppliers
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive" id="supplier_info">
+                                        <table className="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[0] || "supplier 1"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[0], "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[1] || "supplier 2"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[1], "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[2] || "supplier 3"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[2], "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : article.supplier.names[3] || "supplier 4"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.supplier.qtys[3], "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr />
+                                </section>
+                                <section>
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Purchase
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive" id="purchase_info">
+                                        <table className="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "supplier"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.purchase.supplier}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "qty"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.qty, "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "firstInStock"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : `${typeToString(article.purchase.firstInStock, "number", getDateFormat())} ${article.uom}`}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">{retrievingArticle? <Skeleton /> : "deliveryDate"}</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : typeToString(article.purchase.deliveryDate, "date", getDateFormat())}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr />
+                                </section>
+                                <section>
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Parameters
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="table-responsive" id="params_info">
+                                        <table className="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" className="w-40">sizeOne</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.sizeOne.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">sizeTwo</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.sizeTwo.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">sizeThree</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.sizeThree.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">wallOne</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.wallOne.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">wallTwo</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.wallTwo.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">type</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.type.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">grade</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.grade.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">length</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.length.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">end</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.end.name}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" className="w-40">surface</th>
+                                                    <td className="w-60">{retrievingArticle? <Skeleton /> : article.parameters.surface.name}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr />
+                                </section>
                             </div>
                         </div>
                         <div className="modal-footer">
-                            <div className="row">
-                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalArticle}>
-                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
-                                </button>
-                            </div>
+                            <button className="modal-footer-button long" onClick={this.toggleModalArticle}>Close</button>
                         </div>
                     </Modal>
                 </div>

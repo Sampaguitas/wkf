@@ -6,6 +6,8 @@ import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
 import arrayRemove from "../../functions/arrayRemove";
+import typeToString from "../../functions/typeToString";
+import getDateFormat from "../../functions/getDateFormat";
 
 import TableSelectAll from '../../components/table-select-all';
 import TableSelectRow from '../../components/table-select-row';
@@ -16,13 +18,15 @@ import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
-import Param from "../../components/param";
+import ParamSelect from "../../components/param-select";
+import ParamInput from "../../components/param-input";
 import _ from "lodash";
 
 export default class Settings extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            _id: "",
             currentUser: {},
             element: {},
             elements: [],
@@ -31,9 +35,11 @@ export default class Settings extends React.Component {
                 isAscending: true,
             },
             params: {
-                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                isAdmin: { value: "", placeholder: "isAdmin", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
+                name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isAdmin: { value: "", placeholder: "isAdmin", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user_name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user_email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
             alert: {
@@ -71,17 +77,18 @@ export default class Settings extends React.Component {
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
-        this.showModal = this.showModal.bind(this);
-        this.hideModal = this.hideModal.bind(this);
-        this.handleChangeUser = this.handleChangeUser.bind(this);
+        // this.showModal = this.showModal.bind(this);
+        this.toggleModalUser = this.toggleModalUser.bind(this);
         // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
+        this.handleClearValue = this.handleClearValue.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
-        this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
-        this.handleNextDropdown = this.handleNextDropdown.bind(this);
-        this.handleSelectDropdown = this.handleSelectDropdown.bind(this);
-        this.onFocusDropdown = this.onFocusDropdown.bind(this);
-        this.onHoverDropdown = this.onHoverDropdown.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleChangeInput = this.handleChangeInput.bind(this);
+        this.handleNext = this.handleNext.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
+        this.onFocus = this.onFocus.bind(this);
+        this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
@@ -231,37 +238,32 @@ export default class Settings extends React.Component {
         });
     }
 
-    showModal() {
+    // showModal() {
+    //     this.setState({
+    //         params: {
+    //             ...this.state.params,
+    //             user_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+    //             user_email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+    //         },
+    //         showUser: true
+    //     });
+    // }
+
+    toggleModalUser() {
+        const { showUser } = this.state
         this.setState({
-            element: {
-                name: "",
-                email: ""
+            _id: "",
+            params: {
+                ...this.state.params,
+                user_name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                user_email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
-            showUser: true
+            deleting: false,
+            upserting: false,
+            showUser: !showUser
         });
     }
 
-    hideModal() {
-        this.setState({
-            element: {
-                name: "",
-                email: ""
-            },
-            submitted: false,
-            showUser: false
-        });
-    }
-
-    handleChangeUser(event) {
-        const { name, value } = event.target;
-        const { element } = this.state;
-        this.setState({
-            element: {
-                ...element,
-                [name]: value
-            }
-        });
-    }
 
     // handleChangeHeader(event) {
     //     const { filter } = this.state;
@@ -333,20 +335,20 @@ export default class Settings extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const { element, upserting } = this.state;
-        if (!!element.name && !!element.email && !upserting) {
+        const { params, upserting } = this.state;
+        if (!upserting) {
             this.setState({
                 upserting: true,
             }, () => {
                 const requestOptions = {
-                    method: !!element._id ? "PUT" : "POST",
+                    method: !!this.state._id ? "PUT" : "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        name: element.name,
-                        email: element.email
+                        name: params.user_name.selection._id,
+                        email: params.user_email.selection._id
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${!!element._id ? element._id : ""}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/users/${!!this.state._id ? this.state._id : ""}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         upserting: false,
@@ -359,17 +361,22 @@ export default class Settings extends React.Component {
                             window.location.reload(true);
                         } else {
                             this.setState({
+                                _id: "",
+                                params: {
+                                    ...this.state.params,
+                                    user_name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    user_email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
                                     message: resMsg
-                                }
+                                },
+                                showUser: false
                             }, () => {
                                 this.getDocuments();
-                                this.hideModal();
                             });
                         }
                     });
-                    
                 }))
                 .catch( () => {
                     localStorage.removeItem("user");
@@ -379,9 +386,9 @@ export default class Settings extends React.Component {
         }
     }
 
-    handleDelete(event, _id) {
+    handleDelete(event) {
         event.preventDefault();
-        const { deleting } = this.state;
+        const { _id, deleting } = this.state;
         if (!!_id && !deleting) {
             this.setState({
                 deleting: true
@@ -403,13 +410,19 @@ export default class Settings extends React.Component {
                             window.location.reload(true);
                         } else {
                             this.setState({
+                                _id: "",
+                                params: {
+                                    ...this.state.params,
+                                    user_name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    user_email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
                                     message: resMsg
-                                }
+                                },
+                                showUser: false
                             }, () => {
                                 this.getDocuments();
-                                this.hideModal();
                             });
                         }
                     });
@@ -424,10 +437,11 @@ export default class Settings extends React.Component {
         let found = elements.find(element => _.isEqual(element._id, _id));
         if (!_.isUndefined(found) && !!currentUser.isAdmin) {
             this.setState({
-                element: {
-                    _id: found._id,
-                    name: found.name,
-                    email: found.email,
+                _id,
+                params: {
+                    ...this.state.params,
+                    user_name: { value: found.name, placeholder: "name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
+                    user_email: { value: found.email, placeholder: "email", selection: { _id: found.email, name: found.email}, options: [], hover: "", page: 0 },
                 },
                 showUser: true
             });
@@ -546,11 +560,29 @@ export default class Settings extends React.Component {
                 isAscending: true,
             },
             params: {
-                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                ...this.state.params,
+                name: { value: "", placeholder: "name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                email: { value: "", placeholder: "email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 isAdmin: { value: "", placeholder: "isAdmin", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
+        });
+    }
+
+    handleClearValue(event, name) {
+        event.preventDefault();
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: "",
+                    selection: {
+                        _id: "",
+                        name: ""
+                    }
+                }
+            }
         });
     }
 
@@ -600,7 +632,7 @@ export default class Settings extends React.Component {
         });
     }
 
-    handleNextDropdown(key) {
+    handleNext(key) {
         this.setState({
             params: {
                 ...this.state.params,
@@ -614,7 +646,7 @@ export default class Settings extends React.Component {
         });
     }
 
-    handleChangeDropdown(event) {
+    handleChange(event) {
         event.preventDefault();
         const { name, value } = event.target;
         this.setState({
@@ -632,7 +664,25 @@ export default class Settings extends React.Component {
         });
     }
 
-    handleSelectDropdown(event, name, selectionId, selectionName) {
+    handleChangeInput(event) {
+        event.preventDefault();
+        const { name, value } = event.target;
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: value,
+                    selection: {
+                        _id: value,
+                        name: value
+                    }
+                }
+            }
+        });
+    }
+
+    handleSelect(event, name, selectionId, selectionName) {
         event.preventDefault();
         this.setState({
             params: {
@@ -654,7 +704,7 @@ export default class Settings extends React.Component {
         myInput.blur();
     }
 
-    onFocusDropdown(event) {
+    onFocus(event) {
         const { name } = event.target;
         const { focused } = this.state;
         if (!!focused) {
@@ -692,7 +742,7 @@ export default class Settings extends React.Component {
         }
     }
 
-    onHoverDropdown(event, name, _id) {
+    onHover(event, name, _id) {
         event.preventDefault();
         this.setState({
             params: {
@@ -751,15 +801,15 @@ export default class Settings extends React.Component {
                 }
                 <div id="setting" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
-                        <button title="Create User" className="btn btn-sm btn-leeuwen-blue" onClick={this.showModal}> {/* style={{height: "34px"}} */}
+                        <button title="Create User" className="btn btn-sm btn-gray" onClick={this.toggleModalUser}> {/* style={{height: "34px"}} */}
                             <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create User</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -828,51 +878,178 @@ export default class Settings extends React.Component {
                     <Modal
                         show={showSearch}
                         hideModal={this.toggleModalSearch}
-                        title="Search"
-                        size="modal-lg"
+                        clearModal={this.handleClearFields}
+                        title="Filters"
+                        // size="modal-lg"
                     >
-                        <section id="fields" className="drop-section">
-                            <div className="row row-cols-1 row-cols-md-2">
-                                {Object.keys(params).map(key => 
-                                    <Param
-                                        key={key}
-                                        name={key}
-                                        isFocused={params[key].isFocused}
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                            <section id="filters" className="drop-section">
+                                <div className="row row-cols-1">
+                                    <ParamSelect
+                                        key="0"
+                                        name="name"
                                         focused={focused}
-                                        value={params[key].value}
-                                        placeholder={params[key].placeholder}
-                                        selection={params[key].selection}
-                                        options={params[key].options}
-                                        hover={this.state.params[key].hover}
-                                        page={params[key].page}
-                                        onChange={this.handleChangeDropdown}
-                                        handleNextDropdown={this.handleNextDropdown}
-                                        handleSelect={this.handleSelectDropdown}
-                                        onFocus={this.onFocusDropdown}
-                                        onHover={this.onHoverDropdown}
+                                        value={params.name.value}
+                                        placeholder={params.name.placeholder}
+                                        selection={params.name.selection}
+                                        options={params.name.options}
+                                        hover={this.state.params.name.hover}
+                                        page={params.name.page}
+                                        onChange={this.handleChange}
+                                        handleNext={this.handleNext}
+                                        handleSelect={this.handleSelect}
+                                        onFocus={this.onFocus}
+                                        onHover={this.onHover}
                                         toggleDropDown={this.toggleDropDown}
                                     />
-                                )}
+                                    <ParamSelect
+                                        key="1"
+                                        name="email"
+                                        focused={focused}
+                                        value={params.email.value}
+                                        placeholder={params.email.placeholder}
+                                        selection={params.email.selection}
+                                        options={params.email.options}
+                                        hover={this.state.params.email.hover}
+                                        page={params.email.page}
+                                        onChange={this.handleChange}
+                                        handleNext={this.handleNext}
+                                        handleSelect={this.handleSelect}
+                                        onFocus={this.onFocus}
+                                        onHover={this.onHover}
+                                        toggleDropDown={this.toggleDropDown}
+                                    />
+                                    <ParamSelect
+                                        key="1"
+                                        name="isAdmin"
+                                        focused={focused}
+                                        value={params.isAdmin.value}
+                                        placeholder={params.isAdmin.placeholder}
+                                        selection={params.isAdmin.selection}
+                                        options={params.isAdmin.options}
+                                        hover={this.state.params.isAdmin.hover}
+                                        page={params.isAdmin.page}
+                                        onChange={this.handleChange}
+                                        handleNext={this.handleNext}
+                                        handleSelect={this.handleSelect}
+                                        onFocus={this.onFocus}
+                                        onHover={this.onHover}
+                                        toggleDropDown={this.toggleDropDown}
+                                    />
+                                    {/* {Object.keys(params).map(key => 
+                                        <ParamSelect
+                                            key={key}
+                                            name={key}
+                                            isFocused={params[key].isFocused}
+                                            focused={focused}
+                                            value={params[key].value}
+                                            placeholder={params[key].placeholder}
+                                            selection={params[key].selection}
+                                            options={params[key].options}
+                                            hover={this.state.params[key].hover}
+                                            page={params[key].page}
+                                            onChange={this.handleChange}
+                                            handleNext={this.handleNext}
+                                            handleSelect={this.handleSelect}
+                                            onFocus={this.onFocus}
+                                            onHover={this.onHover}
+                                            toggleDropDown={this.toggleDropDown}
+                                        />
+                                    )} */}
+                                </div>
+                            </section>
                             </div>
-                        </section>
+                        </div>
+                        
                         <div className="modal-footer">
-                            <div className="row">
-                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
-                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
-                                </button>
-                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
-                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
-                                </button>
-                            </div>
+                            <button className="modal-footer-button long" onClick={this.toggleModalSearch}>Show results ({typeToString(totalItems, "number", getDateFormat())})</button>
                         </div>
                     </Modal>
 
                     <Modal
                         show={showUser}
-                        hideModal={this.hideModal}
-                        title={this.state.element._id ? "Update user" : "Add user"}
+                        hideModal={this.toggleModalUser}
+                        title="User"
                     >
-                        <div className="col-12">
+                        {/* <form
+                                name="form"
+                                onSubmit={this.handleSubmit}
+                        > */}
+                            <div className="modal-body">
+                                <div className="modal-body-content">
+                                    <section id="filters" className="drop-section">
+                                        <div className="row row-cols-1">
+                                            <ParamInput
+                                                key="0"
+                                                name="user_name"
+                                                focused={focused}
+                                                value={params.user_name.selection.name}
+                                                placeholder={params.user_name.placeholder}
+                                                onChange={this.handleChangeInput}
+                                                onFocus={this.onFocus}
+                                                handleClearValue={this.handleClearValue}
+                                            />
+                                            <ParamInput
+                                                key="0"
+                                                name="user_email"
+                                                focused={focused}
+                                                value={params.user_email.selection.name}
+                                                placeholder={params.user_email.placeholder}
+                                                onChange={this.handleChangeInput}
+                                                onFocus={this.onFocus}
+                                                handleClearValue={this.handleClearValue}
+                                            />
+                                        </div>
+                                    </section>
+                                    {/* <section>
+                                        <div className="col-12">
+                                            <Input
+                                                title="Full Name"
+                                                name="name"
+                                                type="text"
+                                                value={element.name}
+                                                onChange={this.handleChangeInput}
+                                                inline={false}
+                                                required={true}
+                                            />
+                                            <Input
+                                                title="Email"
+                                                name="email"
+                                                type="email"
+                                                value={element.email}
+                                                onChange={this.handleChangeInput}
+                                                inline={false}
+                                                required={true}
+                                            />
+                                        </div>
+                                    </section> */}
+                                </div>
+                            </div>
+                            
+                                {this.state._id ?
+                                    (
+                                        <div className="modal-footer">
+                                            <button className="modal-footer-button" onClick={event => this.handleDelete(event)}>
+                                                <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
+                                            </button>
+                                            <button className="modal-footer-button" onClick={event => this.handleSubmit(event)}>
+                                                <span><FontAwesomeIcon icon={upserting ? "spinner" : "edit"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Update</span>
+                                            </button>
+                                        </div>
+                                    )
+                                    :
+                                    (
+                                        <div className="modal-footer">
+                                            <button type="submit" className="modal-footer-button long" onClick={event => this.handleSubmit(event)}>
+                                                <span><FontAwesomeIcon icon={upserting ? "spinner" : "plus"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Create</span>
+                                            </button>
+                                        </div>
+                                    )
+                                }
+                        {/* </form> */}
+
+                        {/* <div className="col-12">
                             <form
                                 name="form"
                                 onSubmit={this.handleSubmit}
@@ -882,7 +1059,7 @@ export default class Settings extends React.Component {
                                     name="name"
                                     type="text"
                                     value={element.name}
-                                    onChange={this.handleChangeUser}
+                                    onChange={this.handleChangeInput}
                                     inline={false}
                                     required={true}
                                 />
@@ -891,7 +1068,7 @@ export default class Settings extends React.Component {
                                     name="email"
                                     type="email"
                                     value={element.email}
-                                    onChange={this.handleChangeUser}
+                                    onChange={this.handleChangeInput}
                                     inline={false}
                                     required={true}
                                 />
@@ -912,7 +1089,7 @@ export default class Settings extends React.Component {
                                     }
                                 </div>
                             </form>
-                        </div>
+                        </div> */}
                     </Modal>
                 </div>
             </Layout>

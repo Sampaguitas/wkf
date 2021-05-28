@@ -185,6 +185,16 @@
     /* color: #656565; */
 }
 
+label.form-control.drop-file {
+    display: inline-block;
+    font-weight: normal;
+    font-size: 12px !important;
+    border-radius: 0.25rem !important;
+    /* line-height: 38px; */
+    /* padding-bottom:4px !important; */
+    color: #656565;
+}
+
 .drop-label {
     font-size: 12px;
     font-weight: normal;
@@ -314,6 +324,26 @@
     color: #a3000d;
     z-index: 1;
     font-size: 16px;
+}
+
+.param-link {
+    font-size: 14px !important;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    line-height: 20.02px !important;
+    color: rgb(34, 34, 34) !important;
+    text-decoration: underline !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    outline: none !important;
+}
+
+.param-info {
+    font-size: 14px !important;
+    line-height: 18px !important;
+    font-weight: 400 !important;
+    color: rgb(113, 113, 113) !important;
 }
 
 /* .result-area {

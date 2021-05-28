@@ -1,4 +1,18 @@
-.modal-link {
+
+/* .modal.show {
+    opacity: 1 !important
+} */
+
+/* .modal-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    border-radius: 12px;
+} */
+
+/* .modal-link {
     display: inline-block;
     margin-left: 5px;
     opacity: 0.5;
@@ -35,11 +49,297 @@
 
 .modal-header .close, .modal-header .close:hover {
     color: #fff;
-}
+} */
 
-.modal-footer {
+/* .modal-footer {
     padding-top: 10px;
     padding-right: 0px;
     padding-bottom: 0px;
     padding-left: 0px;
+} */
+
+.modal {
+    display: block !important;
+    z-index: 2000 !important;
+    max-height: calc(var(--vh, 1vh) * 100) !important;
+    background: rgba(34, 34, 34, 0.60) !important;
+    inset: 0px !important;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+}
+
+.modal.transition {
+    opacity: 1;
+    transition: opacity 150ms ease-in-out;
+}
+
+.modal-dialog {
+    /* position: absolute; */
+    top: 150% !important;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    -webkit-box-direction: normal !important;
+    -webkit-box-orient: vertical !important;
+    background: rgb(255, 255, 255) !important;
+    position: absolute !important;
+    max-height: 100% !important;
+    width: 100vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0px;
+    border-radius: 12px;
+    transition: top 400ms ease;
+}
+
+.modal-dialog.transition {
+    top: 50% !important;
+    transition: top 400ms ease;
+}
+
+.modal-content {
+    border: 0px;
+    /* border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    border-bottom-left-radius: 12px !important; */
+    box-shadow: rgb(0 0 0 / 28%) 0px 8px 28px !important;
+}
+
+.modal-header {
+    -webkit-box-pack: justify !important;
+    -webkit-box-align: center !important;
+    border-bottom: 1px solid rgb(235, 235, 235) !important;
+    padding: 12px 16px 10px !important;
+    display: flex !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    color: rgb(34, 34, 34) !important;
+}
+
+.modal-header-close {
+    -webkit-box-pack: justify !important;
+    -webkit-box-align: center !important;
+    /* border-bottom: 1px solid rgb(235, 235, 235) !important; */
+    padding: 12px 16px 10px !important;
+    display: flex !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    color: rgb(34, 34, 34) !important;
+}
+
+.modal-header-close-button {
+    appearance: none !important;
+    display: inline-block !important;
+    border-radius: 50% !important;
+    border: none !important;
+    outline: none !important;
+    margin: 0px !important;
+    padding: 0px !important;
+    color: rgb(34, 34, 34) !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    position: relative !important;
+    background: transparent !important;
+}
+
+.modal-header-close-button:hover {
+    color: rgb(0, 0, 0) !important;
+}
+
+.modal-header-close-button-icon {
+    position: relative !important;
+}
+
+.modal-header-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    /* padding-left: 32px !important; */
+}
+
+.modal-header-clear {
+    cursor: pointer !important;
+    display: inline-block !important;
+    margin: 0px -10px !important;
+    position: relative !important;
+    text-align: center !important;
+    width: auto !important;
+    touch-action: manipulation !important;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
+    font-size: 16px !important;
+    line-height: 20px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    outline: none !important;
+    padding: 10px !important;
+    transition: box-shadow 0.2s ease 0s, -ms-transform 0.1s ease 0s, -webkit-transform 0.1s ease 0s, transform 0.1s ease 0s !important;
+    border: none !important;
+    background: transparent !important;
+    color: rgb(34, 34, 34) !important;
+    text-decoration: underline !important;
+}
+
+.modal-header-clear:hover {
+    color: rgb(0, 0, 0) !important;
+}
+
+.modal-body {
+    max-height: calc(75vh - 156px); /* ///////////////////// */
+    overflow-Y: auto !important;
+}
+
+.modal-body-content {
+    border-bottom: 0px !important;
+    padding-top: 8px !important;
+    padding-bottom: 24px !important;
+}
+
+.modal-body-content-section-title-container {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+.modal-body-content-section-title-row {
+    font-size: 18px !important;
+    line-height: 22px !important;
+    font-weight: 600 !important;
+}
+
+.modal-body-content-section-title {
+    color: inherit !important;
+    font-size: 1em !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.modal-body-content-section-link-title {
+    color: rgb(34, 34, 34) !important;
+    font-weight: 400 !important;
+    font-size: 16px !important;
+}
+
+.modal-body-content-section-link {
+    font-size: 14px !important;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    line-height: 20.02px !important;
+    color: rgb(34, 34, 34) !important;
+    text-decoration: underline !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    outline: none !important;
+}
+
+.modal-body-content-section-info {
+    color: rgb(34, 34, 34) !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+}
+
+.modal-body-content-section-checkbox-container {
+    -webkit-box-align: center !important;
+    -webkit-box-pack: justify !important;
+    color: rgb(34, 34, 34) !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    padding-right: 4px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.modal-body-content-section-checkbox-text {
+    font-weight: 400 !important;
+    font-size: 14px !important;
+}
+
+.modal-body-content-section-checkbox-checkbox-container {
+    margin-left: 12px !important;
+}
+
+.modal-footer {
+    -webkit-box-pack: justify !important;
+    -webkit-box-align: center !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    border-top: 1px solid rgb(235, 235, 235) !important;
+    padding: 16px 24px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 16px !important;
+    line-height: 20px !important;
+}
+
+.modal-footer-button {
+    cursor: pointer !important;
+    display: inline-block !important;
+    margin: 0px !important;
+    position: relative !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    width: auto;
+    touch-action: manipulation !important;
+    font-family: Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif !important;
+    font-size: 16px !important;
+    line-height: 20px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    outline: none !important;
+    padding: 14px 24px !important;
+    transition: box-shadow 0.2s ease 0s, -ms-transform 0.1s ease 0s, -webkit-transform 0.1s ease 0s, transform 0.1s ease 0s !important;
+    border: none !important;
+    background: rgb(34, 34, 34) !important;
+    color: rgb(255, 255, 255) !important;    
+}
+
+.modal-footer-button.long {
+    width: 100% !important;
+}
+
+.modal-footer-button:hover {
+    background: rgb(0, 0, 0) !important;
+}
+
+
+
+
+
+@media only screen and (max-width: 1026px) {  
+    .modal {
+        z-index: 2000 !important;
+        position: fixed !important;
+        inset: 0px !important;
+        max-height: calc(var(--vh, 1vh) * 100) !important;
+    }
+
+    .modal-dialog {
+      height: 100% !important;
+      width: 100vw !important;
+    }
+
+    .modal-content {
+        border: 0px;
+        border-top-left-radius: 0px !important;
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+    }
+
+  
+    .modal-body {
+      height: calc(100vh - 156px) !important;
+      max-height: calc(100vh - 156px) !important;;
+      overflow-Y: auto !important;
+    }
+  
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
 }

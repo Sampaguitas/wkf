@@ -239,7 +239,7 @@ const getAll = (req, res, next) => {
                         {
                             "$project": {
                                 "parameters": 0,
-                                // "supplierNames": 0
+                                "supplierNames": 0
                             }
                         },
                         { 
@@ -358,38 +358,72 @@ const getAll = (req, res, next) => {
                             }
                         }
                     ],
-                    // "suppliers": [
-                    //     ...require("../pipelines/first_stage/stock")(myMatch, accountId),
-                    //     {
-                    //         "$unwind": "$supplierNames",
-                    //     },
-                    //     {
-                    //         "$group": {
-                    //             "_id": `$supplierNames`,
-                    //             "name": { "$first": `$supplierNames` },
-                    //         }
-                    //     },
-                    //     {
-                    //         "$sort": { "name": 1 },
-                    //     },
-                    //     {
-                    //         "$limit": 10 + (10 * page)
-                    //     },
-                    //     {
-                    //         "$skip": 10 * page
-                    //     }
-                    // ]
+                    "suppliers": [
+                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                        {
+                            "$unwind": "$supplierNames",
+                        },
+                        {
+                            "$match": {
+                                "supplierNames": { "$ne": "" }
+                            }
+                        },
+                        {
+                            "$group": {
+                                "_id": `$supplierNames`,
+                                "name": { "$first": `$supplierNames` },
+                            }
+                        },
+                        {
+                            "$sort": { "name": 1 }
+                        },
+                        {
+                            "$group": {
+                                "_id": null,
+                                "name": { "$push": `$name` },
+                            }
+                        }
+                    ]
                 }
             },
             {
                 $project: require("../pipelines/projection/result")(nextPage, pageSize)
-            }
-        ]).exec(function(error, result) {
+            },
+        ])
+        .exec(function(error, result) {
             if (!!error || !result) {
                 res.status(200).json([]);
             } else {
                 res.status(200).json(result);
             }
+        });
+    });
+}
+
+const getSup = (req, res, next) => {
+    const {dropdown, name} = req.body;
+    const {accountId} = req.user;
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
+        require("../models/Stock").aggregate([
+            ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+            {
+                "$unwind": "$supplierNames",
+            },
+            {
+                "$group": {
+                    "_id": `$supplierNames`,
+                    "name": { "$first": `$supplierNames` },
+                }
+            },
+            {
+                "$sort": { "name": 1 },
+            }
+        ]).exec(function(error, result) {
+            if (!!error || !result) {
+                res.status(200).json([])
+            } else {
+                res.status(200).json(result)
+            } 
         });
     });
 }
