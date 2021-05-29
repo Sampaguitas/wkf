@@ -230,7 +230,7 @@ const getAll = (req, res, next) => {
     const currency = req.user.currency || "EUR";
     const rate = req.user.rate || 1;
 
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier).then(myMatch => {
         require("../models/Stock").aggregate([
             {
                 $facet: {
@@ -357,32 +357,6 @@ const getAll = (req, res, next) => {
                                 
                             }
                         }
-                    ],
-                    "suppliers": [
-                        ...require("../pipelines/first_stage/stock")(myMatch, accountId),
-                        {
-                            "$unwind": "$supplierNames",
-                        },
-                        {
-                            "$match": {
-                                "supplierNames": { "$ne": "" }
-                            }
-                        },
-                        {
-                            "$group": {
-                                "_id": `$supplierNames`,
-                                "name": { "$first": `$supplierNames` },
-                            }
-                        },
-                        {
-                            "$sort": { "name": 1 }
-                        },
-                        {
-                            "$group": {
-                                "_id": null,
-                                "name": { "$push": `$name` },
-                            }
-                        }
                     ]
                 }
             },
@@ -400,40 +374,12 @@ const getAll = (req, res, next) => {
     });
 }
 
-const getSup = (req, res, next) => {
-    const {dropdown, name} = req.body;
-    const {accountId} = req.user;
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
-        require("../models/Stock").aggregate([
-            ...require("../pipelines/first_stage/stock")(myMatch, accountId),
-            {
-                "$unwind": "$supplierNames",
-            },
-            {
-                "$group": {
-                    "_id": `$supplierNames`,
-                    "name": { "$first": `$supplierNames` },
-                }
-            },
-            {
-                "$sort": { "name": 1 },
-            }
-        ]).exec(function(error, result) {
-            if (!!error || !result) {
-                res.status(200).json([])
-            } else {
-                res.status(200).json(result)
-            } 
-        });
-    });
-}
-
 const getDrop = (req, res, next) => {
     const { dropdown, name } = req.body;
     const {key} = req.params;
     let page = req.body.page || 0;
     const {accountId} = req.user
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier).then(myMatch => {
         switch(key) {
             case "stock":
                 let found = [ { "_id": true, "name": "available > 0"} ].filter(e => {
@@ -853,40 +799,40 @@ const getDrop = (req, res, next) => {
                     } 
                 });
                 break;
-            // case "supplier": 
-            // require("../models/Stock").aggregate([
-            //     ...require("../pipelines/first_stage/stock")(myMatch, accountId),
-            //     {
-            //         "$unwind": "$supplierNames",
-            //     },
-            //     {
-            //         "$match": {
-            //             "supplierNames": { "$regex": new RegExp(escape(name),"i") }
-            //         }
-            //     },
-            //     {
-            //         "$group": {
-            //             "_id": `$supplierNames`,
-            //             "name": { "$first": `$supplierNames` },
-            //         }
-            //     },
-            //     {
-            //         "$sort": { "name": 1 },
-            //     },
-            //     {
-            //         "$limit": 10 + (10 * page)
-            //     },
-            //     {
-            //         "$skip": 10 * page
-            //     }
-            // ]).exec(function(error, result) {
-            //     if (!!error || !result) {
-            //         res.status(200).json([])
-            //     } else {
-            //         res.status(200).json(result)
-            //     } 
-            // });
-            // break;
+            case "supplier": 
+            require("../models/Stock").aggregate([
+                ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                {
+                    "$unwind": "$supplierNames",
+                },
+                {
+                    "$match": {
+                        "supplierNames": { "$regex": new RegExp(escape(name),"i"), "$ne": "" }
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": `$supplierNames`,
+                        "name": { "$first": `$supplierNames` },
+                    }
+                },
+                {
+                    "$sort": { "name": 1 },
+                },
+                {
+                    "$limit": 10 + (10 * page)
+                },
+                {
+                    "$skip": 10 * page
+                }
+            ]).exec(function(error, result) {
+                if (!!error || !result) {
+                    res.status(200).json([])
+                } else {
+                    res.status(200).json(result)
+                } 
+            });
+            break;
             default: res.status(200).json([]);
         }
     });
@@ -898,7 +844,7 @@ function matchDropdown() {
     return new Promise(function(resolve) {
             if (regexOutlet.test(myArgs[8]) || myArgs[2] === "FORGED_OLETS") {
                 require("../functions/getSizeMm")(myArgs[5]).then(mm => {
-                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock"].reduce(function(acc, cur, index) {
+                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier"].reduce(function(acc, cur, index) {
                         if (!!myArgs[index]) {
                             if (["opco", "artNr"].includes(cur)) {
                                 acc[`${cur}`] = myArgs[index];
@@ -911,6 +857,8 @@ function matchDropdown() {
                                 acc["parameters.sizeThree.mm"] = { $gte: mm };
                             } else if (cur === "stock") {
                                 acc["qty"] = { "$gt": 0 };
+                            } else if (cur === "supplier") {
+                                acc["supplier.names"] = myArgs[index];
                             } else {
                                 acc[`parameters.${cur}.tags`] = myArgs[index];
                             }
@@ -919,7 +867,7 @@ function matchDropdown() {
                     },{}));
                 });
             } else {
-                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock"].reduce(function(acc, cur, index) {
+                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier"].reduce(function(acc, cur, index) {
                     if (!!myArgs[index]) {
                         if (["opco", "artNr"].includes(cur)) {
                             acc[`${cur}`] = myArgs[index];
@@ -929,6 +877,8 @@ function matchDropdown() {
                             acc["parameters.grade.steelType"] = myArgs[index];
                         } else if (cur === "stock") {
                             acc["qty"] = { "$gt": 0 };
+                        } else if (cur === "supplier") {
+                            acc["supplier.names"] = myArgs[index];
                         } else {
                             acc[`parameters.${cur}.tags`] = myArgs[index];
                         }

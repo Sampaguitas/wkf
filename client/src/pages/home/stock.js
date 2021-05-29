@@ -118,7 +118,7 @@ export default class Stock extends React.Component {
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "ArtNr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                // supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
             alert: {
@@ -140,8 +140,8 @@ export default class Stock extends React.Component {
             showArticle: false,
             menuItem: "Stock",
             settingsColWidth: {},
-            suppliers: [],
-            selectedSuppliers: [],
+            // suppliers: [],
+            // selectedSuppliers: [],
             paginate: {
                 pageSize: 0,
                 currentPage: 1,
@@ -169,7 +169,7 @@ export default class Stock extends React.Component {
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        this.generateSuppliers = this.generateSuppliers.bind(this);
+        // this.generateSuppliers = this.generateSuppliers.bind(this);
         //dropdown
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
@@ -187,7 +187,7 @@ export default class Stock extends React.Component {
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
-        this.updateSelectedSuppliers = this.updateSelectedSuppliers.bind(this);
+        // this.updateSelectedSuppliers = this.updateSelectedSuppliers.bind(this);
     }
 
     componentDidMount() {
@@ -241,7 +241,7 @@ export default class Stock extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { sort, paginate, stocks, suppliers, selectedSuppliers, selectedRows } = this.state;
+        const { sort, paginate, stocks, selectedRows } = this.state; //suppliers, selectedSuppliers, 
         
         if (sort !== prevState.sort || (paginate.pageSize !== prevState.paginate.pageSize && prevState.paginate.pageSize !== 0)) {
             this.getDocuments();
@@ -261,7 +261,7 @@ export default class Stock extends React.Component {
         if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.stock.selection._id !== prevState.params.stock.selection._id) this.getDocuments() && this.updateDisabled();
-        // if (this.state.params.supplier.selection._id !== prevState.params.supplier.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.supplier.selection._id !== prevState.params.supplier.selection._id) this.getDocuments() && this.updateDisabled();
         
         if (this.state.params.pffType.value !== prevState.params.pffType.value) this.getDropdownOptions("pffType", 0);
         if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
@@ -277,7 +277,7 @@ export default class Stock extends React.Component {
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco", 0);
         if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr", 0);
         if (this.state.params.stock.value !== prevState.params.stock.value) this.getDropdownOptions("stock", 0);
-        // if (this.state.params.supplier.value !== prevState.params.supplier.value) this.getDropdownOptions("supplier", 0);
+        if (this.state.params.supplier.value !== prevState.params.supplier.value) this.getDropdownOptions("supplier", 0);
 
         if (stocks !== prevState.stocks) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -293,18 +293,18 @@ export default class Stock extends React.Component {
             });
         }
 
-        if (suppliers !== prevState.suppliers) {
-            let remaining = selectedSuppliers.reduce(function(acc, cur) {
-                let found = suppliers.find(element => _.isEqual(element, cur));
-                if (!_.isUndefined(found)){
-                  acc.push(cur);
-                }
-                return acc;
-            }, []);
-            this.setState({
-                selectedSuppliers: remaining,
-            });
-        }
+        // if (suppliers !== prevState.suppliers) {
+        //     let remaining = selectedSuppliers.reduce(function(acc, cur) {
+        //         let found = suppliers.find(element => _.isEqual(element, cur));
+        //         if (!_.isUndefined(found)){
+        //           acc.push(cur);
+        //         }
+        //         return acc;
+        //     }, []);
+        //     this.setState({
+        //         selectedSuppliers: remaining,
+        //     });
+        // }
 
         if (selectedRows !== prevState.selectedRows) this.updateDisabled();
     }
@@ -407,7 +407,7 @@ export default class Stock extends React.Component {
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
-                            // supplier: params.supplier.selection._id,
+                            supplier: params.supplier.selection._id,
                         },
                         selectedIds: selectedRows
                     })
@@ -469,7 +469,7 @@ export default class Stock extends React.Component {
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
-                            // supplier: params.supplier.selection._id,
+                            supplier: params.supplier.selection._id,
                         },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
@@ -496,7 +496,7 @@ export default class Stock extends React.Component {
                         } else {
                             this.setState({
                                 stocks: data[0].data,
-                                suppliers: data[0].suppliers || [],
+                                // suppliers: data[0].suppliers || [],
                                 paginate: {
                                     ...paginate,
                                     ...data[0].paginate,
@@ -777,14 +777,14 @@ export default class Stock extends React.Component {
         }       
     }
 
-    updateSelectedSuppliers(id) {
-        const { selectedSuppliers } = this.state;
-        if (selectedSuppliers.includes(id)) {
-            this.setState({ selectedSuppliers: arrayRemove(selectedSuppliers, id) });
-        } else {
-          this.setState({ selectedSuppliers: [...selectedSuppliers, id] });
-        }
-    }
+    // updateSelectedSuppliers(id) {
+    //     const { selectedSuppliers } = this.state;
+    //     if (selectedSuppliers.includes(id)) {
+    //         this.setState({ selectedSuppliers: arrayRemove(selectedSuppliers, id) });
+    //     } else {
+    //       this.setState({ selectedSuppliers: [...selectedSuppliers, id] });
+    //     }
+    // }
 
     generateBody() {
         const { stocks, retrievingStocks, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
@@ -833,40 +833,36 @@ export default class Stock extends React.Component {
         return tempRows;
     }
 
-    generateSuppliers() {
-        const { suppliers, selectedsuppliers, retrievingStocks } = this.state;
-        let tempRows = [];
-        if (!retrievingStocks) {
-            suppliers.map( (supplier, index) => tempRows.push(
-            <div className="modal-body-content-section-checkbox-container" key={index}>
-                <div>
-                    <div className="modal-body-content-section-checkbox-text">{supplier}</div> 
-                </div>
-                <div className="modal-body-content-section-checkbox-checkbox-container">
+    // generateSuppliers() {
+    //     const { suppliers, selectedsuppliers, retrievingStocks } = this.state;
+    //     let tempRows = [];
+    //     if (!retrievingStocks) {
+    //         suppliers.map( (supplier, index) => tempRows.push(
+    //         <div className="modal-body-content-section-checkbox-container" key={index}>
+    //             <div>
+    //                 <div className="modal-body-content-section-checkbox-text">{supplier}</div> 
+    //             </div>
+    //             <div className="modal-body-content-section-checkbox-checkbox-container">
                     
-                </div>
+    //             </div>
                 
-            </div>));
-        } else {
-            for (let i = 0; i < 4; i++) {
-                tempRows.push(
-                    <div className="modal-body-content-section-checkbox-container" key={i}>
-                        <div>
-                            <div className="modal-body-content-section-checkbox-text"><Skeleton /></div>
-                        </div>
-                        <div className="modal-body-content-section-checkbox-checkbox-container">
+    //         </div>));
+    //     } else {
+    //         for (let i = 0; i < 4; i++) {
+    //             tempRows.push(
+    //                 <div className="modal-body-content-section-checkbox-container" key={i}>
+    //                     <div>
+    //                         <div className="modal-body-content-section-checkbox-text"><Skeleton /></div>
+    //                     </div>
+    //                     <div className="modal-body-content-section-checkbox-checkbox-container">
                     
-                        </div>
-                    </div>
-                );
-            }
-        }
-        return (
-            // <div className="row row-cols-1">
-                tempRows
-            // </div>
-        );
-    }
+    //                     </div>
+    //                 </div>
+    //             );
+    //         }
+    //     }
+    //     return (tempRows);
+    // }
 
     handleClearFields(event) {
         event.preventDefault();
@@ -890,7 +886,7 @@ export default class Stock extends React.Component {
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "Art Nr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                // supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                supplier: { value: "", placeholder: "Supplier", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
         });
@@ -921,7 +917,7 @@ export default class Stock extends React.Component {
                         opco: this.state.params.opco.selection._id,
                         artNr: this.state.params.artNr.selection._id,
                         stock: this.state.params.stock.selection._id,
-                        // supplier: this.state.params.supplier.selection._id,
+                        supplier: this.state.params.supplier.selection._id,
                     },
                     name: this.state.params[key].value,
                     page: page || 0
@@ -1256,11 +1252,11 @@ export default class Stock extends React.Component {
                     >
                         <div className="modal-body">
                             <div className="modal-body-content">
-                                <section id="parameters" className="drop-section">
+                                <section id="description" className="drop-section">
                                     <div className="modal-body-content-section-title-container">
                                         <div className="modal-body-content-section-title-row">
                                             <div className="modal-body-content-section-title">
-                                                Parameters
+                                                Item description
                                             </div>
                                         </div>
                                     </div>
@@ -1288,11 +1284,11 @@ export default class Stock extends React.Component {
                                     </div>
                                     <hr />
                                 </section>
-                                <section id="affiliates" className="drop-section">
+                                <section id="morefilters" className="drop-section">
                                     <div className="modal-body-content-section-title-container">
                                         <div className="modal-body-content-section-title-row">
                                             <div className="modal-body-content-section-title">
-                                                Affiliates
+                                                More filters
                                             </div>
                                         </div>
                                     </div>
@@ -1319,7 +1315,7 @@ export default class Stock extends React.Component {
                                         )}
                                     </div>
                                 </section>
-                                <section id="parameters" className="drop-section">
+                                {/* <section id="parameters" className="drop-section">
                                     <div className="modal-body-content-section-title-container">
                                         <div className="modal-body-content-section-title-row">
                                             <div className="modal-body-content-section-title">
@@ -1328,7 +1324,7 @@ export default class Stock extends React.Component {
                                         </div>
                                     </div>
                                     {this.generateSuppliers()}
-                                </section>
+                                </section> */}
                             </div>
                         </div>
                         

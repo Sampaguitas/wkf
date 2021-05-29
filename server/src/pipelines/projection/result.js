@@ -1,7 +1,6 @@
 module.exports = (nextPage, pageSize) => {
     return {
         "data": 1,
-        "suppliers": { "$first": "$suppliers.name" },
         "paginate": {
             "currentPage": { "$first": "$pagination.nextPage" },
             "firstItem": {
