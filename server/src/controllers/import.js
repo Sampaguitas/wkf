@@ -138,15 +138,29 @@ const uploadStock = (req, res, next) => {
     } else {
         require("../models/User")
         .findOne({ email })
-        .populate({ path: "account", populate: { path: "opcos", match: { "stockInfo.capex_file_code": opco } } })
+        .populate({
+            path: "account",
+            populate: {
+                path: "opcos",
+                match: {
+                    "stockInfo.capex_file_code": opco
+                },
+                populate: {
+                    path: "country"
+                }
+            }
+        })
         .exec(function(err, user) {
             if (!!err || !user) {
                 res.status(400).json({ message: "User not found." });
             } else if (!user.isAdmin || !user.account || !user.account.uploadKey || user.account.opcos.length === 0) { 
                 res.status(401).send("Unauthorized");
             } else {
+                let countryId = user.account.opcos[0].countryId
+                let regionId = user.account.opcos[0].country.regionId;
                 let { system, currency_cost_prices, capex_file_code } = user.account.opcos[0].stockInfo;
-                if ( !system || !currency_cost_prices || !capex_file_code ) {
+                
+                if ( !countryId || !regionId || !system || !currency_cost_prices || !capex_file_code ) {
                     res.status(400).json({ message: "Check stock information information." });
                 } else {
                     bcrypt.compare(key, user.account.uploadKey).then(isMatch => {
@@ -169,6 +183,8 @@ const uploadStock = (req, res, next) => {
                                         "system": system,
                                         "currency": currency_cost_prices,
                                         "opco": capex_file_code,
+                                        "regionId": regionId,
+                                        "countryId": countryId,
                                         "status": "pending",
                                         "createdBy": user._id,
                                         "accountId": user.accountId

@@ -14,6 +14,12 @@ const ImportSchema = new Schema({
     "opco": {
         "type": String,
     },
+    "countryId": {
+        "type": String
+    },
+    "regionId": {
+        "type": String
+    },
     "message": {
         "type": String,
     },

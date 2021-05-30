@@ -48,6 +48,12 @@ const ExportSchema = new Schema({
             },
             "stock": {
                 "type": Boolean,
+            },
+            "region": {
+                "type": String
+            },
+            "country": {
+                "type": String
             }
         },
         "sort": {

@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 var aws = require("aws-sdk");
 var path = require('path');
 
@@ -15,7 +18,7 @@ module.exports = (document) => {
     let nModified = 0;
     let nRemoved = 0;
     let rejections = [];
-    if (!document.system ||  !document.currency || !document.opco) {
+    if (!document.regionId || !document.countryId, !document.system ||  !document.currency || !document.opco) {
         require("./importReject")(document._id).then( () => resolve());
     } else {
         require("../functions/getRate")(document.currency, "EUR").then(rate => {
@@ -51,7 +54,7 @@ module.exports = (document) => {
                                 if (!Number(row[5]) && !Number(row[6])) {
                                     // myPromises.push(deleteOperation(row, document.opco, document.accountId));
                                 }  else {
-                                    myPromises.push(updateOperation(row, document.opco, document.accountId, document.system, rate));
+                                    myPromises.push(updateOperation(row, document.opco, document.accountId, document.regionId, document.countryId, document.system, rate));
                                 }
                             }
                         }
@@ -121,7 +124,7 @@ function bulkWritePromise(bulkOperations) {
     });
 }
 
-function updateOperation(row, opco, accountId, system, rate) {
+function updateOperation(row, opco, accountId, regionId, countryId, system, rate) {
     return new Promise(function(resolve) {
         let uom = require("../functions/getString")(row[10]);
         let filter = { artNr: require("../functions/getString")(row[2]), opco, accountId }
@@ -156,7 +159,9 @@ function updateOperation(row, opco, accountId, system, rate) {
                         require("./getQty")(uom, Number(row[19])),
                         require("./getQty")(uom, Number(row[20]))
                     ]
-                }
+                },
+                "regionId": ObjectId(regionId),
+                "countryId": ObjectId(countryId)
             }
         }
 
