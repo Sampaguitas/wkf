@@ -115,6 +115,8 @@ export default class Stock extends React.Component {
                 length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 _end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                region: { value: "", placeholder: "Region", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                country: { value: "", placeholder: "Country", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "ArtNr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -258,6 +260,8 @@ export default class Stock extends React.Component {
         if (this.state.params.length.selection._id !== prevState.params.length.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params._end.selection._id !== prevState.params._end.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.surface.selection._id !== prevState.params.surface.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.region.selection._id !== prevState.params.region.selection._id) this.getDocuments() && this.updateDisabled();
+        if (this.state.params.country.selection._id !== prevState.params.country.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.opco.selection._id !== prevState.params.opco.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.artNr.selection._id !== prevState.params.artNr.selection._id) this.getDocuments() && this.updateDisabled();
         if (this.state.params.stock.selection._id !== prevState.params.stock.selection._id) this.getDocuments() && this.updateDisabled();
@@ -274,6 +278,8 @@ export default class Stock extends React.Component {
         if (this.state.params.length.value !== prevState.params.length.value) this.getDropdownOptions("length", 0);
         if (this.state.params._end.value !== prevState.params._end.value) this.getDropdownOptions("_end", 0);
         if (this.state.params.surface.value !== prevState.params.surface.value) this.getDropdownOptions("surface", 0);
+        if (this.state.params.region.value !== prevState.params.region.value) this.getDropdownOptions("region", 0);
+        if (this.state.params.country.value !== prevState.params.country.value) this.getDropdownOptions("country", 0);
         if (this.state.params.opco.value !== prevState.params.opco.value) this.getDropdownOptions("opco", 0);
         if (this.state.params.artNr.value !== prevState.params.artNr.value) this.getDropdownOptions("artNr", 0);
         if (this.state.params.stock.value !== prevState.params.stock.value) this.getDropdownOptions("stock", 0);
@@ -404,6 +410,8 @@ export default class Stock extends React.Component {
                             length: params.length.selection._id,
                             end: params._end.selection._id,
                             surface: params.surface.selection._id,
+                            region: params.region.selection._id,
+                            country: params.country.selection._id,
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
@@ -466,6 +474,8 @@ export default class Stock extends React.Component {
                             length: params.length.selection._id,
                             end: params._end.selection._id,
                             surface: params.surface.selection._id,
+                            region: params.region.selection._id,
+                            country: params.country.selection._id,
                             opco: params.opco.selection._id,
                             artNr: params.artNr.selection._id,
                             stock: params.stock.selection._id,
@@ -883,6 +893,8 @@ export default class Stock extends React.Component {
                 length: { value: "", placeholder: "Length", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 _end: { value: "", placeholder: "Ends", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 surface: { value: "", placeholder: "Surface treatment", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                region: { value: "", placeholder: "Region", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                country: { value: "", placeholder: "Country", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 opco: { value: "", placeholder: "OPCO", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 artNr: { value: "", placeholder: "Art Nr", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 stock: { value: "", placeholder: "Stock", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -914,6 +926,8 @@ export default class Stock extends React.Component {
                         length: this.state.params.length.selection._id,
                         end: this.state.params._end.selection._id,
                         surface: this.state.params.surface.selection._id,
+                        region: this.state.params.region.selection._id,
+                        country: this.state.params.country.selection._id,
                         opco: this.state.params.opco.selection._id,
                         artNr: this.state.params.artNr.selection._id,
                         stock: this.state.params.stock.selection._id,

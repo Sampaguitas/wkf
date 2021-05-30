@@ -868,7 +868,7 @@ export default class Import extends React.Component {
                                             toggleDropDown={this.toggleDropDown}
                                         />
                                         <ParamSelect
-                                            key="0"
+                                            key="1"
                                             name="status"
                                             isFocused={params.status.isFocused}
                                             focused={focused}
@@ -886,7 +886,7 @@ export default class Import extends React.Component {
                                             toggleDropDown={this.toggleDropDown}
                                         />
                                         <ParamSelect
-                                            key="0"
+                                            key="2"
                                             name="user"
                                             isFocused={params.user.isFocused}
                                             focused={focused}
@@ -904,8 +904,8 @@ export default class Import extends React.Component {
                                             toggleDropDown={this.toggleDropDown}
                                         />
                                         <ParamSelect
-                                            key="0"
-                                            name="user"
+                                            key="3"
+                                            name="createdAt"
                                             isFocused={params.createdAt.isFocused}
                                             focused={focused}
                                             value={params.createdAt.value}
@@ -922,8 +922,8 @@ export default class Import extends React.Component {
                                             toggleDropDown={this.toggleDropDown}
                                         />
                                         <ParamSelect
-                                            key="0"
-                                            name="user"
+                                            key="4"
+                                            name="expiresAt"
                                             isFocused={params.expiresAt.isFocused}
                                             focused={focused}
                                             value={params.expiresAt.value}

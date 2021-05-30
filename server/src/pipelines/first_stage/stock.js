@@ -21,7 +21,9 @@ module.exports = (myMatch, accountId) => {
                 "uom": 1,
                 "gip": "$price.gip",
                 "rv": "$price.rv",
-                "parameters": 1
+                "parameters": 1,
+                "regionId": 1,
+                "countryId": 1,
             },
 
 

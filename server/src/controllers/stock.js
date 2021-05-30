@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 const escape = require("../functions/escape");
 var moment = require('moment');
 
@@ -229,8 +232,7 @@ const getAll = (req, res, next) => {
     const system = req.user.system || "METRIC";
     const currency = req.user.currency || "EUR";
     const rate = req.user.rate || 1;
-
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier, dropdown.region, dropdown.country).then(myMatch => {
         require("../models/Stock").aggregate([
             {
                 $facet: {
@@ -239,7 +241,9 @@ const getAll = (req, res, next) => {
                         {
                             "$project": {
                                 "parameters": 0,
-                                "supplierNames": 0
+                                "supplierNames": 0,
+                                "regionId": 0,
+                                "countryId": 0,
                             }
                         },
                         { 
@@ -379,7 +383,7 @@ const getDrop = (req, res, next) => {
     const {key} = req.params;
     let page = req.body.page || 0;
     const {accountId} = req.user
-    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier).then(myMatch => {
+    matchDropdown(dropdown.opco, dropdown.artNr, dropdown.pffType, dropdown.steelType, dropdown.sizeOne, dropdown.sizeTwo, dropdown.wallOne, dropdown.wallTwo, dropdown.type, dropdown.grade, dropdown.length, dropdown.end, dropdown.surface, dropdown.stock, dropdown.supplier, dropdown.region, dropdown.country).then(myMatch => {
         switch(key) {
             case "stock":
                 let found = [ { "_id": true, "name": "available > 0"} ].filter(e => {
@@ -436,6 +440,80 @@ const getDrop = (req, res, next) => {
                         "$project": {
                             "_id": 1,
                             "name": "$opco.stockInfo.name"
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    } 
+                });
+                break;
+            case "region":
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                    {
+                        "$group": {
+                            "_id": `$${key}Id`,
+                            "name": {"$first":`$$ROOT.${key}Id`},
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": "regions",
+                            "localField": "_id",
+                            "foreignField": "_id",
+                            "as": "regions"
+                        }
+                    },
+                    {
+                        "$addFields": {
+                            "region": { "$arrayElemAt": ["$regions", 0 ] }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 1,
+                            "name": "$region.name"
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    } 
+                });
+                break;
+            case "country":
+                require("../models/Stock").aggregate([
+                    ...require("../pipelines/first_stage/stock")(myMatch, accountId),
+                    {
+                        "$group": {
+                            "_id": `$${key}Id`,
+                            "name": {"$first":`$$ROOT.${key}Id`},
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": "countries",
+                            "localField": "_id",
+                            "foreignField": "_id",
+                            "as": "countries"
+                        }
+                    },
+                    {
+                        "$addFields": {
+                            "country": { "$arrayElemAt": ["$countries", 0 ] }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 1,
+                            "name": "$country.name"
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -844,7 +922,7 @@ function matchDropdown() {
     return new Promise(function(resolve) {
             if (regexOutlet.test(myArgs[8]) || myArgs[2] === "FORGED_OLETS") {
                 require("../functions/getSizeMm")(myArgs[5]).then(mm => {
-                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier"].reduce(function(acc, cur, index) {
+                    resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier", "region", "country"].reduce(function(acc, cur, index) {
                         if (!!myArgs[index]) {
                             if (["opco", "artNr"].includes(cur)) {
                                 acc[`${cur}`] = myArgs[index];
@@ -859,6 +937,8 @@ function matchDropdown() {
                                 acc["qty"] = { "$gt": 0 };
                             } else if (cur === "supplier") {
                                 acc["supplier.names"] = myArgs[index];
+                            } else if (["region", "country"].includes(cur)) {
+                                acc[`${cur}Id`] = ObjectId(myArgs[index]);
                             } else {
                                 acc[`parameters.${cur}.tags`] = myArgs[index];
                             }
@@ -867,7 +947,7 @@ function matchDropdown() {
                     },{}));
                 });
             } else {
-                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier"].reduce(function(acc, cur, index) {
+                resolve(["opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "supplier", "region", "country"].reduce(function(acc, cur, index) {
                     if (!!myArgs[index]) {
                         if (["opco", "artNr"].includes(cur)) {
                             acc[`${cur}`] = myArgs[index];
@@ -879,6 +959,8 @@ function matchDropdown() {
                             acc["qty"] = { "$gt": 0 };
                         } else if (cur === "supplier") {
                             acc["supplier.names"] = myArgs[index];
+                        } else if (["region", "country"].includes(cur)) {
+                            acc[`${cur}Id`] = ObjectId(myArgs[index]);
                         } else {
                             acc[`parameters.${cur}.tags`] = myArgs[index];
                         }

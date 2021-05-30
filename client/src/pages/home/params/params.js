@@ -34,7 +34,7 @@ export default class Params extends React.Component {
         return (
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
                 <div className="container full-height" style={{overflowY: "auto"}}>
-                <div class="row equal" style={{height: "100%"}}>
+                <div className="row equal" style={{height: "100%"}}>
                     {/* // { id: 0, title: "PFFs", href: "/pffs", icon: "cog" },
                     // { id: 0, title: "Steels", href: "/steels", icon: "cog" },
                     // { id: 0, title: "Types", href: "/types", icon: "cog" },

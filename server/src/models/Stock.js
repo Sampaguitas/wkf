@@ -85,6 +85,14 @@ const StockSchema = new Schema({
     "accountId": {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "accounts"
+    },
+    "regionId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "regions"
+    },
+    "countryId": {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "countries"
     }
 },
 {
