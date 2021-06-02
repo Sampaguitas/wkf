@@ -35,15 +35,7 @@ export default class Params extends React.Component {
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
                 <div className="container full-height" style={{overflowY: "auto"}}>
                 <div className="row equal" style={{height: "100%"}}>
-                    {/* // { id: 0, title: "PFFs", href: "/pffs", icon: "cog" },
-                    // { id: 0, title: "Steels", href: "/steels", icon: "cog" },
-                    // { id: 0, title: "Types", href: "/types", icon: "cog" },
-                    // { id: 0, title: "Grades", href: "/grades", icon: "cog" },
-                    // { id: 0, title: "Sizes", href: "/sizes", icon: "cog" },
-                    // { id: 0, title: "Walls", href: "/walls", icon: "cog" },
-                    // { id: 0, title: "Lengths", href: "/lengths", icon: "cog" },
-                    // { id: 0, title: "Surfaces", href: "/surfaces", icon: "cog" }, */}
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/pffs",
                                 }} className="navlink-card" tag="a"
@@ -52,7 +44,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/steels",
                                 }} className="navlink-card" tag="a"
@@ -61,7 +53,16 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
+                            <NavLink to={{ 
+                                    pathname: "/specs",
+                                }} className="navlink-card" tag="a"
+                            >
+                                    <span>Specs</span>
+                            </NavLink>
+                        </div>
+
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/types",
                                 }} className="navlink-card" tag="a"
@@ -70,7 +71,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/grades",
                                 }} className="navlink-card" tag="a"
@@ -79,7 +80,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/sizes",
                                 }} className="navlink-card" tag="a"
@@ -88,7 +89,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/walls",
                                 }} className="navlink-card" tag="a"
@@ -97,7 +98,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/lengths",
                                 }} className="navlink-card" tag="a"
@@ -106,7 +107,7 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
-                        <div className="col-xs-6 col-sm-3">
+                        <div className="col-xs-6 col-sm-4">
                             <NavLink to={{ 
                                     pathname: "/surfaces",
                                 }} className="navlink-card" tag="a"

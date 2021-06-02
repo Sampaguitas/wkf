@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const PffSchema = new Schema({
+const SpecSchema = new Schema({
     "name": {
         "type": String
     },
@@ -18,4 +18,4 @@ const PffSchema = new Schema({
     "timestamps": true
 });
 
-module.exports = Pff = mongoose.model("pffs", PffSchema);
+module.exports = Spec = mongoose.model("specs", SpecSchema);

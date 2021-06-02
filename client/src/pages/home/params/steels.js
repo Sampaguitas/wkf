@@ -1,11 +1,12 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
-import { saveAs } from 'file-saver';
 import authHeader from "../../../helpers/auth-header";
 import copyObject from "../../../functions/copyObject";
 import getPageSize from "../../../functions/getPageSize";
 import arrayRemove from "../../../functions/arrayRemove";
+import typeToString from "../../../functions/typeToString";
+import getDateFormat from "../../../functions/getDateFormat";
 
 import TableSelectAll from '../../../components/table-select-all';
 import TableSelectRow from '../../../components/table-select-row';
@@ -14,25 +15,28 @@ import TableData from "../../../components/table-data";
 import Layout from "../../../components/layout";
 import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
-import ParamSelect from "../../../components/param";
+import ParamSelect from "../../../components/param-select";
+import ParamInput from "../../../components/param-input";
 import _ from "lodash";
 
-export default class Pff extends React.Component {
+export default class Steels extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // element: {},
+            _id: "",
+            currentUser: {},
             elements: [],
             sort: {
                 name: "",
                 isAscending: true,
             },
             params: {
-                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
+                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
             alert: {
@@ -41,14 +45,13 @@ export default class Pff extends React.Component {
             },
             selectAllRows: false,
             selectedRows: [],
-            // exporting: false,
             retrieving: false,
-            // upserting: false,
             loading: false,
-            // loaded: false,
-            // submitted: false,
+            deleting: false,
+            upserting: false,
             showSearch: false,
-            menuItem: "Export data",
+            showSubmit: false,
+            menuItem: "Params",
             settingsColWidth: {},
             paginate: {
                 pageSize: 0,
@@ -74,21 +77,29 @@ export default class Pff extends React.Component {
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
-        this.handleDownlaod = this.handleDownlaod.bind(this);
+        // this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
         //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
+        this.toggleModalSubmit = this.toggleModalSubmit.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
+        this.handleClearValue = this.handleClearValue.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
-        this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
-        this.handleNextDropdown = this.handleNextDropdown.bind(this);
-        this.handleSelectDropdown = this.handleSelectDropdown.bind(this);
-        this.onFocusDropdown = this.onFocusDropdown.bind(this);
-        this.onHoverDropdown = this.onHoverDropdown.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleChangeInput = this.handleChangeInput.bind(this);
+        this.handleNext = this.handleNext.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
+        this.onFocus = this.onFocus.bind(this);
+        this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
         //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
+
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
+        this.handleOnclick = this.handleOnclick.bind(this);
+
     }
 
 
@@ -99,7 +110,11 @@ export default class Pff extends React.Component {
     }
 
     componentDidMount() {
+        const { paginate } = this.state;
+        let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
         // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {
@@ -124,12 +139,18 @@ export default class Pff extends React.Component {
             }
         });
 
-        this.setState({
-            paginate: {
-                ...this.state.paginate,
-                pageSize: getPageSize(tableContainer.clientHeight)
-            }
-        }, () => this.getDocuments(this.state.paginate.currentPage));
+        if (!!currentUser) {
+            this.setState({
+                currentUser: currentUser,
+                paginate: {
+                    ...paginate,
+                    pageSize: getPageSize(tableContainer.clientHeight)
+                }
+            }, () => this.getDocuments(this.state.paginate.currentPage));
+        } else {
+            localStorage.removeItem("user");
+            window.location.reload(true);
+        }
     }
 
     // componentWillUnmount() {
@@ -152,17 +173,18 @@ export default class Pff extends React.Component {
             this.getDocuments();
         }
 
-        if (this.state.params.type.selection._id !== prevState.params.type.selection._id) this.getDocuments();
-        if (this.state.params.status.selection._id !== prevState.params.status.selection._id) this.getDocuments();
-        if (this.state.params.user.selection._id !== prevState.params.user.selection._id) this.getDocuments();
+        if (this.state.params.name.selection._id !== prevState.params.name.selection._id) this.getDocuments();
+        if (this.state.params.createdBy.selection._id !== prevState.params.createdBy.selection._id) this.getDocuments();
         if (this.state.params.createdAt.selection._id !== prevState.params.createdAt.selection._id) this.getDocuments();
-        if (this.state.params.expiresAt.selection._id !== prevState.params.expiresAt.selection._id) this.getDocuments();
+        if (this.state.params.updatedBy.selection._id !== prevState.params.updatedBy.selection._id) this.getDocuments();
+        if (this.state.params.updatedAt.selection._id !== prevState.params.updatedAt.selection._id) this.getDocuments();
 
-        if (this.state.params.type.value !== prevState.params.type.value) this.getDropdownOptions("type", 0);
-        if (this.state.params.status.value !== prevState.params.status.value) this.getDropdownOptions("status", 0);
-        if (this.state.params.user.value !== prevState.params.user.value) this.getDropdownOptions("user", 0);
+
+        if (this.state.params.name.value !== prevState.params.name.value) this.getDropdownOptions("name", 0);
+        if (this.state.params.createdBy.value !== prevState.params.createdBy.value) this.getDropdownOptions("createdBy", 0);
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
-        if (this.state.params.expiresAt.value !== prevState.params.expiresAt.value) this.getDropdownOptions("expiresAt", 0);
+        if (this.state.params.updatedBy.value !== prevState.params.updatedBy.value) this.getDropdownOptions("updatedBy", 0);
+        if (this.state.params.updatedAt.value !== prevState.params.updatedAt.value) this.getDropdownOptions("updatedAt", 0);
 
         if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -243,6 +265,20 @@ export default class Pff extends React.Component {
         });
     }
 
+    toggleModalSubmit() {
+        const { showSubmit } = this.state
+        this.setState({
+            _id: "",
+            params: {
+                ...this.state.params,
+                steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+            },
+            deleting: false,
+            upserting: false,
+            showSubmit: !showSubmit
+        });
+    }
+
 
 
     getDocuments(nextPage) {
@@ -257,17 +293,17 @@ export default class Pff extends React.Component {
                     body: JSON.stringify({
                         sort: sort,
                         dropdown: {
-                            type: params.type.selection._id,
-                            status: params.status.selection._id,
-                            user: params.user.selection._id,
+                            name: params.name.selection._id,
+                            createdBy: params.createdBy.selection._id,
                             createdAt: params.createdAt.selection._id,
-                            expiresAt: params.expiresAt.selection._id,
+                            updatedBy: params.updatedBy.selection._id,
+                            updatedAt: params.updatedAt.selection._id
                         },
                         nextPage: nextPage,
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -300,6 +336,117 @@ export default class Pff extends React.Component {
                     localStorage.removeItem("user");
                     window.location.reload(true);
                 });
+            });
+        }
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        const { params, upserting } = this.state;
+        if (!upserting) {
+            this.setState({
+                upserting: true,
+            }, () => {
+                const requestOptions = {
+                    method: !!this.state._id ? "PUT" : "POST",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: params.steel_name.selection._id,
+                    })
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/${!!this.state._id ? this.state._id : ""}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        upserting: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else {
+                            this.setState({
+                                _id: "",
+                                params: {
+                                    ...this.state.params,
+                                    steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                },
+                                alert: {
+                                    type: response.status !== 200 ? "alert-danger" : "alert-success",
+                                    message: resMsg
+                                },
+                                showSubmit: false
+                            }, () => {
+                                this.getDocuments();
+                            });
+                        }
+                    });
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
+            });
+        }
+    }
+
+    handleDelete(event) {
+        event.preventDefault();
+        const { _id, deleting } = this.state;
+        if (!!_id && !deleting && !!window.confirm("Would you like to permanantly delete the entry?")) {
+            this.setState({
+                deleting: true
+            }, () => {
+                const requestOptions = {
+                    method: "DELETE",
+                    headers: authHeader()
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/${_id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    this.setState({
+                        deleting: false,
+                    }, () => {
+                        const data = text && JSON.parse(text);
+                        const resMsg = (data && data.message) || response.statusText;
+                        if (response.status === 401) {
+                            // Unauthorized
+                            localStorage.removeItem("user");
+                            window.location.reload(true);
+                        } else {
+                            this.setState({
+                                _id: "",
+                                params: {
+                                    ...this.state.params,
+                                    steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                },
+                                alert: {
+                                    type: response.status !== 200 ? "alert-danger" : "alert-success",
+                                    message: resMsg
+                                },
+                                showSubmit: false
+                            }, () => {
+                                this.getDocuments();
+                            });
+                        }
+                    });
+                }));
+            });
+        }
+    }
+
+    handleOnclick(event, _id) {
+        event.preventDefault();
+        const { elements, currentUser } = this.state;
+        let found = elements.find(element => _.isEqual(element._id, _id));
+        if (!_.isUndefined(found) && !!currentUser.isAdmin) {
+            this.setState({
+                _id,
+                params: {
+                    ...this.state.params,
+                    steel_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
+                },
+                showSubmit: true
             });
         }
     }
@@ -365,43 +512,43 @@ export default class Pff extends React.Component {
         }       
     }
 
-    handleDownlaod(event, exportId) {
-        event.preventDefault();
-        const { downloadingExport } = this.state;
-        if (!!exportId && !downloadingExport) {
-            this.setState({
-                downloadingExport: true
-            }, () => {
-                const requestOptions = {
-                    method: "GET",
-                    headers: { ...authHeader(), "Content-Type": "application/json" },
-                };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/exports/download/${exportId}`, requestOptions)
-                .then(response => {
-                    this.setState({ downloadingExport: false });
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            localStorage.removeItem('user');
-                            window.location.reload(true);
-                        } else {
-                            response.text().then(text => {
-                                const data = text && JSON.parse(text);
-                                const resMsg = (data && data.message) || response.statusText;
-                                this.setState({
-                                    alert: {
-                                        type: "alert-danger",
-                                        message: resMsg
-                                    },
-                                });
-                            });
-                        }
-                    } else {
-                        response.blob().then(blob => saveAs(blob, "export.xlsx"));
-                    }
-                });
-            });
-        }
-    }
+    // handleDownlaod(event, exportId) {
+    //     event.preventDefault();
+    //     const { downloadingExport } = this.state;
+    //     if (!!exportId && !downloadingExport) {
+    //         this.setState({
+    //             downloadingExport: true
+    //         }, () => {
+    //             const requestOptions = {
+    //                 method: "GET",
+    //                 headers: { ...authHeader(), "Content-Type": "application/json" },
+    //             };
+    //             return fetch(`${process.env.REACT_APP_API_URI}/server/steels/download/${exportId}`, requestOptions)
+    //             .then(response => {
+    //                 this.setState({ downloadingExport: false });
+    //                 if (!response.ok) {
+    //                     if (response.status === 401) {
+    //                         localStorage.removeItem('user');
+    //                         window.location.reload(true);
+    //                     } else {
+    //                         response.text().then(text => {
+    //                             const data = text && JSON.parse(text);
+    //                             const resMsg = (data && data.message) || response.statusText;
+    //                             this.setState({
+    //                                 alert: {
+    //                                     type: "alert-danger",
+    //                                     message: resMsg
+    //                                 },
+    //                             });
+    //                         });
+    //                     }
+    //                 } else {
+    //                     response.blob().then(blob => saveAs(blob, "export.xlsx"));
+    //                 }
+    //             });
+    //         });
+    //     }
+    // }
 
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
@@ -416,11 +563,11 @@ export default class Pff extends React.Component {
                             selectedRows={selectedRows}
                             callback={this.updateSelectedRows}
                         />
-                        <TableData colIndex="1" value={element.type} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="2" value={element.user} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="3" value={element.createdAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="4" value={element.expiresAtX} type="text" settingsColWidth={settingsColWidth} eventId={element._id} />
-                        <TableData colIndex="5" value={element.status} type="text" settingsColWidth={settingsColWidth} handleDownlaod={this.handleDownlaod} eventId={element._id} />
+                        <TableData colIndex="1" value={element.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="2" value={element.createdBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="3" value={element.createdAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="4" value={element.updatedBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="5" value={element.updatedAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                     </tr>
                 );
             });
@@ -450,13 +597,30 @@ export default class Pff extends React.Component {
             },
             params: {
                 ...this.state.params,
-                type: { value: "", placeholder: "Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                status: { value: "", placeholder: "Status", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                user: { value: "", placeholder: "User", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                createdAt: { value: "", placeholder: "createdAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                expiresAt: { value: "", placeholder: "expiresAt", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
+                name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
             },
             focused: "",
+        });
+    }
+
+    handleClearValue(event, name) {
+        event.preventDefault();
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: "",
+                    selection: {
+                        _id: "",
+                        name: ""
+                    }
+                }
+            }
         });
     }
 
@@ -471,17 +635,17 @@ export default class Pff extends React.Component {
                 body: JSON.stringify({
                     sort: sort,
                     dropdown: {
-                        type: this.state.params.type.selection._id,
-                        status: this.state.params.status.selection._id,
-                        user: this.state.params.user.selection._id,
+                        name: this.state.params.name.selection._id,
+                        createdBy: this.state.params.createdBy.selection._id,
                         createdAt: this.state.params.createdAt.selection._id,
-                        expiresAt: this.state.params.expiresAt.selection._id,
+                        updatedBy: this.state.params.updatedBy.selection._id,
+                        updatedAt: this.state.params.updatedAt.selection._id,
                     },
                     name: this.state.params[key].value,
                     page: page || 0
                 })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getDrop/${key}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/steels/getDrop/${key}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -508,7 +672,7 @@ export default class Pff extends React.Component {
         });
     }
 
-    handleNextDropdown(key) {
+    handleNext(key) {
         this.setState({
             params: {
                 ...this.state.params,
@@ -522,7 +686,7 @@ export default class Pff extends React.Component {
         });
     }
 
-    handleChangeDropdown(event) {
+    handleChange(event) {
         event.preventDefault();
         const { name, value } = event.target;
         this.setState({
@@ -540,7 +704,25 @@ export default class Pff extends React.Component {
         });
     }
 
-    handleSelectDropdown(event, name, selectionId, selectionName) {
+    handleChangeInput(event) {
+        event.preventDefault();
+        const { name, value } = event.target;
+        this.setState({
+            params: {
+                ...this.state.params,
+                [name]: {
+                    ...this.state.params[name],
+                    value: value,
+                    selection: {
+                        _id: value,
+                        name: value
+                    }
+                }
+            }
+        });
+    }
+
+    handleSelect(event, name, selectionId, selectionName) {
         event.preventDefault();
         this.setState({
             params: {
@@ -562,7 +744,7 @@ export default class Pff extends React.Component {
         myInput.blur();
     }
 
-    onFocusDropdown(event) {
+    onFocus(event) {
         const { name } = event.target;
         const { focused } = this.state;
         if (!!focused) {
@@ -600,7 +782,7 @@ export default class Pff extends React.Component {
         }
     }
 
-    onHoverDropdown(event, name, _id) {
+    onHover(event, name, _id) {
         event.preventDefault();
         this.setState({
             params: {
@@ -644,7 +826,7 @@ export default class Pff extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
+        const { alert, menuItem, currentUser, sort, showSearch, showSubmit, deleting, upserting, settingsColWidth, selectAllRows } = this.state;
         const { params, focused } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
@@ -659,15 +841,18 @@ export default class Pff extends React.Component {
                 }
                 <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Search" className="btn btn-sm btn-leeuwen-blue mr-2" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="search" className="fa mr-2" />Search</span>
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
-                        <button title="Refresh Page" className="btn btn-sm btn-gray mr-2" onClick={this.handleRefresh}>
+                        <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
+                        </button>
+                        <button title="Create Steel Type" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Steel</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row ml-1 mr-1" style={{ height: "calc(100% - 45px)" }}> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -678,9 +863,8 @@ export default class Pff extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="Type"
-                                                name="type"
-                                                width="80px"
+                                                title="Name"
+                                                name="name"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="1"
@@ -690,8 +874,9 @@ export default class Pff extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="User"
-                                                name="user"
+                                                title="Created By"
+                                                name="createdBy"
+                                                width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
@@ -701,7 +886,7 @@ export default class Pff extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="Date"
+                                                title="Created At"
                                                 name="createdAt"
                                                 width="80px"
                                                 sort={sort}
@@ -713,9 +898,9 @@ export default class Pff extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="Expires"
-                                                name="expiresAt"
-                                                width="80px"
+                                                title="Updated By"
+                                                name="updatedBy"
+                                                width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="4"
@@ -725,8 +910,8 @@ export default class Pff extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="Status"
-                                                name="status"
+                                                title="Updated At"
+                                                name="updatedAt"
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
@@ -759,43 +944,94 @@ export default class Pff extends React.Component {
                     <Modal
                         show={showSearch}
                         hideModal={this.toggleModalSearch}
-                        title="Search"
-                        size="modal-lg"
+                        clearModal={this.handleClearFields}
+                        title="Filters"
+                        // size="modal-lg"
                     >
-                        <section id="fields" className="drop-section">
-                            <div className="row row-cols-1 row-cols-md-2">
-                                {Object.keys(params).map(key => 
-                                    <ParamSelect
-                                        key={key}
-                                        name={key}
-                                        isFocused={params[key].isFocused}
-                                        focused={focused}
-                                        value={params[key].value}
-                                        placeholder={params[key].placeholder}
-                                        selection={params[key].selection}
-                                        options={params[key].options}
-                                        hover={this.state.params[key].hover}
-                                        page={params[key].page}
-                                        onChange={this.handleChangeDropdown}
-                                        handleNext={this.handleNextDropdown}
-                                        handleSelect={this.handleSelectDropdown}
-                                        onFocus={this.onFocusDropdown}
-                                        onHover={this.onHoverDropdown}
-                                        toggleDropDown={this.toggleDropDown}
-                                    />
-                                )}
-                            </div>
-                        </section>
-                        <div className="modal-footer">
-                            <div className="row">
-                                <button className="btn btn-sm btn-leeuwen" onClick={this.handleClearFields}>
-                                    <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Clear Fields</span>
-                                </button>
-                                <button className="btn btn-sm btn-leeuwen-blue ml-2" onClick={this.toggleModalSearch}>
-                                    <span><FontAwesomeIcon icon={"times"} className="fa mr-2" />Close</span>
-                                </button>
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                                <section id="fields" className="drop-section">
+                                    {/* <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                Fields
+                                            </div>
+                                        </div>
+                                    </div> */}
+                                    <div className="row row-cols-1">
+                                        {Object.keys(params).map((key, index) => index < 5 &&  
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                            </section>
                             </div>
                         </div>
+                        
+                        <div className="modal-footer">
+                            <button className="modal-footer-button long" onClick={this.toggleModalSearch}>Show results ({typeToString(totalItems, "number", getDateFormat())})</button>
+                        </div>
+                    </Modal>
+                    <Modal
+                        show={showSubmit}
+                        hideModal={this.toggleModalSubmit}
+                        title="Steel Type"
+                    >
+                        <div className="modal-body">
+                            <div className="modal-body-content">
+                                <section id="filters" className="drop-section">
+                                    <div className="row row-cols-1">
+                                        <ParamInput
+                                            key="0"
+                                            name="steel_name"
+                                            focused={focused}
+                                            value={params.steel_name.selection.name}
+                                            placeholder={params.steel_name.placeholder}
+                                            onChange={this.handleChangeInput}
+                                            onFocus={this.onFocus}
+                                            handleClearValue={this.handleClearValue}
+                                        />
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                        
+                        {this.state._id ?
+                            (
+                                <div className="modal-footer">
+                                    <button className="modal-footer-button red" onClick={event => this.handleDelete(event)}>
+                                        <span><FontAwesomeIcon icon={deleting ? "spinner" : "trash-alt"} className={deleting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Delete</span>
+                                    </button>
+                                    <button className="modal-footer-button" onClick={event => this.handleSubmit(event)}>
+                                        <span><FontAwesomeIcon icon={upserting ? "spinner" : "edit"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Update</span>
+                                    </button>
+                                </div>
+                            )
+                            :
+                            (
+                                <div className="modal-footer">
+                                    <button type="submit" className="modal-footer-button long" onClick={event => this.handleSubmit(event)}>
+                                        <span><FontAwesomeIcon icon={upserting ? "spinner" : "plus"} className={upserting ? "fa-pulse fa-fw fa mr-2" : "fa mr-2"} />Create</span>
+                                    </button>
+                                </div>
+                            )
+                        }
                     </Modal>
                 </div>
             </Layout>

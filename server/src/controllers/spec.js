@@ -1,11 +1,8 @@
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
-
 const getById = (req, res, next) => {
 
-    const {pffId} = req.params;
+    const {specId} = req.params;
 
-    require("../models/Pff").findById(pffId, function (err, doc) {
+    require("../models/Spec").findById(specId, function (err, doc) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!doc) {
@@ -25,11 +22,11 @@ const getAll = (req, res, next) => {
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
     matchDropdown(dropdown.name, dropdown.createdBy, dropdown.updatedBy, dropdown.createdAt, dropdown.updatedAt).then(myMatch => {
-        require("../models/Pff").aggregate([
+        require("../models/Spec").aggregate([
             {
                 $facet: {
                     "data": [
-                        ...require("../pipelines/first_stage/pff")(myMatch, format),
+                        ...require("../pipelines/first_stage/spec")(myMatch, format),
                         {
                             "$sort": {
                                 [!!sort.name ? sort.name : "name"]: sort.isAscending === false ? -1 : 1,
@@ -71,7 +68,7 @@ const getAll = (req, res, next) => {
                         }
                     ],
                     "pagination": [
-                        ...require("../pipelines/first_stage/pff")(myMatch, format),
+                        ...require("../pipelines/first_stage/spec")(myMatch, format),
                         { "$count": "totalItems" },
                         {
                             "$addFields": {
@@ -106,8 +103,8 @@ const getDrop = (req, res, next) => {
     matchDropdown(dropdown.name, dropdown.createdBy, dropdown.updatedBy, dropdown.createdAt, dropdown.updatedAt).then(myMatch => {
         switch(key) {
             case "name":
-                require("../models/Pff").aggregate([
-                    ...require("../pipelines/first_stage/pff")(myMatch, format),
+                require("../models/Spec").aggregate([
+                    ...require("../pipelines/first_stage/spec")(myMatch, format),
                     {
                         "$group": {
                             "_id": `$${key}`,
@@ -125,8 +122,8 @@ const getDrop = (req, res, next) => {
                 break;
             case "createdBy":
             case "updatedBy":
-                require("../models/Pff").aggregate([
-                    ...require("../pipelines/first_stage/pff")(myMatch, format),
+                require("../models/Spec").aggregate([
+                    ...require("../pipelines/first_stage/spec")(myMatch, format),
                     {
                         "$group": {
                             "_id": `$${key}`,
@@ -163,8 +160,8 @@ const getDrop = (req, res, next) => {
                 break;
             case "createdAt":
             case "updatedAt":
-                require("../models/Pff").aggregate([
-                    ...require("../pipelines/first_stage/pff")(myMatch, format),
+                require("../models/Spec").aggregate([
+                    ...require("../pipelines/first_stage/spec")(myMatch, format),
                     {
                         "$group": {
                             "_id": `$${key}`,
@@ -211,18 +208,18 @@ const create = (req, res, next) => {
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to create params"})
     } else if (!name) {
-        res.status(400).json({message: "PFF name cannot be emty."})
+        res.status(400).json({message: "Spec name cannot be emty."})
     } else {
-        let newPff = new require("../models/Pff")({
+        let newSpec = new require("../models/Spec")({
             "name": name,
             "createdBy": user._id,
             "updatedBy": user._id
         });
 
-        newPff
+        newSpec
         .save()
-        .then( () => res.status(200).json({message: "PFF Type has uccessfuly been created." }))
-        .catch( () => res.status(400).json({message: "PFF Type could not be created." }));
+        .then( () => res.status(200).json({message: "Spec Type has uccessfuly been created." }))
+        .catch( () => res.status(400).json({message: "Spec Type could not be created." }));
     }
 }
 
@@ -230,23 +227,23 @@ const create = (req, res, next) => {
 const update = (req, res, next) => {
         
     const user = req.user;
-    const {pffId} = req.params;
+    const {specId} = req.params;
     const { name } = req.body;
 
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to update params."})
-    } else if (!pffId) {
-        res.status(400).json({message: "PFF ID is missing."});
+    } else if (!specId) {
+        res.status(400).json({message: "Spec ID is missing."});
     } else if (!name) {
-        res.status(400).json({message: "PFF name cannot be emty."})
+        res.status(400).json({message: "Spec name cannot be emty."})
     } else {
         let update = { "name": name, "updatedBy": user._id };
         let options = { "new": true };
-        require("../models/Pff").findByIdAndUpdate(pffId, update, options, function(errPff, pff) {
-            if (!!errPff || !pff) {
-                res.status(400).json({message: "PFF Type could not be updated." });
+        require("../models/Spec").findByIdAndUpdate(specId, update, options, function(errSpec, spec) {
+            if (!!errSpec || !spec) {
+                res.status(400).json({message: "Spec Type could not be updated." });
             } else {
-                res.status(200).json({message: "PFF Type has successfuly been updated." });
+                res.status(200).json({message: "Spec  Type has successfuly been updated." });
             }
         });
     }
@@ -255,24 +252,24 @@ const update = (req, res, next) => {
 const _delete = (req, res, next) => {
         
     const user = req.user;
-    const {pffId} = req.params;
+    const {specId} = req.params;
 
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to delete params."})
-    } else if (!pffId) {
-        res.status(400).json({message: "PFF ID is missing."});
+    } else if (!specId) {
+        res.status(400).json({message: "Spec ID is missing."});
     } else {
-        require("../models/Pff").findByIdAndDelete(pffId, function(errPff, pff) {
-            if (!!errPff || !pff) {
-                res.status(400).json({message: "PFF Type could not be deleted." });
+        require("../models/Spec").findByIdAndDelete(specId, function(errSpec, spec) {
+            if (!!errSpec || !spec) {
+                res.status(400).json({message: "Spec Type could not be deleted." });
             } else {
-                res.status(200).json({message: "PFF Type has successfuly been deleted." });
+                res.status(200).json({message: "Spec Type has successfuly been deleted." });
             }
         });
     }
 }
 
-const pffController = {
+const specController = {
     getAll,
     getById,
     getDrop,
@@ -281,4 +278,4 @@ const pffController = {
     _delete
 };
 
-module.exports = pffController;
+module.exports = specController;

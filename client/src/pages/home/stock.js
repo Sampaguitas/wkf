@@ -194,7 +194,8 @@ export default class Stock extends React.Component {
 
     componentDidMount() {
         const tableContainer = document.getElementById("table-container");
-
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
         document.getElementById("stock").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
                 if (!!this.state.focused) {

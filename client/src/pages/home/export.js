@@ -102,6 +102,8 @@ export default class Export extends React.Component {
 
     componentDidMount() {
         const tableContainer = document.getElementById("table-container");
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
         // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {

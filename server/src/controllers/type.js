@@ -21,7 +21,7 @@ const getAll = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tag, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         require("../models/Type").aggregate([
             {
                 $facet: {
@@ -35,6 +35,38 @@ const getAll = (req, res, next) => {
                         },
                         { "$limit": pageSize + ((nextPage - 1) * pageSize) },
                         { "$skip": ((nextPage - 1) * pageSize) },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "localField": "createdBy",
+                                "foreignField": "_id",
+                                "as": "createdBy"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "localField": "updatedBy",
+                                "foreignField": "_id",
+                                "as": "updatedBy"
+                            }
+                        },
+                        {
+                            "$addFields": {
+                                "createdBy": { "$first": "$createdBy"},
+                                "updatedBy": { "$first": "$updatedBy"},
+                            }
+                        },
+                        {
+                            "$project": {
+                                "name": 1,
+                                "pffType": 1,
+                                "createdBy": "$createdBy.name",
+                                "updatedBy": "$updatedBy.name",
+                                "createdAt": 1,
+                                "updatedAt": 1,
+                            }
+                        }
                     ],
                     "pagination": [
                         ...require("../pipelines/first_stage/type")(myMatch, format),
@@ -69,10 +101,11 @@ const getDrop = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tag, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         switch(key) {
             case "lunar":
             case "name":
+            case "pffType":
                 require("../models/Type").aggregate([
                     ...require("../pipelines/first_stage/type")(myMatch, format),
                     {
@@ -90,17 +123,17 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
-            case "tag":
-            case "pffType":
+            case "tags":
+            case "specs":
                 require("../models/Type").aggregate([
                     ...require("../pipelines/first_stage/type")(myMatch, format),
                     {
-                        "$unwind": `$${key}s`
+                        "$unwind": `$${key}`
                     },
                     {
                         "$group": {
-                            "_id": `$${key}s`,
-                            "name": {"$first":`$$ROOT.${key}s`},
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -124,6 +157,65 @@ const getDrop = (req, res, next) => {
                     res.status(200).json(found)
                 }
                 break;
+            case "createdBy":
+            case "updatedBy":
+                require("../models/Type").aggregate([
+                    ...require("../pipelines/first_stage/type")(myMatch, format),
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": "users",
+                            "localField": `_id`,
+                            "foreignField": "_id",
+                            "as": "name"
+                        }
+                    },
+                    {
+                        "$addFields": {
+                            "name": { "$first": "$name" }
+                        }
+                    },
+                    {
+                        "$project": {
+                            "name": "$name.name"
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        console.log("error: ", error);
+                        res.status(200).json([])
+                    } else {
+                        console.log("result: ", result);
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "createdAt":
+            case "updatedAt":
+                require("../models/Type").aggregate([
+                    ...require("../pipelines/first_stage/type")(myMatch, format),
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": { "$first": `$${key}` }
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        console.log("error: ", error);
+                        res.status(200).json([])
+                    } else {
+                        console.log("result: ", result);
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             default: res.status(200).json([]);
         }
     });
@@ -133,10 +225,10 @@ function matchDropdown() {
     let myArgs = arguments;
 
     return new Promise(function(resolve) {
-        resolve(["lunar", "name", "tag", "pfftype", "isComplete", "isMultiple"].reduce(function(acc, cur, index) {
+        resolve(["lunar", "name", "tags", "specs", "pfftype", "isComplete", "isMultiple", "createdBy", "createdAt", "updatedBy", "updatedAt"].reduce(function(acc, cur, index) {
             if (myArgs[index] !== "") {
-                if (cur === "tag") {
-                    acc[`${cur}s`] = myArgs[index];
+                if (["createdBy", "updatedBy"].includes(cur)) {
+                    acc[`${cur}`] = ObjectId(myArgs[index]);
                 } else {
                     acc[`${cur}`] = myArgs[index];
                 }

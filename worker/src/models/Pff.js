@@ -2,7 +2,17 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const PffSchema = new Schema({
-    "name": String,
+    "name": {
+        "type": String
+    },
+    "createdBy": {
+        "type": mongoose.SchemaTypes.ObjectId,
+        "ref": "users"
+    },
+    "updatedBy": {
+        "type": mongoose.SchemaTypes.ObjectId,
+        "ref": "users"
+    }
 },
 {
     "timestamps": true

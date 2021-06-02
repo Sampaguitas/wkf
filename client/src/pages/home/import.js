@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
-import { saveAs } from 'file-saver';
 
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
@@ -27,6 +26,7 @@ export default class Import extends React.Component {
         super(props);
         this.state = {
             // element: {},
+            currentUser: {},
             elements: [],
             sort: {
                 name: "",
@@ -108,7 +108,10 @@ export default class Import extends React.Component {
     
 
     componentDidMount() {
+        let currentUser = JSON.parse(localStorage.getItem("user"));
         const tableContainer = document.getElementById("table-container");
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
         // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
         
         document.getElementById("import").addEventListener("click", event => {
@@ -132,13 +135,26 @@ export default class Import extends React.Component {
                 }
             }
         });
+
+        if (!!currentUser) {
+            this.setState({
+                currentUser: currentUser,
+                paginate: {
+                    ...this.state.paginate,
+                    pageSize: getPageSize(tableContainer.clientHeight)
+                }
+            }, () => this.getDocuments(this.state.paginate.currentPage));
+        } else {
+            localStorage.removeItem("user");
+            window.location.reload(true);
+        }
         
-        this.setState({
-            paginate: {
-                ...this.state.paginate,
-                pageSize: getPageSize(tableContainer.clientHeight)
-            }
-        }, () => this.getDocuments(this.state.paginate.currentPage));
+        // this.setState({
+        //     paginate: {
+        //         ...this.state.paginate,
+        //         pageSize: getPageSize(tableContainer.clientHeight)
+        //     }
+        // }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
     handleRefresh(event) {
@@ -710,9 +726,9 @@ export default class Import extends React.Component {
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
+        const { alert, menuItem, currentUser, sort, showSearch, settingsColWidth, selectAllRows } = this.state;
         const { params, focused } = this.state;
-        const { showParam, paramName, paramKey, uploadingParam, downloadingParam } = this.state;
+        const { showParam, uploadingParam } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -732,7 +748,7 @@ export default class Import extends React.Component {
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
-                        <button title="Import Params" className="btn btn-sm btn-gray" onClick={this.toggleParam}>
+                        <button title="Import Params" className="btn btn-sm btn-gray" onClick={this.toggleParam} disabled={!currentUser.isAdmin ? true : false}>
                             <span><FontAwesomeIcon icon="file-download" className="fa mr-2"/>Params</span>
                         </button>
                     </div>

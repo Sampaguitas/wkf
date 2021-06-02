@@ -187,15 +187,14 @@
 
 .modal-body {
     padding: 12px 24px !important;
-    max-height: calc(75vh - 156px); /* ///////////////////// */
+    max-height: calc(var(--vh, 1vh) * 75 - 156px); /*calc(75vh - 156px);  */
     overflow-Y: auto !important;
 }
 
 .modal-body-content {
     border-bottom: 0px !important;
     padding-top: 8px !important;
-    /* padding-bottom: 24px !important; */
-    padding-bottom: 180px !important;
+    padding-bottom: 200px !important;
 }
 
 .modal-body-content-section-title-container {
@@ -295,7 +294,8 @@
     padding: 14px 24px !important;
     transition: box-shadow 0.2s ease 0s, -ms-transform 0.1s ease 0s, -webkit-transform 0.1s ease 0s, transform 0.1s ease 0s !important;
     border: none !important;
-    background: rgb(34, 34, 34) !important;
+    /* background: rgb(34, 34, 34) !important; */
+    background:  #0070C0 !important;
     color: rgb(255, 255, 255) !important;    
 }
 
@@ -304,7 +304,23 @@
 }
 
 .modal-footer-button:hover {
-    background: rgb(0, 0, 0) !important;
+    background: #007fda !important;
+}
+
+.modal-footer-button:active {
+    background: #0f3a71 !important;
+}
+
+.modal-footer-button.red {
+    background: #A8052C !important;
+}
+
+.modal-footer-button.red:hover {
+    background: #980721 !important;
+}
+
+.modal-footer-button.red:active {
+    background: rgba(192, 10, 43, 0.5) !important;
 }
 
 
@@ -316,7 +332,7 @@
         z-index: 2000 !important;
         position: fixed !important;
         inset: 0px !important;
-        max-height: calc(var(--vh, 1vh) * 100) !important;
+        max-height: calc(var(--vh, 1vh) * 100) !important; /*calc(var(--vh, 1vh) * 100) !important; */
     }
 
     .modal-dialog {
@@ -331,12 +347,15 @@
         border-bottom-right-radius: 0px !important;
         border-bottom-left-radius: 0px !important;
     }
-
   
     .modal-body {
-      height: calc(100vh - 156px) !important;
-      max-height: calc(100vh - 156px) !important;;
+      height: calc(var(--vh, 1vh) * 100 - 156px) !important; /* calc(100vh - 156px) !important; */
+      max-height: calc(var(--vh, 1vh) * 100 - 156px) !important; /* calc(100vh - 156px) !important; */
       overflow-Y: auto !important;
+    }
+
+    .modal-body-content {
+        padding-bottom: calc(var(--vh, 1vh) * 75 - 40px) !important; /* 180px !important; */
     }
   
   }

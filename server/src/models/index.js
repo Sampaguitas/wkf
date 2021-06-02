@@ -11,6 +11,7 @@ require("./Pff");
 require("./Region");
 require("./Rpwd");
 require("./Size");
+require("./Spec");
 require("./Steel");
 require("./Stock");
 require("./Surface");
