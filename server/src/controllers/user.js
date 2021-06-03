@@ -207,7 +207,7 @@ const create = (req, res, next) => {
 
                         newUser
                         .save()
-                        .then( () => res.status(200).json({message: "User has uccessfuly been created." }))
+                        .then( () => res.status(200).json({message: "User has successfuly been created." }))
                         .catch( () => res.status(400).json({message: "User could not be created." }));
                     }
                 });

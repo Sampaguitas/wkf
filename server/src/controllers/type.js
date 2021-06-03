@@ -101,7 +101,9 @@ const getDrop = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
+
     matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pffType, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
+        
         switch(key) {
             case "type_tags":
                 require("../models/Type").aggregate([
@@ -136,6 +138,35 @@ const getDrop = (req, res, next) => {
                         res.status(200).json(result)
                     }
                 });
+                break;
+            case "type_pffType":
+                require("../models/Pff").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "type_isComplete":
+            case "type_isMultiple":
+                let foundOne = [ { "_id": true, "name": "true"}, { "_id": false, "name": "false"} ].filter(e => {
+                    let myRegex = new RegExp(escape(name));
+                    return !!name ? myRegex.test(e.name) : true;
+                });
+                if (foundOne === undefined) {
+                    res.status(200).json([]);
+                } else {
+                    res.status(200).json(foundOne);
+                }
                 break;
             case "lunar":
             case "name":
@@ -181,14 +212,14 @@ const getDrop = (req, res, next) => {
                 break;
             case "isComplete":
             case "isMultiple":
-                let found = [ { "_id": true, "name": "true"}, { "_id": false, "name": "false"} ].filter(e => {
+                let foundTwo = [ { "_id": true, "name": "true"}, { "_id": false, "name": "false"} ].filter(e => {
                     let myRegex = new RegExp(escape(name));
                     return !!name ? myRegex.test(e.name) : true;
                 });
-                if (found === undefined) {
+                if (foundTwo === undefined) {
                     res.status(200).json([])
                 } else {
-                    res.status(200).json(found)
+                    res.status(200).json(foundTwo)
                 }
                 break;
             case "createdBy":
@@ -272,10 +303,103 @@ function matchDropdown() {
     });
 }
 
+const create = (req, res, next) => {
+    
+    const user = req.user;
+    const { name, pffType, isComplete, isMultiple, lunar, tags, specs } = req.body;
+    
+    
+    if (!user.isAdmin) {
+        res.status(400).json({message: "You do not have the permission to create params"})
+    } else if (!name || !pffType || !lunar) {
+        res.status(400).json({message: "Name, PFF Type and lunar cannot be emty."})
+    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
+        res.status(400).json({message: "Wrong lunar format."})
+    } else {
+        if (!tags.includes(name)) tags.push(name);
+        let newType = new require("../models/Type")({
+            "name": name,
+            "pffType": pffType,
+            "isComplete": isComplete || false,
+            "isMultiple": isMultiple || false,
+            "lunar": lunar.toUpperCase(),
+            "tags": tags,
+            "specs": specs,
+            "createdBy": user._id,
+            "updatedBy": user._id
+        });
+
+        newType
+        .save()
+        .then( () => res.status(200).json({message: "Type has successfuly been created." }))
+        .catch( () => res.status(400).json({message: "Type could not be created." }));
+    }
+}
+
+
+const update = (req, res, next) => {
+        
+    const user = req.user;
+    const {typeId} = req.params;
+    const { name, pffType, isComplete, isMultiple, lunar, tags, specs } = req.body;
+
+    if (!user.isAdmin) {
+        res.status(400).json({message: "You do not have the permission to update params."})
+    } else if (!typeId) {
+        res.status(400).json({message: "Type ID is missing."});
+    } else if (!name || !pffType || !lunar) {
+        res.status(400).json({message: "Name, PFF Type and lunar cannot be emty."});
+    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
+        res.status(400).json({message: "Wrong lunar format."})
+    } else {
+        let update = {
+            "name": name,
+            "pffType": pffType,
+            "isComplete": isComplete || false,
+            "isMultiple": isMultiple || false,
+            "lunar": lunar.toUpperCase(),
+            "tags": tags,
+            "specs": specs,
+            "updatedBy": user._id
+        };
+        let options = { "new": true };
+        require("../models/Type").findByIdAndUpdate(typeId, update, options, function(errType, type) {
+            if (!!errType || !type) {
+                res.status(400).json({message: "Type could not be updated." });
+            } else {
+                res.status(200).json({message: "Type has successfuly been updated." });
+            }
+        });
+    }
+}
+
+const _delete = (req, res, next) => {
+        
+    const user = req.user;
+    const {typeId} = req.params;
+
+    if (!user.isAdmin) {
+        res.status(400).json({message: "You do not have the permission to delete params."})
+    } else if (!typeId) {
+        res.status(400).json({message: "Type ID is missing."});
+    } else {
+        require("../models/Type").findByIdAndDelete(typeId, function(errType, type) {
+            if (!!errType || !type) {
+                res.status(400).json({message: "Type could not be deleted." });
+            } else {
+                res.status(200).json({message: "Type has successfuly been deleted." });
+            }
+        });
+    }
+}
+
 const typeController = {
     getAll,
     getById,
-    getDrop
+    getDrop,
+    create,
+    update,
+    _delete
 };
 
 module.exports = typeController;

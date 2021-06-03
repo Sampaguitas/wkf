@@ -214,6 +214,8 @@ export default class Types extends React.Component {
         if (this.state.params.updatedBy.value !== prevState.params.updatedBy.value) this.getDropdownOptions("updatedBy", 0);
         if (this.state.params.updatedAt.value !== prevState.params.updatedAt.value) this.getDropdownOptions("updatedAt", 0);
         if (this.state.params.type_tags.value !== prevState.params.type_tags.value) this.getDropdownOptions("type_tags", 0);
+        if (this.state.params.type_isComplete.value !== prevState.params.type_isComplete.value) this.getDropdownOptions("type_isComplete", 0);
+        if (this.state.params.type_isMultiple.value !== prevState.params.type_isMultiple.value) this.getDropdownOptions("type_isMultiple", 0);
         if (this.state.params.type_specs.value !== prevState.params.type_specs.value) this.getDropdownOptions("type_specs", 0);
 
         if (elements !== prevState.elements) {

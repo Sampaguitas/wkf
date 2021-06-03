@@ -218,7 +218,7 @@ const create = (req, res, next) => {
 
         newSpec
         .save()
-        .then( () => res.status(200).json({message: "Spec Type has uccessfuly been created." }))
+        .then( () => res.status(200).json({message: "Spec Type has successfuly been created." }))
         .catch( () => res.status(400).json({message: "Spec Type could not be created." }));
     }
 }

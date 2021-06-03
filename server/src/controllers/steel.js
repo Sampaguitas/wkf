@@ -218,7 +218,7 @@ const create = (req, res, next) => {
 
         newSteel
         .save()
-        .then( () => res.status(200).json({message: "Steel Type has uccessfuly been created." }))
+        .then( () => res.status(200).json({message: "Steel Type has successfuly been created." }))
         .catch( () => res.status(400).json({message: "Steel Type could not be created." }));
     }
 }
