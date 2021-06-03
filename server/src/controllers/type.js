@@ -21,7 +21,7 @@ const getAll = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pffType, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         require("../models/Type").aggregate([
             {
                 $facet: {
@@ -101,8 +101,42 @@ const getDrop = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pfftype, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.specs, dropdown.pffType, dropdown.isComplete, dropdown.isMultiple, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         switch(key) {
+            case "type_tags":
+                require("../models/Type").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "type_specs":
+                require("../models/Spec").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             case "lunar":
             case "name":
             case "pffType":
@@ -225,7 +259,7 @@ function matchDropdown() {
     let myArgs = arguments;
 
     return new Promise(function(resolve) {
-        resolve(["lunar", "name", "tags", "specs", "pfftype", "isComplete", "isMultiple", "createdBy", "createdAt", "updatedBy", "updatedAt"].reduce(function(acc, cur, index) {
+        resolve(["lunar", "name", "tags", "specs", "pffType", "isComplete", "isMultiple", "createdBy", "createdAt", "updatedBy", "updatedAt"].reduce(function(acc, cur, index) {
             if (myArgs[index] !== "") {
                 if (["createdBy", "updatedBy"].includes(cur)) {
                     acc[`${cur}`] = ObjectId(myArgs[index]);

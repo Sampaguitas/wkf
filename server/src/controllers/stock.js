@@ -10,12 +10,28 @@ const _export = (req, res, next) => {
     const { type } = req.params;
     const user = req.user;
     const { sort, dropdown, selectedIds } = req.body;
-
     if (["stocks", "params"].includes(type)) {
         let newExport = new require("../models/Export")({
             type,
             stockFilters: {
-                dropdown,
+                dropdown: {
+                    opco: dropdown.opco,
+                    artNr: dropdown.artNr,
+                    pffType: dropdown.pffType,
+                    steelType: dropdown.steelType,
+                    sizeOne: dropdown.sizeOne,
+                    sizeTwo: dropdown.sizeTwo,
+                    wallOne: dropdown.wallOne,
+                    wallTwo: dropdown.wallTwo,
+                    type: dropdown.type,
+                    grade: dropdown.grade,
+                    length: dropdown.length,
+                    end: dropdown.end,
+                    surface: dropdown.surface,
+                    stock: !!dropdown.stock,
+                    region: dropdown.region,
+                    country: dropdown.country
+                },
                 sort,
                 selectedIds
             },

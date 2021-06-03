@@ -17,6 +17,7 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
+import ParamTag from "../../../components/param-tag";
 import _ from "lodash";
 
 export default class Types extends React.Component {
@@ -37,7 +38,7 @@ export default class Types extends React.Component {
                 isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -48,7 +49,7 @@ export default class Types extends React.Component {
                 type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 type_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 type_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-                type_specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
             },
             focused: "",
             alert: {
@@ -58,6 +59,7 @@ export default class Types extends React.Component {
             selectAllRows: false,
             selectedRows: [],
             retrieving: false,
+            retrievingElement: false,
             loading: false,
             deleting: false,
             upserting: false,
@@ -111,6 +113,9 @@ export default class Types extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleOnclick = this.handleOnclick.bind(this);
+
+        this.addTag = this.addTag.bind(this);
+        this.removeTag = this.removeTag.bind(this);
 
     }
 
@@ -208,6 +213,8 @@ export default class Types extends React.Component {
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
         if (this.state.params.updatedBy.value !== prevState.params.updatedBy.value) this.getDropdownOptions("updatedBy", 0);
         if (this.state.params.updatedAt.value !== prevState.params.updatedAt.value) this.getDropdownOptions("updatedAt", 0);
+        if (this.state.params.type_tags.value !== prevState.params.type_tags.value) this.getDropdownOptions("type_tags", 0);
+        if (this.state.params.type_specs.value !== prevState.params.type_specs.value) this.getDropdownOptions("type_specs", 0);
 
         if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -300,7 +307,7 @@ export default class Types extends React.Component {
                 type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 type_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 type_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-                type_specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
             },
             deleting: false,
             upserting: false,
@@ -417,7 +424,7 @@ export default class Types extends React.Component {
                                     type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     type_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     type_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-                                    type_specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                                    type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                 },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
@@ -471,7 +478,7 @@ export default class Types extends React.Component {
                                     type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     type_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     type_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-                                    type_specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                                    type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                 },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
@@ -488,24 +495,87 @@ export default class Types extends React.Component {
         }
     }
 
+    // handleOnclick(event, _id) {
+    //     event.preventDefault();
+    //     const { elements, currentUser } = this.state;
+    //     let found = elements.find(element => _.isEqual(element._id, _id));
+    //     if (!_.isUndefined(found) && !!currentUser.isAdmin) {
+    //         this.setState({
+    //             _id,
+    //             params: {
+    //                 ...this.state.params,
+    //                 type_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
+    //                 type_pffType: { value: "", placeholder: "PFF Type", selection: { _id: found.pffType, name: found.pffType}, options: [], hover: "", page: 0 },
+    //                 type_isComplete: { value: found.isComplete, placeholder: "Is Complete", selection: { _id: found.isComplete, name: !found.isComplete ? "false" : "true" }, options: [], hover: "", page: 0 },
+    //                 type_isMultiple: { value: found.isMultiple, placeholder: "Is Multiple", selection: { _id: found.isMultiple, name: !found.isMultiple ? "false": "true" }, options: [], hover: "", page: 0 },
+    //                 type_lunar: { value: found.lunar, placeholder: "vLunar", selection: { _id: found.lunar, name: found.lunar}, options: [], hover: "", page: 0 },
+    //                 type_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+    //                 type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+    //             },
+    //             showSubmit: true
+    //         });
+    //     }
+    // }
+
     handleOnclick(event, _id) {
         event.preventDefault();
-        const { elements, currentUser } = this.state;
-        let found = elements.find(element => _.isEqual(element._id, _id));
-        if (!_.isUndefined(found) && !!currentUser.isAdmin) {
+        const { currentUser } = this.state;
+        if (!!currentUser.isAdmin) {
             this.setState({
                 _id,
                 params: {
                     ...this.state.params,
-                    type_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
-                    type_pffType: { value: found.pffType, placeholder: "PFF Type", selection: { _id: found.pffType, name: found.pffType}, options: [], hover: "", page: 0 },
-                    type_isComplete: { value: found.isComplete, placeholder: "Is Complete", selection: { _id: found.isComplete, name: found.isComplete}, options: [], hover: "", page: 0 },
-                    type_isMultiple: { value: found.isMultiple, placeholder: "Is Multiple", selection: { _id: found.isMultiple, name: found.isMultiple}, options: [], hover: "", page: 0 },
-                    type_lunar: { value: found.lunar, placeholder: "vLunar", selection: { _id: found.lunar, name: found.lunar}, options: [], hover: "", page: 0 },
+                    type_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    type_pffType: { value: "", placeholder: "PFF Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    type_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: "" }, options: [], hover: "", page: 0 },
+                    type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: "" }, options: [], hover: "", page: 0 },
+                    type_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                     type_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-                    type_specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                    type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                 },
+                retrievingElement: true,
                 showSubmit: true
+            }, () => {
+                const requestOptions = {
+                    method: "GET",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/types/${_id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    const data = text && JSON.parse(text);
+                    const resMsg = (data && data.message) || response.statusText;
+                    if (response.status === 401) {
+                        // Unauthorized
+                        localStorage.removeItem("user");
+                        window.location.reload(true);
+                    } else if (response.status !== 200) {
+                        this.setState({
+                            alert: {
+                                type: "alert-danger",
+                                message: resMsg,
+                                retrievingElement: false
+                            }
+                        });
+                    } else {
+                        this.setState({
+                            params: {
+                                ...this.state.params,
+                                type_name: { value: data.doc.name || "", placeholder: "Name", selection: { _id: data.doc.name || "", name: data.doc.name || ""}, options: [], hover: "", page: 0 },
+                                type_pffType: { value: "", placeholder: "PFF Type", selection: { _id: data.doc.pffType, name: data.doc.pffType}, options: [], hover: "", page: 0 },
+                                type_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: data.doc.isComplete, name: !data.doc.isComplete ? "false" : "true" }, options: [], hover: "", page: 0 },
+                                type_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: data.doc.isMultiple, name: !data.doc.isMultiple ? "false" : "true" }, options: [], hover: "", page: 0 },
+                                type_lunar: { value: data.doc.lunar, placeholder: "vLunar", selection: { _id: data.doc.lunar, name: data.doc.lunar}, options: [], hover: "", page: 0 },
+                                type_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.tags] },
+                                type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.specs] },
+                            },
+                            retrievingElement: false,
+                        });
+                    }
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
             });
         }
     }
@@ -664,7 +734,7 @@ export default class Types extends React.Component {
                 isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                specs: { value: "", placeholder: "Specifications", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -897,10 +967,45 @@ export default class Types extends React.Component {
         }
     }
 
+    addTag(event, name, selectionId) {
+        event.preventDefault();
+        if (!!selectionId && !this.state.params[name].selectionArray.includes(selectionId)) {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        selectionArray: [...this.state.params[name].selectionArray, selectionId],
+                        value: "",
+                        selection: {
+                            _id: "",
+                            name: ""
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    removeTag(event, name, tagId) {
+        event.preventDefault();
+        if (!!tagId) {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        selectionArray: arrayRemove(this.state.params[name].selectionArray, tagId)
+                    }
+                }
+            });
+        }
+    }
+
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, currentUser, sort, showSearch, showSubmit, deleting, upserting, settingsColWidth, selectAllRows } = this.state;
-        const { params, focused } = this.state;
+        const { params, focused, retrievingElement } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -1079,22 +1184,152 @@ export default class Types extends React.Component {
                         title="Article Type"
                     >
                         <div className="modal-body">
-                            <div className="modal-body-content">
-                                <section id="filters" className="drop-section">
-                                    <div className="row row-cols-1">
-                                        <ParamInput
-                                            key="0"
-                                            name="type_name"
-                                            focused={focused}
-                                            value={params.type_name.selection.name}
-                                            placeholder={params.type_name.placeholder}
-                                            onChange={this.handleChangeInput}
-                                            onFocus={this.onFocus}
-                                            handleClearValue={this.handleClearValue}
-                                        />
-                                    </div>
-                                </section>
-                            </div>
+                            {!this.state.retrievingElement ?
+                                (
+                                    <div className="modal-body-content">
+                                        <section id="singles" className="drop-section">
+                                            <div className="row row-cols-1">
+                                                <ParamInput
+                                                    key="0"
+                                                    name="type_name"
+                                                    focused={focused}
+                                                    value={params.type_name.selection.name}
+                                                    placeholder={params.type_name.placeholder}
+                                                    onChange={this.handleChangeInput}
+                                                    onFocus={this.onFocus}
+                                                    handleClearValue={this.handleClearValue}
+                                                />
+                                                <ParamSelect
+                                                    key="1"
+                                                    name="type_pffType"
+                                                    isFocused={params.type_pffType.isFocused}
+                                                    focused={focused}
+                                                    value={params.type_pffType.value}
+                                                    placeholder={params.type_pffType.placeholder}
+                                                    selection={params.type_pffType.selection}
+                                                    options={params.type_pffType.options}
+                                                    hover={this.state.params.type_pffType.hover}
+                                                    page={params.type_pffType.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamSelect
+                                                    key="2"
+                                                    name="type_isComplete"
+                                                    isFocused={params.type_isComplete.isFocused}
+                                                    focused={focused}
+                                                    value={params.type_isComplete.value}
+                                                    placeholder={params.type_isComplete.placeholder}
+                                                    selection={params.type_isComplete.selection}
+                                                    options={params.type_isComplete.options}
+                                                    hover={this.state.params.type_isComplete.hover}
+                                                    page={params.type_isComplete.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamSelect
+                                                    key="3"
+                                                    name="type_isMultiple"
+                                                    isFocused={params.type_isMultiple.isFocused}
+                                                    focused={focused}
+                                                    value={params.type_isMultiple.value}
+                                                    placeholder={params.type_isMultiple.placeholder}
+                                                    selection={params.type_isMultiple.selection}
+                                                    options={params.type_isMultiple.options}
+                                                    hover={this.state.params.type_isMultiple.hover}
+                                                    page={params.type_isMultiple.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamInput
+                                                    key="4"
+                                                    name="type_lunar"
+                                                    focused={focused}
+                                                    value={params.type_lunar.selection.name}
+                                                    placeholder={params.type_lunar.placeholder}
+                                                    onChange={this.handleChangeInput}
+                                                    onFocus={this.onFocus}
+                                                    handleClearValue={this.handleClearValue}
+                                                />
+                                            </div>
+                                        </section>
+                                        <section id="tags" className="drop-section">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        Tags
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ParamTag
+                                                key="3"
+                                                name="type_tags"
+                                                object={params.type_tags}
+                                                focused={focused}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                                addTag={this.addTag}
+                                                removeTag={this.removeTag}
+                                            />
+                                            <hr />
+                                        </section>
+                                        <section id="specs" className="drop-section">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        Specs
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ParamTag
+                                                key="3"
+                                                name="type_specs"
+                                                object={params.type_specs}
+                                                focused={focused}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                                addTag={this.addTag}
+                                                removeTag={this.removeTag}
+                                            />
+                                            <hr />
+                                        </section>
+                                    </div>   
+                                )
+                                :
+                                (
+                                    <div className="modal-body-content">
+                                        <section id="singles" className="drop-section">
+                                            <div className="row row-cols-1">
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                            </div>
+                                        </section>
+                                    </div>  
+                                )
+                            }
                         </div>
                         
                         {this.state._id ?

@@ -160,6 +160,9 @@
     z-index: 2;
 }
 
+.drop-p>input {
+    color: #656565 !important;
+}
 
 .drop-mdb-icon>svg {
     --size: var(--icon-size, 24px);
@@ -182,7 +185,7 @@
     padding:0 5px;
     margin:0;
     line-height:38px;
-    /* color: #656565; */
+    color: #656565;
 }
 
 label.form-control.drop-file {
