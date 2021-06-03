@@ -316,7 +316,9 @@ const create = (req, res, next) => {
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
+        
         if (!tags.includes(name)) tags.push(name);
+
         let newType = new require("../models/Type")({
             "name": name,
             "pffType": pffType,
@@ -352,6 +354,9 @@ const update = (req, res, next) => {
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
+
+        if (!tags.includes(name)) tags.push(name);
+        
         let update = {
             "name": name,
             "pffType": pffType,

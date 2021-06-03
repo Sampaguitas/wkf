@@ -1297,7 +1297,7 @@ export default class Stock extends React.Component {
                                             />
                                         )}
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                                 <section id="morefilters" className="drop-section">
                                     <div className="modal-body-content-section-title-container">
@@ -1405,7 +1405,7 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1449,7 +1449,7 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1481,7 +1481,7 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1513,7 +1513,7 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1569,7 +1569,7 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <hr />
+                                    {/* <hr /> */}
                                 </section>
                             </div>
                         </div>

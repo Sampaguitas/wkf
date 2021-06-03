@@ -1266,6 +1266,7 @@ export default class Types extends React.Component {
                                                     handleClearValue={this.handleClearValue}
                                                 />
                                             </div>
+                                            {/* <hr /> */}
                                         </section>
                                         <section id="tags" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1289,7 +1290,7 @@ export default class Types extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            <hr />
+                                            {/* <hr /> */}
                                         </section>
                                         <section id="specs" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1313,7 +1314,7 @@ export default class Types extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            <hr />
+                                            {/* <hr /> */}
                                         </section>
                                     </div>   
                                 )
