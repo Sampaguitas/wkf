@@ -112,7 +112,7 @@ export default class Params extends React.Component {
                                     pathname: "/surfaces",
                                 }} className="navlink-card" tag="a"
                             >
-                                    <span>Surfaces</span>
+                                    <span>Coatings</span>
                             </NavLink>
                         </div>
 

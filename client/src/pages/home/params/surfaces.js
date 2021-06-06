@@ -963,8 +963,8 @@ export default class Surfaces extends React.Component {
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
-                        <button title="Create Grade" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Grade</span>
+                        <button title="Create Coating" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Coating</span>
                         </button>
                     </div>
                     <div className="body-section">
@@ -1138,7 +1138,7 @@ export default class Surfaces extends React.Component {
                     <Modal
                         show={showSubmit}
                         hideModal={this.toggleModalSubmit}
-                        title="Article Type"
+                        title="Coating"
                         size="modal-lg"
                     >
                         <div className="modal-body">

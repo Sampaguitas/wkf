@@ -1216,7 +1216,7 @@ export default class Grades extends React.Component {
                     <Modal
                         show={showSubmit}
                         hideModal={this.toggleModalSubmit}
-                        title="Article Type"
+                        title="Grade"
                         size="modal-lg"
                     >
                         <div className="modal-body">
