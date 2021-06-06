@@ -22,6 +22,7 @@ import Specs from "../pages/home/params/specs";
 import Steels from "../pages/home/params/steels";
 import Types from "../pages/home/params/types";
 import Grades from "../pages/home/params/grades";
+import Surfaces from "../pages/home/params/surfaces";
 
 
 library.add(fas, far, fal);
@@ -91,6 +92,9 @@ export default class App extends React.Component {
               </PrivateRoute>
               <PrivateRoute exact path="/grades" user={user}>
                 <Grades user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/surfaces" user={user}>
+                <Surfaces user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
               <Route path="*">
                 <NotFound />

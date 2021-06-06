@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 const getById = (req, res, next) => {
 
     const {surfaceId} = req.params;
@@ -268,7 +271,7 @@ const create = (req, res, next) => {
         res.status(400).json({message: "You do not have the permission to create params"})
     } else if (!name || !pffTypes || pffTypes.length < 1 || !lunar) {
         res.status(400).json({message: "Name, PFF Types and lunar cannot be emty."})
-    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 6) {
+    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 2) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
         
@@ -303,7 +306,7 @@ const update = (req, res, next) => {
         res.status(400).json({message: "Surface ID is missing."});
     } else if (!lunar || !name || !pffTypes || pffTypes.length < 1) {
         res.status(400).json({message: "Name, PFF Types and lunar cannot be emty."});
-    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 6) {
+    } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 2) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
 
