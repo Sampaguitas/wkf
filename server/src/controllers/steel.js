@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 const getById = (req, res, next) => {
 
     const {steelId} = req.params;
@@ -144,6 +147,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$project": {
+                            "_id": 1,
                             "name": "$name.name"
                         }
                     },

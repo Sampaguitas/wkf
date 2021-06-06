@@ -147,6 +147,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$project": {
+                            "_id": 1,
                             "name": "$name.name"
                         }
                     },

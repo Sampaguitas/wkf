@@ -946,20 +946,20 @@ export default class Specs extends React.Component {
                         hideModal={this.toggleModalSearch}
                         clearModal={this.handleClearFields}
                         title="Filters"
-                        // size="modal-lg"
+                        size="modal-lg"
                     >
                         <div className="modal-body">
                             <div className="modal-body-content">
                                 <section id="fields" className="drop-section">
-                                    {/* <div className="modal-body-content-section-title-container">
+                                    <div className="modal-body-content-section-title-container">
                                         <div className="modal-body-content-section-title-row">
                                             <div className="modal-body-content-section-title">
                                                 Fields
                                             </div>
                                         </div>
-                                    </div> */}
+                                    </div>
                                     <div className="row row-cols-1">
-                                        {Object.keys(params).map((key, index) => index < 5 &&  
+                                        {Object.keys(params).map((key, index) => index < 1 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -980,7 +980,38 @@ export default class Specs extends React.Component {
                                             />
                                         )}
                                     </div>
-                            </section>
+                                </section>
+                                <section id="morefilters" className="drop-section">
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                More filters
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index > 0 && index < 5 &&  
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                                </section>
                             </div>
                         </div>
                         

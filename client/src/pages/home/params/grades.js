@@ -17,9 +17,10 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
+import ParamTag from "../../../components/param-tag";
 import _ from "lodash";
 
-export default class Steels extends React.Component {
+export default class Grades extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -32,11 +33,23 @@ export default class Steels extends React.Component {
             },
             params: {
                 name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "SteelType", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
+                grade_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
             },
             focused: "",
             alert: {
@@ -46,6 +59,7 @@ export default class Steels extends React.Component {
             selectAllRows: false,
             selectedRows: [],
             retrieving: false,
+            retrievingElement: false,
             loading: false,
             deleting: false,
             upserting: false,
@@ -99,6 +113,9 @@ export default class Steels extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleOnclick = this.handleOnclick.bind(this);
+
+        this.addTag = this.addTag.bind(this);
+        this.removeTag = this.removeTag.bind(this);
 
     }
 
@@ -174,17 +191,34 @@ export default class Steels extends React.Component {
         }
 
         if (this.state.params.name.selection._id !== prevState.params.name.selection._id) this.getDocuments();
+        if (this.state.params.steelType.selection._id !== prevState.params.steelType.selection._id) this.getDocuments();
+        if (this.state.params.isComplete.selection._id !== prevState.params.isComplete.selection._id) this.getDocuments();
+        if (this.state.params.isMultiple.selection._id !== prevState.params.isMultiple.selection._id) this.getDocuments();
+        if (this.state.params.lunar.selection._id !== prevState.params.lunar.selection._id) this.getDocuments();
+        if (this.state.params.tags.selection._id !== prevState.params.tags.selection._id) this.getDocuments();
+        if (this.state.params.pffTypes.selection._id !== prevState.params.pffTypes.selection._id) this.getDocuments();
         if (this.state.params.createdBy.selection._id !== prevState.params.createdBy.selection._id) this.getDocuments();
         if (this.state.params.createdAt.selection._id !== prevState.params.createdAt.selection._id) this.getDocuments();
         if (this.state.params.updatedBy.selection._id !== prevState.params.updatedBy.selection._id) this.getDocuments();
         if (this.state.params.updatedAt.selection._id !== prevState.params.updatedAt.selection._id) this.getDocuments();
 
-
         if (this.state.params.name.value !== prevState.params.name.value) this.getDropdownOptions("name", 0);
+        if (this.state.params.steelType.value !== prevState.params.steelType.value) this.getDropdownOptions("steelType", 0);
+        if (this.state.params.isComplete.value !== prevState.params.isComplete.value) this.getDropdownOptions("isComplete", 0);
+        if (this.state.params.isMultiple.value !== prevState.params.isMultiple.value) this.getDropdownOptions("isMultiple", 0);
+        if (this.state.params.lunar.value !== prevState.params.lunar.value) this.getDropdownOptions("lunar", 0);
+        if (this.state.params.tags.value !== prevState.params.tags.value) this.getDropdownOptions("tags", 0);
+        if (this.state.params.pffTypes.value !== prevState.params.pffTypes.value) this.getDropdownOptions("pffTypes", 0);
         if (this.state.params.createdBy.value !== prevState.params.createdBy.value) this.getDropdownOptions("createdBy", 0);
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
         if (this.state.params.updatedBy.value !== prevState.params.updatedBy.value) this.getDropdownOptions("updatedBy", 0);
         if (this.state.params.updatedAt.value !== prevState.params.updatedAt.value) this.getDropdownOptions("updatedAt", 0);
+
+        if (this.state.params.grade_steelType.value !== prevState.params.grade_steelType.value) this.getDropdownOptions("grade_steelType", 0);
+        if (this.state.params.grade_tags.value !== prevState.params.grade_tags.value) this.getDropdownOptions("grade_tags", 0);
+        if (this.state.params.grade_isComplete.value !== prevState.params.grade_isComplete.value) this.getDropdownOptions("grade_isComplete", 0);
+        if (this.state.params.grade_isMultiple.value !== prevState.params.grade_isMultiple.value) this.getDropdownOptions("grade_isMultiple", 0);
+        if (this.state.params.grade_pffTypes.value !== prevState.params.grade_pffTypes.value) this.getDropdownOptions("grade_pffTypes", 0);
 
         if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -271,7 +305,13 @@ export default class Steels extends React.Component {
             _id: "",
             params: {
                 ...this.state.params,
-                steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
             },
             deleting: false,
             upserting: false,
@@ -294,6 +334,12 @@ export default class Steels extends React.Component {
                         sort: sort,
                         dropdown: {
                             name: params.name.selection._id,
+                            steelType: params.steelType.selection._id,
+                            isComplete: params.isComplete.selection._id,
+                            isMultiple: params.isMultiple.selection._id,
+                            lunar: params.lunar.selection._id,
+                            tags: params.tags.selection._id,
+                            pffTypes: params.pffTypes.selection._id,
                             createdBy: params.createdBy.selection._id,
                             createdAt: params.createdAt.selection._id,
                             updatedBy: params.updatedBy.selection._id,
@@ -303,7 +349,7 @@ export default class Steels extends React.Component {
                         pageSize: paginate.pageSize
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/getAll`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/grades/getAll`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         retrieving: false,
@@ -351,10 +397,16 @@ export default class Steels extends React.Component {
                     method: !!this.state._id ? "PUT" : "POST",
                     headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        name: params.steel_name.selection._id,
+                        name: params.grade_name.selection._id,
+                        steelType: params.grade_steelType.selection._id,
+                        isComplete: params.grade_isComplete.selection._id,
+                        isMultiple: params.grade_isMultiple.selection._id,
+                        lunar: params.grade_lunar.selection._id,
+                        tags: params.grade_tags.selectionArray,
+                        pffTypes: params.grade_pffTypes.selectionArray,
                     })
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/${!!this.state._id ? this.state._id : ""}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/grades/${!!this.state._id ? this.state._id : ""}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         upserting: false,
@@ -370,7 +422,13 @@ export default class Steels extends React.Component {
                                 _id: "",
                                 params: {
                                     ...this.state.params,
-                                    steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                                    grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                 },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
@@ -402,7 +460,7 @@ export default class Steels extends React.Component {
                     method: "DELETE",
                     headers: authHeader()
                 };
-                return fetch(`${process.env.REACT_APP_API_URI}/server/steels/${_id}`, requestOptions)
+                return fetch(`${process.env.REACT_APP_API_URI}/server/grades/${_id}`, requestOptions)
                 .then(response => response.text().then(text => {
                     this.setState({
                         deleting: false,
@@ -418,7 +476,13 @@ export default class Steels extends React.Component {
                                 _id: "",
                                 params: {
                                     ...this.state.params,
-                                    steel_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                                    grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                 },
                                 alert: {
                                     type: response.status !== 200 ? "alert-danger" : "alert-success",
@@ -435,18 +499,87 @@ export default class Steels extends React.Component {
         }
     }
 
+    // handleOnclick(event, _id) {
+    //     event.preventDefault();
+    //     const { elements, currentUser } = this.state;
+    //     let found = elements.find(element => _.isEqual(element._id, _id));
+    //     if (!_.isUndefined(found) && !!currentUser.isAdmin) {
+    //         this.setState({
+    //             _id,
+    //             params: {
+    //                 ...this.state.params,
+    //                 grade_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
+    //                 grade_pffType: { value: "", placeholder: "PFF Types", selection: { _id: found.pffTypes, name: found.pffTypes}, options: [], hover: "", page: 0 },
+    //                 grade_isComplete: { value: found.isComplete, placeholder: "Is Complete", selection: { _id: found.isComplete, name: !found.isComplete ? "false" : "true" }, options: [], hover: "", page: 0 },
+    //                 grade_isMultiple: { value: found.isMultiple, placeholder: "Is Multiple", selection: { _id: found.isMultiple, name: !found.isMultiple ? "false": "true" }, options: [], hover: "", page: 0 },
+    //                 grade_lunar: { value: found.lunar, placeholder: "vLunar", selection: { _id: found.lunar, name: found.lunar}, options: [], hover: "", page: 0 },
+    //                 grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+    //                 grade_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+    //             },
+    //             showSubmit: true
+    //         });
+    //     }
+    // }
+
     handleOnclick(event, _id) {
         event.preventDefault();
-        const { elements, currentUser } = this.state;
-        let found = elements.find(element => _.isEqual(element._id, _id));
-        if (!_.isUndefined(found) && !!currentUser.isAdmin) {
+        const { currentUser } = this.state;
+        if (!!currentUser.isAdmin) {
             this.setState({
                 _id,
                 params: {
                     ...this.state.params,
-                    steel_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
+                    grade_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: "" }, options: [], hover: "", page: 0 },
+                    grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: "" }, options: [], hover: "", page: 0 },
+                    grade_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
+                    grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                 },
+                retrievingElement: true,
                 showSubmit: true
+            }, () => {
+                const requestOptions = {
+                    method: "GET",
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
+                };
+                return fetch(`${process.env.REACT_APP_API_URI}/server/grades/${_id}`, requestOptions)
+                .then(response => response.text().then(text => {
+                    const data = text && JSON.parse(text);
+                    const resMsg = (data && data.message) || response.statusText;
+                    if (response.status === 401) {
+                        // Unauthorized
+                        localStorage.removeItem("user");
+                        window.location.reload(true);
+                    } else if (response.status !== 200) {
+                        this.setState({
+                            alert: {
+                                type: "alert-danger",
+                                message: resMsg,
+                                retrievingElement: false
+                            }
+                        });
+                    } else {
+                        this.setState({
+                            params: {
+                                ...this.state.params,
+                                grade_name: { value: data.doc.name || "", placeholder: "Name", selection: { _id: data.doc.name || "", name: data.doc.name || ""}, options: [], hover: "", page: 0 },
+                                grade_steelType: { value: "", placeholder: "Steel Type", selection: { _id: data.doc.steelType, name: data.doc.steelType}, options: [], hover: "", page: 0 },
+                                grade_isComplete: { value: "", placeholder: "Is Complete", selection: { _id: data.doc.isComplete, name: !data.doc.isComplete ? "false" : "true" }, options: [], hover: "", page: 0 },
+                                grade_isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: data.doc.isMultiple, name: !data.doc.isMultiple ? "false" : "true" }, options: [], hover: "", page: 0 },
+                                grade_lunar: { value: data.doc.lunar, placeholder: "vLunar", selection: { _id: data.doc.lunar, name: data.doc.lunar}, options: [], hover: "", page: 0 },
+                                grade_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.tags] },
+                                grade_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.pffTypes] },
+                            },
+                            retrievingElement: false,
+                        });
+                    }
+                }))
+                .catch( () => {
+                    localStorage.removeItem("user");
+                    window.location.reload(true);
+                });
             });
         }
     }
@@ -523,7 +656,7 @@ export default class Steels extends React.Component {
     //                 method: "GET",
     //                 headers: { ...authHeader(), "Content-Type": "application/json" },
     //             };
-    //             return fetch(`${process.env.REACT_APP_API_URI}/server/steels/download/${exportId}`, requestOptions)
+    //             return fetch(`${process.env.REACT_APP_API_URI}/server/grades/download/${exportId}`, requestOptions)
     //             .then(response => {
     //                 this.setState({ downloadingExport: false });
     //                 if (!response.ok) {
@@ -564,10 +697,11 @@ export default class Steels extends React.Component {
                             callback={this.updateSelectedRows}
                         />
                         <TableData colIndex="1" value={element.name} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="2" value={element.createdBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="3" value={element.createdAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="4" value={element.updatedBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="5" value={element.updatedAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="2" value={element.steelType} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="3" value={element.createdBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="4" value={element.createdAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="5" value={element.updatedBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="6" value={element.updatedAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                     </tr>
                 );
             });
@@ -575,6 +709,7 @@ export default class Steels extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -598,10 +733,16 @@ export default class Steels extends React.Component {
             params: {
                 ...this.state.params,
                 name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                steelType: { value: "", placeholder: "SteelType", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isComplete: { value: "", placeholder: "Is Complete", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                isMultiple: { value: "", placeholder: "Is Multiple", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdBy: { value: "", placeholder: "Created By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 createdAt: { value: "", placeholder: "Created At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 updatedBy: { value: "", placeholder: "Updated By", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 }
+                updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
             },
             focused: "",
         });
@@ -636,6 +777,12 @@ export default class Steels extends React.Component {
                     sort: sort,
                     dropdown: {
                         name: this.state.params.name.selection._id,
+                        steelType: this.state.params.steelType.selection._id,
+                        isComplete: this.state.params.isComplete.selection._id,
+                        isMultiple: this.state.params.isMultiple.selection._id,
+                        lunar: this.state.params.lunar.selection._id,
+                        tags: this.state.params.tags.selection._id,
+                        pffTypes: this.state.params.pffTypes.selection._id,
                         createdBy: this.state.params.createdBy.selection._id,
                         createdAt: this.state.params.createdAt.selection._id,
                         updatedBy: this.state.params.updatedBy.selection._id,
@@ -645,7 +792,7 @@ export default class Steels extends React.Component {
                     page: page || 0
                 })
             };
-            return fetch(`${process.env.REACT_APP_API_URI}/server/steels/getDrop/${key}`, requestOptions)
+            return fetch(`${process.env.REACT_APP_API_URI}/server/grades/getDrop/${key}`, requestOptions)
             .then(response => response.text().then(text => {
                 this.setState({
                     loading: false,
@@ -824,10 +971,45 @@ export default class Steels extends React.Component {
         }
     }
 
+    addTag(event, name, selectionId) {
+        event.preventDefault();
+        if (!!selectionId && !this.state.params[name].selectionArray.includes(selectionId)) {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        selectionArray: [...this.state.params[name].selectionArray, selectionId],
+                        value: "",
+                        selection: {
+                            _id: "",
+                            name: ""
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    removeTag(event, name, tagId) {
+        event.preventDefault();
+        if (!!tagId) {
+            this.setState({
+                params: {
+                    ...this.state.params,
+                    [name]: {
+                        ...this.state.params[name],
+                        selectionArray: arrayRemove(this.state.params[name].selectionArray, tagId)
+                    }
+                }
+            });
+        }
+    }
+
     render() {
         const { collapsed, toggleCollapse } = this.props;
         const { alert, menuItem, currentUser, sort, showSearch, showSubmit, deleting, upserting, settingsColWidth, selectAllRows } = this.state;
-        const { params, focused } = this.state;
+        const { params, focused, retrievingElement } = this.state;
         const { currentPage, firstItem, lastItem, pageItems, pageLast, totalItems, first, second, third } = this.state.paginate;
 
         return (
@@ -847,8 +1029,8 @@ export default class Steels extends React.Component {
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
-                        <button title="Create Steel Type" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Steel</span>
+                        <button title="Create Grade" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Grade</span>
                         </button>
                     </div>
                     <div className="body-section">
@@ -874,12 +1056,24 @@ export default class Steels extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
+                                                title="Steel Type"
+                                                name="steelType"
+                                                width="220px"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="2"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeader
+                                                type="text"
                                                 title="Created By"
                                                 name="createdBy"
                                                 width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="2"
+                                                index="3"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -891,7 +1085,7 @@ export default class Steels extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="3"
+                                                index="4"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -903,7 +1097,7 @@ export default class Steels extends React.Component {
                                                 width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="4"
+                                                index="5"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -915,7 +1109,7 @@ export default class Steels extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="5"
+                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -958,8 +1152,8 @@ export default class Steels extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="row row-cols-1">
-                                        {Object.keys(params).map((key, index) => index < 1 &&  
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index < 7 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -990,7 +1184,7 @@ export default class Steels extends React.Component {
                                         </div>
                                     </div>
                                     <div className="row row-cols-1 row-cols-md-2">
-                                        {Object.keys(params).map((key, index) => index > 0 && index < 5 &&  
+                                        {Object.keys(params).map((key, index) => index > 6 && index < 11 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -1022,25 +1216,164 @@ export default class Steels extends React.Component {
                     <Modal
                         show={showSubmit}
                         hideModal={this.toggleModalSubmit}
-                        title="Steel Type"
+                        title="Article Type"
+                        size="modal-lg"
                     >
                         <div className="modal-body">
-                            <div className="modal-body-content">
-                                <section id="filters" className="drop-section">
-                                    <div className="row row-cols-1">
-                                        <ParamInput
-                                            key="0"
-                                            name="steel_name"
-                                            focused={focused}
-                                            value={params.steel_name.selection.name}
-                                            placeholder={params.steel_name.placeholder}
-                                            onChange={this.handleChangeInput}
-                                            onFocus={this.onFocus}
-                                            handleClearValue={this.handleClearValue}
-                                        />
-                                    </div>
-                                </section>
-                            </div>
+                            {!this.state.retrievingElement ?
+                                (
+                                    <div className="modal-body-content">
+                                        <section id="singles" className="drop-section">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        Fields
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="row row-cols-1 row-cols-md-2">
+                                                <ParamInput
+                                                    key="0"
+                                                    name="grade_name"
+                                                    focused={focused}
+                                                    value={params.grade_name.selection.name}
+                                                    placeholder={params.grade_name.placeholder}
+                                                    onChange={this.handleChangeInput}
+                                                    onFocus={this.onFocus}
+                                                    handleClearValue={this.handleClearValue}
+                                                />
+                                                <ParamSelect
+                                                    key="1"
+                                                    name="grade_steelType"
+                                                    isFocused={params.grade_steelType.isFocused}
+                                                    focused={focused}
+                                                    value={params.grade_steelType.value}
+                                                    placeholder={params.grade_steelType.placeholder}
+                                                    selection={params.grade_steelType.selection}
+                                                    options={params.grade_steelType.options}
+                                                    hover={this.state.params.grade_steelType.hover}
+                                                    page={params.grade_steelType.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamSelect
+                                                    key="2"
+                                                    name="grade_isComplete"
+                                                    isFocused={params.grade_isComplete.isFocused}
+                                                    focused={focused}
+                                                    value={params.grade_isComplete.value}
+                                                    placeholder={params.grade_isComplete.placeholder}
+                                                    selection={params.grade_isComplete.selection}
+                                                    options={params.grade_isComplete.options}
+                                                    hover={this.state.params.grade_isComplete.hover}
+                                                    page={params.grade_isComplete.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamSelect
+                                                    key="3"
+                                                    name="grade_isMultiple"
+                                                    isFocused={params.grade_isMultiple.isFocused}
+                                                    focused={focused}
+                                                    value={params.grade_isMultiple.value}
+                                                    placeholder={params.grade_isMultiple.placeholder}
+                                                    selection={params.grade_isMultiple.selection}
+                                                    options={params.grade_isMultiple.options}
+                                                    hover={this.state.params.grade_isMultiple.hover}
+                                                    page={params.grade_isMultiple.page}
+                                                    onChange={this.handleChange}
+                                                    handleNext={this.handleNext}
+                                                    handleSelect={this.handleSelect}
+                                                    onFocus={this.onFocus}
+                                                    onHover={this.onHover}
+                                                    toggleDropDown={this.toggleDropDown}
+                                                />
+                                                <ParamInput
+                                                    key="4"
+                                                    name="grade_lunar"
+                                                    focused={focused}
+                                                    value={params.grade_lunar.selection.name}
+                                                    placeholder={params.grade_lunar.placeholder}
+                                                    onChange={this.handleChangeInput}
+                                                    onFocus={this.onFocus}
+                                                    handleClearValue={this.handleClearValue}
+                                                />
+                                            </div>
+                                            {/* <hr /> */}
+                                        </section>
+                                        <section id="tags" className="drop-section">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        Tags
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ParamTag
+                                                key="3"
+                                                name="grade_tags"
+                                                object={params.grade_tags}
+                                                focused={focused}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                                addTag={this.addTag}
+                                                removeTag={this.removeTag}
+                                            />
+                                            {/* <hr /> */}
+                                        </section>
+                                        <section id="pfftypes" className="drop-section">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        PFF Types
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ParamTag
+                                                key="3"
+                                                name="grade_pffTypes"
+                                                object={params.grade_pffTypes}
+                                                focused={focused}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                                addTag={this.addTag}
+                                                removeTag={this.removeTag}
+                                            />
+                                            {/* <hr /> */}
+                                        </section>
+                                    </div>   
+                                )
+                                :
+                                (
+                                    <div className="modal-body-content">
+                                        <section id="singles" className="drop-section">
+                                            <div className="row row-cols-1">
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
+                                            </div>
+                                        </section>
+                                    </div>  
+                                )
+                            }
                         </div>
                         
                         {this.state._id ?

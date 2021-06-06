@@ -1138,20 +1138,51 @@ export default class Types extends React.Component {
                         hideModal={this.toggleModalSearch}
                         clearModal={this.handleClearFields}
                         title="Filters"
-                        // size="modal-lg"
+                        size="modal-lg"
                     >
                         <div className="modal-body">
                             <div className="modal-body-content">
                                 <section id="fields" className="drop-section">
-                                    {/* <div className="modal-body-content-section-title-container">
+                                    <div className="modal-body-content-section-title-container">
                                         <div className="modal-body-content-section-title-row">
                                             <div className="modal-body-content-section-title">
                                                 Fields
                                             </div>
                                         </div>
-                                    </div> */}
-                                    <div className="row row-cols-1">
-                                        {Object.keys(params).map((key, index) => index < 11 &&  
+                                    </div>
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index < 7 &&  
+                                            <ParamSelect
+                                                key={key}
+                                                name={key}
+                                                isFocused={params[key].isFocused}
+                                                focused={focused}
+                                                value={params[key].value}
+                                                placeholder={params[key].placeholder}
+                                                selection={params[key].selection}
+                                                options={params[key].options}
+                                                hover={this.state.params[key].hover}
+                                                page={params[key].page}
+                                                onChange={this.handleChange}
+                                                handleNext={this.handleNext}
+                                                handleSelect={this.handleSelect}
+                                                onFocus={this.onFocus}
+                                                onHover={this.onHover}
+                                                toggleDropDown={this.toggleDropDown}
+                                            />
+                                        )}
+                                    </div>
+                            </section>
+                            <section id="morefilters" className="drop-section">
+                                    <div className="modal-body-content-section-title-container">
+                                        <div className="modal-body-content-section-title-row">
+                                            <div className="modal-body-content-section-title">
+                                                More filters
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="row row-cols-1 row-cols-md-2">
+                                        {Object.keys(params).map((key, index) => index > 6 && index < 11 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -1184,13 +1215,21 @@ export default class Types extends React.Component {
                         show={showSubmit}
                         hideModal={this.toggleModalSubmit}
                         title="Article Type"
+                        size="modal-lg"
                     >
                         <div className="modal-body">
                             {!this.state.retrievingElement ?
                                 (
                                     <div className="modal-body-content">
                                         <section id="singles" className="drop-section">
-                                            <div className="row row-cols-1">
+                                            <div className="modal-body-content-section-title-container">
+                                                <div className="modal-body-content-section-title-row">
+                                                    <div className="modal-body-content-section-title">
+                                                        Fields
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="row row-cols-1 row-cols-md-2">
                                                 <ParamInput
                                                     key="0"
                                                     name="type_name"

@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+
 const getById = (req, res, next) => {
 
     const {typeId} = req.params;
@@ -246,6 +249,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$project": {
+                            "_id": 1,
                             "name": "$name.name"
                         }
                     },
@@ -311,8 +315,8 @@ const create = (req, res, next) => {
     
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to create params"})
-    } else if (!name || !pffType || !lunar) {
-        res.status(400).json({message: "Name, PFF Type and lunar cannot be emty."})
+    } else if (!name || !pffType || !specs || specs.length < 1 || !lunar) {
+        res.status(400).json({message: "Name, PFF Type, Specs and lunar cannot be emty."})
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
