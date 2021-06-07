@@ -993,7 +993,6 @@ export default class Import extends React.Component {
                                                 </Link>
                                             </div>
                                         </div>
-                                        <hr/>
                                     </section>
                                     <section id="uploadfile" className="drop-section">
                                         <div className="modal-body-content-section-title-container">

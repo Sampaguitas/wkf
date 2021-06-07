@@ -80,7 +80,7 @@ module.exports = (document) => {
 function matchDropdown() {
     let myArgs = arguments;
     return new Promise(function(resolve) {
-        let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
+        let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL|WELDOFL)( \d*)?$/
         if (regexOutlet.test(myArgs[9])  || myArgs[3] === "FORGED_OLETS") {
             require("../functions/getSizeMm")(myArgs[6]).then(mm => {
                 resolve(["selectedIds", "opco", "artNr", "pffType", "steelType", "sizeOne", "sizeTwo", "wallOne", "wallTwo", "type", "grade", "length", "end", "surface", "stock", "region", "country"].reduce(function(acc, cur, index) {

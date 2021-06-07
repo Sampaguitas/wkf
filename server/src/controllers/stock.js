@@ -4,7 +4,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const escape = require("../functions/escape");
 var moment = require('moment');
 
-let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL)( \d*)?$/
+let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL|WELDOFL)( \d*)?$/
 
 const _export = (req, res, next) => {
     const { type } = req.params;
