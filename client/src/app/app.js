@@ -21,6 +21,7 @@ import Pffs from "../pages/home/params/pffs";
 import Specs from "../pages/home/params/specs";
 import Steels from "../pages/home/params/steels";
 import Types from "../pages/home/params/types";
+import Searchtypes from "../pages/home/params/searchtypes";
 import Grades from "../pages/home/params/grades";
 import Surfaces from "../pages/home/params/surfaces";
 
@@ -89,6 +90,9 @@ export default class App extends React.Component {
               </PrivateRoute>
               <PrivateRoute exact path="/types" user={user}>
                 <Types user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/searchtypes" user={user}>
+                <Searchtypes user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
               <PrivateRoute exact path="/grades" user={user}>
                 <Grades user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>

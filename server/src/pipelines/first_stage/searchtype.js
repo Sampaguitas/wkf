@@ -4,6 +4,8 @@ module.exports = (myMatch, format) => {
             "$addFields": {
                 "createdAt": { "$dateToString": { format, "date": "$createdAt"} },
                 "updatedAt": { "$dateToString": { format, "date": "$updatedAt"} },
+                "minSize": { "$toString": "$minSize" },
+                "maxSize": { "$toString": "$maxSize" },
             }
         },
         {

@@ -585,3 +585,8 @@ table .w-90 { width:90%; }
   font-size: 0.875rem;
   font-weight: 600;
 }
+
+
+code {
+  font-size: inherit !important;
+}

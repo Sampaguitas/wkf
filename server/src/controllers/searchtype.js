@@ -5,13 +5,21 @@ const getById = (req, res, next) => {
 
     const {searchtypeId} = req.params;
 
-    require("../models/Searchtype").findById(searchtypeId, function (err, doc) {
+    require("../models/Searchtype").findById(searchtypeId, {
+        "lunar": "$value.lunar",
+        "name": "$value.name",
+        "pffType": "$value.pffType",
+        "tags": "$value.tags",
+        "types": "$types",
+        "minSize": { "$toString": "$minSize" },
+        "maxSize": { "$toString": "$maxSize" },
+    }, function (err, doc) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!doc) {
             res.status(400).json({ message: "Could not retrieve export information." });
         } else {
-            res.json({doc: doc});
+            res.json({doc});
         }
     });
 }
@@ -62,8 +70,10 @@ const getAll = (req, res, next) => {
                         },
                         {
                             "$project": {
-                                "name": 1,
-                                "pffType": 1,
+                                "name": "$value.name",
+                                "pffType": "$value.pffType",
+                                "minSize": 1,
+                                "maxSize": 1,
                                 "createdBy": "$createdBy.name",
                                 "updatedBy": "$updatedBy.name",
                                 "createdAt": 1,
@@ -108,7 +118,7 @@ const getDrop = (req, res, next) => {
     matchDropdown(dropdown.lunar, dropdown.name, dropdown.tags, dropdown.pffType, dropdown.types, dropdown.minSize, dropdown.maxSize, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         
         switch(key) {
-            case "type_lunar":
+            case "searchtype_lunar":
                 require("../models/Type").aggregate([
                     {
                         "$group": {
@@ -125,9 +135,9 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
-            case "type_name":
-            case "type_tags":
-            case "type_types":
+            case "searchtype_name":
+            case "searchtype_tags":
+            case "searchtype_types":
                 require("../models/Type").aggregate([
                     {
                         "$group": {
@@ -144,7 +154,7 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
-            case "type_pffType":
+            case "searchtype_pffType":
                 require("../models/Pff").aggregate([
                     {
                         "$group": {
@@ -161,13 +171,24 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
-            case "type_minSize":
-            case "type_maxSize":
+            case "searchtype_minSize":
+            case "searchtype_maxSize":
                 require("../models/Size").aggregate([
                     {
+                        "$match": {
+                            "mm": { "$exists": true},
+                            
+                        }
+                    },
+                    {
+                        "$project": {
+                            "mm": { "$toString": "$mm" }
+                        }
+                    },
+                    {
                         "$group": {
-                            "_id": `$mm`,
-                            "name": {"$first":`$$ROOT.mm`},
+                            "_id":  "$mm",
+                            "name": { "$first": "$$ROOT.mm" },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -230,7 +251,7 @@ const getDrop = (req, res, next) => {
                     {
                         "$group": {
                             "_id": `$${key}`,
-                            "name": {"$first":`$$ROOT.${key}`},
+                            "name": { "$first": `$$ROOT.${key}` },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -317,6 +338,8 @@ function matchDropdown() {
                     acc[`${cur}`] = ObjectId(myArgs[index]);
                 } else if (["lunar", "name", "tags", "pffType"].includes(cur)) {
                     acc[`value.${cur}`] = myArgs[index];
+                } else if (["minSize", "maxSize"].includes(cur)) {
+                    acc[`${cur}`] = myArgs[index];
                 } else {
                     acc[`${cur}`] = myArgs[index];
                 }

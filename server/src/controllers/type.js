@@ -353,8 +353,8 @@ const update = (req, res, next) => {
         res.status(400).json({message: "You do not have the permission to update params."})
     } else if (!typeId) {
         res.status(400).json({message: "Type ID is missing."});
-    } else if (!name || !pffType || !lunar) {
-        res.status(400).json({message: "Name, PFF Type and lunar cannot be emty."});
+    } else if (!name || !pffType || !specs  || specs.length < 1 || !lunar) {
+        res.status(400).json({message: "Name, PFF Type, Specs and lunar cannot be emty."});
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 3) {
         res.status(400).json({message: "Wrong lunar format."})
     } else {
