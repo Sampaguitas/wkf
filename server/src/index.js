@@ -37,13 +37,13 @@ app.use("/ends", require("./routes/ends"));
 app.use("/grades", require("./routes/grades"));
 app.use("/lengths", require("./routes/lengths"));
 app.use("/pffs", require("./routes/pffs"));
+app.use("/searchtypes", require("./routes/searchtypes"));
 app.use("/sizes", require("./routes/sizes"));
 app.use("/specs", require("./routes/specs"));
 app.use("/steels", require("./routes/steels"));
 app.use("/surfaces", require("./routes/surfaces"));
 app.use("/types", require("./routes/types"));
 app.use("/walls", require("./routes/walls"));
-
 
 //without nginx
 app.use("/server/dropdowns", require("./routes/dropdowns"));
@@ -57,6 +57,7 @@ app.use("/server/ends", require("./routes/ends"));
 app.use("/server/grades", require("./routes/grades"));
 app.use("/server/lengths", require("./routes/lengths"));
 app.use("/server/pffs", require("./routes/pffs"));
+app.use("/server/searchtypes", require("./routes/searchtypes"));
 app.use("/server/sizes", require("./routes/sizes"));
 app.use("/server/specs", require("./routes/specs"));
 app.use("/server/steels", require("./routes/steels"));

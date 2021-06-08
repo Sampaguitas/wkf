@@ -10,6 +10,7 @@ require("./Opco");
 require("./Pff");
 require("./Region");
 require("./Rpwd");
+require("./Searchtype");
 require("./Size");
 require("./Spec");
 require("./Steel");
