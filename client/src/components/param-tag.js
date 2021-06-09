@@ -63,7 +63,7 @@ class ParamTag extends Component{
                                             <svg><FontAwesomeIcon icon={!!_.isEqual(focused, name) || !!selection.name ? faTimes : faChevronDown} /></svg>
                                         </div>
                                         <ul id={`list_${name}`} className={!_.isEmpty(options) && _.isEqual(focused, name) ? "drop-ul_visible" : "drop-ul"}>
-                                            {options.map((option, index) =>
+                                            {options.filter(e => !selectionArray.includes(e._id)).map((option, index) =>
                                                 <li
                                                     key={index}
                                                     type="button"

@@ -136,6 +136,27 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "searchtype_name":
+                require("../models/Type").aggregate([
+                    {
+                        "$match": {
+                            "isMultiple": true
+                        }
+                    },
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             case "searchtype_tags":
             case "searchtype_types":
                 require("../models/Type").aggregate([
