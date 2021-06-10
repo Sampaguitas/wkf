@@ -707,7 +707,8 @@ export default class Grades extends React.Component {
                         updatedAt: this.state.params.updatedAt.selection._id,
                     },
                     name: this.state.params[key].value,
-                    page: page || 0
+                    page: page || 0,
+                    selectionArray: this.state.params[key].selectionArray || []
                 })
             };
             return fetch(`${process.env.REACT_APP_API_URI}/server/grades/getDrop/${key}`, requestOptions)

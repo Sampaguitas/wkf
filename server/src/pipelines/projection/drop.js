@@ -1,6 +1,9 @@
 const escape = require("../../functions/escape");
 
-module.exports = (name, page) => {
+module.exports = (name, page, selectionArray) => {
+    
+    if (!selectionArray) selectionArray = [];
+
     return [
         // {
         //     "$unwind": "$data"
@@ -8,6 +11,11 @@ module.exports = (name, page) => {
         {
             "$match": {
                 "name": { "$regex": new RegExp(escape(name),"i") }
+            }
+        },
+        {
+            "$match": {
+                "name": { "$nin": selectionArray }
             }
         },
         {

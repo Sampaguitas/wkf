@@ -68,7 +68,7 @@ const getAll = (req, res, next) => {
 }
 
 const getDrop = (req, res, next) => {
-    const { dropdown, name } = req.body;
+    const { dropdown, name, selectionArray } = req.body;
     let page = req.body.page || 0;
     const {key} = req.params;
 
@@ -86,7 +86,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -108,7 +108,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.${key}s`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])

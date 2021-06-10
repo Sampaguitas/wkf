@@ -395,7 +395,7 @@ const getAll = (req, res, next) => {
 }
 
 const getDrop = (req, res, next) => {
-    const { dropdown, name } = req.body;
+    const { dropdown, name, selectionArray } = req.body;
     const {key} = req.params;
     let page = req.body.page || 0;
     const {accountId} = req.user
@@ -421,7 +421,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -458,7 +458,7 @@ const getDrop = (req, res, next) => {
                             "name": "$opco.stockInfo.name"
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -495,7 +495,7 @@ const getDrop = (req, res, next) => {
                             "name": "$region.name"
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -532,7 +532,7 @@ const getDrop = (req, res, next) => {
                             "name": "$country.name"
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -551,7 +551,7 @@ const getDrop = (req, res, next) => {
                             "name":{"$first":`$$ROOT.parameters.${key=== "steelType" ? "grade" : "type"}.${key}`}
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -575,7 +575,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.parameters.${key}.tags`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])

@@ -456,7 +456,8 @@ export default class Export extends React.Component {
                         expiresAt: this.state.params.expiresAt.selection._id,
                     },
                     name: this.state.params[key].value,
-                    page: page || 0
+                    page: page || 0,
+                    selectionArray: this.state.params[key].selectionArray || []
                 })
             };
             return fetch(`${process.env.REACT_APP_API_URI}/server/exports/getDrop/${key}`, requestOptions)

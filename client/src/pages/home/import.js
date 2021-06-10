@@ -438,7 +438,8 @@ export default class Import extends React.Component {
                         expiresAt: params.expiresAt.selection._id
                     },
                     name: this.state.params[key].value,
-                    page: page || 0
+                    page: page || 0,
+                    selectionArray: this.state.params[key].selectionArray || []
                 })
             };
             return fetch(`${process.env.REACT_APP_API_URI}/server/imports/getDrop/${key}`, requestOptions)

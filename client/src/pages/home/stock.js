@@ -930,7 +930,8 @@ export default class Stock extends React.Component {
                         supplier: this.state.params.supplier.selection._id,
                     },
                     name: this.state.params[key].value,
-                    page: page || 0
+                    page: page || 0,
+                    selectionArray: this.state.params[key].selectionArray || []
                 })
             };
             return fetch(`${process.env.REACT_APP_API_URI}/server/stocks/getDrop/${(key).replace("_", "")}`, requestOptions)

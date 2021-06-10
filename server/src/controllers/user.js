@@ -391,7 +391,7 @@ const getAll = (req, res, next) => {
 
 const getDrop = (req, res, next) => {
     const user = req.user;
-    const { dropdown, name } = req.body;
+    const { dropdown, name, selectionArray } = req.body;
     let page = req.body.page || 0;
     const {key} = req.params;
     matchDropdown(dropdown.name, dropdown.email, dropdown.isAdmin).then(myMatch => {
@@ -406,7 +406,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.${key}`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -424,7 +424,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.${key}X`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
