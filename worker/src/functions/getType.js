@@ -1,6 +1,6 @@
 module.exports = (type, sizeId, pffType) => {
     return new Promise(function(resolve) {
-        if (!sizeId || !["EN_FLANGES", "FORGED_FLANGES"].includes(pffType)) {
+        if (!sizeId) { // || !["EN_FLANGES", "FORGED_FLANGES"].includes(pffType)
             resolve(findType(type));
         } else {
             resolve(searchType(type, sizeId));
