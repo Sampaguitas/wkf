@@ -1180,9 +1180,7 @@ export default class Searchtypes extends React.Component {
                                             <div className="row row-cols-1">
                                                 <div className="col">
                                                     <div className="modal-body-content-section-info">
-                                                        Any items being imported to ESM Stock Info, listed under the <code>Types</code> section
-                                                        and falling within the size range mentioned below (<code>Min Size</code> and <code>Max Size</code> included),
-                                                        will automaticly be given the <code>Name</code>, <code>PFF Type</code>, <code>vLunar</code> and <code>Tags</code> mentioned below.
+                                                        Any item being imported to ESM Stock Info, listed in <code>Types</code> and falling within <code>Min Size</code> - <code>Max Size</code>, will be given the <code>Name</code>, <code>PFF Type</code>, <code>vLunar</code> and <code>Tags</code> mentioned below.
                                                     </div>
                                                 </div>
                                             </div>
