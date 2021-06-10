@@ -8,7 +8,6 @@ import getPageSize from "../../functions/getPageSize";
 import arrayRemove from "../../functions/arrayRemove";
 import typeToString from "../../functions/typeToString";
 import getDateFormat from "../../functions/getDateFormat";
-
 import TableSelectAll from '../../components/table-select-all';
 import TableSelectRow from '../../components/table-select-row';
 import TableHeader from "../../components/table-header";
@@ -23,7 +22,6 @@ export default class Export extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // element: {},
             elements: [],
             sort: {
                 name: "",
@@ -43,12 +41,8 @@ export default class Export extends React.Component {
             },
             selectAllRows: false,
             selectedRows: [],
-            // exporting: false,
             retrieving: false,
-            // upserting: false,
             loading: false,
-            // loaded: false,
-            // submitted: false,
             showSearch: false,
             menuItem: "Export data",
             settingsColWidth: {},
@@ -71,14 +65,12 @@ export default class Export extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
         this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
@@ -88,7 +80,6 @@ export default class Export extends React.Component {
         this.onFocusDropdown = this.onFocusDropdown.bind(this);
         this.onHoverDropdown = this.onHoverDropdown.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
     }
@@ -104,7 +95,6 @@ export default class Export extends React.Component {
         const tableContainer = document.getElementById("table-container");
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
@@ -135,10 +125,6 @@ export default class Export extends React.Component {
             }
         }, () => this.getDocuments(this.state.paginate.currentPage));
     }
-
-    // componentWillUnmount() {
-    //     clearInterval(this.interval);
-    // }
 
     resize() {
         const tableContainer = document.getElementById("table-container");
@@ -229,17 +215,6 @@ export default class Export extends React.Component {
         }
     }
 
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
-
     toggleModalSearch() {
         const { showSearch } = this.state;
         this.setState({
@@ -279,7 +254,6 @@ export default class Export extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else if (response.status !== 200) {
@@ -663,7 +637,7 @@ export default class Export extends React.Component {
                 }
                 <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}>
                             <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
@@ -671,7 +645,7 @@ export default class Export extends React.Component {
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container">
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -770,13 +744,6 @@ export default class Export extends React.Component {
                         <div className="modal-body">
                             <div className="modal-body-content">
                                 <section id="fields" className="drop-section">
-                                    {/* <div className="modal-body-content-section-title-container">
-                                        <div className="modal-body-content-section-title-row">
-                                            <div className="modal-body-content-section-title">
-                                                Fields
-                                            </div>
-                                        </div>
-                                    </div> */}
                                     <div className="row row-cols-1">
                                         {Object.keys(params).map(key => 
                                             <ParamSelect

@@ -72,14 +72,11 @@ export default class Pffs extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
-        // this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.toggleModalSubmit = this.toggleModalSubmit.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
@@ -92,7 +89,6 @@ export default class Pffs extends React.Component {
         this.onFocus = this.onFocus.bind(this);
         this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
 
@@ -115,7 +111,6 @@ export default class Pffs extends React.Component {
         const tableContainer = document.getElementById("table-container");
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
@@ -152,10 +147,6 @@ export default class Pffs extends React.Component {
             window.location.reload(true);
         }
     }
-
-    // componentWillUnmount() {
-    //     clearInterval(this.interval);
-    // }
 
     resize() {
         const tableContainer = document.getElementById("table-container");
@@ -247,17 +238,6 @@ export default class Pffs extends React.Component {
         }
     }
 
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
-
     toggleModalSearch() {
         const { showSearch } = this.state;
         this.setState({
@@ -311,7 +291,6 @@ export default class Pffs extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else if (response.status !== 200) {
@@ -362,7 +341,6 @@ export default class Pffs extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -410,7 +388,6 @@ export default class Pffs extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -511,44 +488,6 @@ export default class Pffs extends React.Component {
           this.setState({ selectedRows: [...selectedRows, id] });
         }       
     }
-
-    // handleDownlaod(event, exportId) {
-    //     event.preventDefault();
-    //     const { downloadingExport } = this.state;
-    //     if (!!exportId && !downloadingExport) {
-    //         this.setState({
-    //             downloadingExport: true
-    //         }, () => {
-    //             const requestOptions = {
-    //                 method: "GET",
-    //                 headers: { ...authHeader(), "Content-Type": "application/json" },
-    //             };
-    //             return fetch(`${process.env.REACT_APP_API_URI}/server/pffs/download/${exportId}`, requestOptions)
-    //             .then(response => {
-    //                 this.setState({ downloadingExport: false });
-    //                 if (!response.ok) {
-    //                     if (response.status === 401) {
-    //                         localStorage.removeItem('user');
-    //                         window.location.reload(true);
-    //                     } else {
-    //                         response.text().then(text => {
-    //                             const data = text && JSON.parse(text);
-    //                             const resMsg = (data && data.message) || response.statusText;
-    //                             this.setState({
-    //                                 alert: {
-    //                                     type: "alert-danger",
-    //                                     message: resMsg
-    //                                 },
-    //                             });
-    //                         });
-    //                     }
-    //                 } else {
-    //                     response.blob().then(blob => saveAs(blob, "export.xlsx"));
-    //                 }
-    //             });
-    //         });
-    //     }
-    // }
 
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
@@ -841,7 +780,7 @@ export default class Pffs extends React.Component {
                 }
                 <div id="export" className={alert.message ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}>
                             <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
@@ -852,7 +791,7 @@ export default class Pffs extends React.Component {
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container">
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>

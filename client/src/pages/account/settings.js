@@ -14,7 +14,6 @@ import TableSelectRow from '../../components/table-select-row';
 import TableHeader from "../../components/table-header";
 import TableData from "../../components/table-data";
 import TableCheckBoxAdmin from "../../components/table-check-box-admin";
-import Input from "../../components/input";
 import Layout from "../../components/layout";
 import Modal from "../../components/modal";
 import Pagination from "../../components/pagination";
@@ -77,9 +76,7 @@ export default class Settings extends React.Component {
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
-        // this.showModal = this.showModal.bind(this);
         this.toggleModalSubmit = this.toggleModalSubmit.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
         this.handleClearValue = this.handleClearValue.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
@@ -90,10 +87,8 @@ export default class Settings extends React.Component {
         this.onFocus = this.onFocus.bind(this);
         this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
-
         this.getDocuments = this.getDocuments.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
@@ -239,17 +234,6 @@ export default class Settings extends React.Component {
         });
     }
 
-    // showModal() {
-    //     this.setState({
-    //         params: {
-    //             ...this.state.params,
-    //             user_name: { value: "", placeholder: "Name", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-    //             user_email: { value: "", placeholder: "Email", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-    //         },
-    //         showSubmit: true
-    //     });
-    // }
-
     toggleModalSubmit() {
         const { showSubmit } = this.state
         this.setState({
@@ -264,18 +248,6 @@ export default class Settings extends React.Component {
             showSubmit: !showSubmit
         });
     }
-
-
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
 
     getDocuments(nextPage) {
         const { paginate, sort, params } = this.state;
@@ -938,26 +910,6 @@ export default class Settings extends React.Component {
                                         onHover={this.onHover}
                                         toggleDropDown={this.toggleDropDown}
                                     />
-                                    {/* {Object.keys(params).map(key => 
-                                        <ParamSelect
-                                            key={key}
-                                            name={key}
-                                            isFocused={params[key].isFocused}
-                                            focused={focused}
-                                            value={params[key].value}
-                                            placeholder={params[key].placeholder}
-                                            selection={params[key].selection}
-                                            options={params[key].options}
-                                            hover={this.state.params[key].hover}
-                                            page={params[key].page}
-                                            onChange={this.handleChange}
-                                            handleNext={this.handleNext}
-                                            handleSelect={this.handleSelect}
-                                            onFocus={this.onFocus}
-                                            onHover={this.onHover}
-                                            toggleDropDown={this.toggleDropDown}
-                                        />
-                                    )} */}
                                 </div>
                             </section>
                             </div>

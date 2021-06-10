@@ -1,35 +1,18 @@
 import React from "react";
 import { NavLink } from 'react-router-dom';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Layout from "../../../components/layout";
-import _ from "lodash";
 
 export default class Params extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             menuItem: "Params",
-            alert: {
-                type: "",
-                message: ""
-            }
         };
-        this.handleClearAlert = this.handleClearAlert.bind(this);
-    }
-
-    handleClearAlert(event) {
-        event.preventDefault();
-        this.setState({
-            alert: {
-                type: "",
-                message: ""
-            }
-        });
     }
 
     render() {
         const { collapsed, toggleCollapse } = this.props;
-        const { alert, menuItem } = this.state;
+        const { menuItem } = this.state;
 
         return (
             <Layout collapsed={collapsed} toggleCollapse={toggleCollapse} menuItem={menuItem}>
@@ -127,17 +110,6 @@ export default class Params extends React.Component {
 
                     </div>                    
                 </div>
-                {/* {alert.message &&
-                    <div className={`alert ${alert.type}`}>{alert.message}
-                        <button className="close" onClick={(event) => this.handleClearAlert(event)}>
-                            <span aria-hidden="true"><FontAwesomeIcon icon="times" /></span>
-                        </button>
-                    </div>
-                }
-
-                <div id="params" className={alert.message ? "main-section-alert" : "main-section"}>
-                    
-                </div> */}
             </Layout>
         );
     }

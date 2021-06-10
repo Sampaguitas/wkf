@@ -2,14 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Skeleton from "react-loading-skeleton";
-
 import authHeader from "../../helpers/auth-header";
 import copyObject from "../../functions/copyObject";
 import getPageSize from "../../functions/getPageSize";
 import typeToString from "../../functions/typeToString";
 import getDateFormat from "../../functions/getDateFormat";
 import arrayRemove from "../../functions/arrayRemove";
-
 import TableSelectAll from '../../components/table-select-all';
 import TableSelectRow from '../../components/table-select-row';
 import TableHeader from "../../components/table-header";
@@ -25,7 +23,6 @@ export default class Import extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // element: {},
             currentUser: {},
             elements: [],
             sort: {
@@ -49,13 +46,11 @@ export default class Import extends React.Component {
             selectedRows: [],
             retrieving: false,
             loading: false,
-            //
             showParam: false,
             paramName: "",
             paramKey: Date.now(),
             uploadingParam: false,
             downloadingParam: false,
-            //
             showSearch: false,
             menuItem: "Import data",
             settingsColWidth: {},
@@ -77,13 +72,11 @@ export default class Import extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
@@ -93,10 +86,8 @@ export default class Import extends React.Component {
         this.onFocusDropdown = this.onFocusDropdown.bind(this);
         this.onHoverDropdown = this.onHoverDropdown.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
-        //DUF param
         this.toggleParam = this.toggleParam.bind(this);
         this.handleClearValue = this.handleClearValue.bind(this);
         this.handleChangeFile = this.handleChangeFile.bind(this);
@@ -112,7 +103,6 @@ export default class Import extends React.Component {
         const tableContainer = document.getElementById("table-container");
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
         
         document.getElementById("import").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
@@ -148,13 +138,6 @@ export default class Import extends React.Component {
             localStorage.removeItem("user");
             window.location.reload(true);
         }
-        
-        // this.setState({
-        //     paginate: {
-        //         ...this.state.paginate,
-        //         pageSize: getPageSize(tableContainer.clientHeight)
-        //     }
-        // }, () => this.getDocuments(this.state.paginate.currentPage));
     }
 
     handleRefresh(event) {
@@ -252,17 +235,6 @@ export default class Import extends React.Component {
         }
     }
 
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
-
     toggleModalSearch() {
         const { showSearch } = this.state;
         this.setState({
@@ -300,7 +272,6 @@ export default class Import extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else if (response.status !== 200) {
@@ -627,7 +598,6 @@ export default class Import extends React.Component {
         } else {
             let myInput = document.getElementById(name);
             myInput.focus();
-            // myInput.select();
         }
     }
 
@@ -679,10 +649,6 @@ export default class Import extends React.Component {
                     }
                 }
             });
-        //   this.setState({
-        //       ...this.state,
-        //       paramName: event.target.files[0].name
-        //   });
         }
     }
 
@@ -742,7 +708,7 @@ export default class Import extends React.Component {
                 }
                 <div id="import" className={alert.message && !showParam ? "main-section-alert" : "main-section"}>
                     <div className="action-row row">
-                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}> {/* style={{height: "34px"}} */}
+                        <button title="Filters" className="btn btn-sm btn-gray" onClick={this.toggleModalSearch}>
                             <span><FontAwesomeIcon icon="filter" className="fa mr-2" />Filters</span>
                         </button>
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
@@ -753,7 +719,7 @@ export default class Import extends React.Component {
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container">
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -859,7 +825,6 @@ export default class Import extends React.Component {
                         hideModal={this.toggleModalSearch}
                         clearModal={this.handleClearFields}
                         title="Filters"
-                        // size="modal-lg"
                     >
                         <div className="modal-body">
                             <div className="modal-body-content">
@@ -968,7 +933,6 @@ export default class Import extends React.Component {
                       show={showParam}
                       hideModal={this.toggleParam}
                       title="Params"
-                    //   size="modal-lg"
                     >
                         <form
                             className=""

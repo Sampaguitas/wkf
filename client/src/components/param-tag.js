@@ -44,8 +44,7 @@ class ParamTag extends Component{
             <div className="row row-cols-1">
                 <div className="col">
                     <form autoComplete="off" className="row" style={{paddingRight: "15px"}}>
-                        <div className="col"> {/* style={{display: "flex"}} */}
-                            {/* <div className="w-100" style={{paddingRight: "15px"}}> */}
+                        <div className="col">
                                 <label className={_.isEqual(focused, name) || !!selection.name ? "drop-label small" : "drop-label"} htmlFor={name}>Add {placeholder}</label>
                                 <p className="drop-p" hidden={!!_.isEqual(focused, name) || selection.name === ''}>{selection.name}</p>
                                 <div className="form-group drop-form-group" style={{flexGrow: "1"}}>
@@ -77,7 +76,6 @@ class ParamTag extends Component{
                                             )}
                                         </ul>
                                 </div>
-                            {/* </div> */}
                         </div>
                         <button type="button" className="btn tag-btn-add float-right" style={{marginBottom: "16px"}} disabled={!!selection._id && !selectionArray.includes(selection._id) ? false : true} onClick={event => addTag(event, name, selection._id)}>
                             <FontAwesomeIcon icon="plus" className="fa"/>

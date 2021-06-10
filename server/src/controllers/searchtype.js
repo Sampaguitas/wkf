@@ -139,7 +139,8 @@ const getDrop = (req, res, next) => {
                 require("../models/Type").aggregate([
                     {
                         "$match": {
-                            "isMultiple": true
+                            "isMultiple": true,
+                            "pffType": !!dropdown.pffType ? dropdown.pffType : { "$exists": true }
                         }
                     },
                     {
@@ -160,6 +161,11 @@ const getDrop = (req, res, next) => {
             case "searchtype_tags":
             case "searchtype_types":
                 require("../models/Type").aggregate([
+                    {
+                        "$match": {
+                            "pffType": !!dropdown.pffType ? dropdown.pffType : { "$exists": true }
+                        }
+                    },
                     {
                         "$group": {
                             "_id": `$name`,
@@ -197,8 +203,8 @@ const getDrop = (req, res, next) => {
                 require("../models/Size").aggregate([
                     {
                         "$match": {
-                            "mm": { "$exists": true},
-                            
+                            "mm": { "$exists": true, "$ne": null },
+                            "pffTypes": dropdown.pffType ? dropdown.pffType : { "$exists": true }
                         }
                     },
                     {
@@ -209,7 +215,7 @@ const getDrop = (req, res, next) => {
                     {
                         "$group": {
                             "_id":  "$mm",
-                            "name": { "$first": "$$ROOT.mm" },
+                            "name": { "$first": { "$concat": [ "$$ROOT.mm", " mm" ] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -243,7 +249,7 @@ const getDrop = (req, res, next) => {
                 break;
             case "tags":
                 require("../models/Searchtype").aggregate([
-                    ...require("../pipelines/first_stage/type")(myMatch, format),
+                    ...require("../pipelines/first_stage/searchtype")(myMatch, format),
                     {
                         "$unwind": `$value.${key}`
                     },
@@ -262,17 +268,38 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
-            case "minSize":
-            case "maxSize":
+            case "types":
                 require("../models/Searchtype").aggregate([
-                    ...require("../pipelines/first_stage/type")(myMatch, format),
+                    ...require("../pipelines/first_stage/searchtype")(myMatch, format),
                     {
                         "$unwind": `$${key}`
                     },
                     {
                         "$group": {
                             "_id": `$${key}`,
-                            "name": { "$first": `$$ROOT.${key}` },
+                            "name": {"$first":`$$ROOT.${key}`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "minSize":
+            case "maxSize":
+                require("../models/Searchtype").aggregate([
+                    ...require("../pipelines/first_stage/searchtype")(myMatch, format),
+                    {
+                        "$unwind": `$${key}`
+                    },
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": { "$first": { "$concat": [ `$$ROOT.${key}`, " mm" ] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page)
@@ -384,7 +411,7 @@ const create = (req, res, next) => {
     } else {
         
         if (!tags.includes(name)) tags.push(name);
-        types.map(type => !tags.include(type) && tags.push(type));
+        types.map(type => !tags.includes(type) && tags.push(type));
 
         let newSearchtype = new require("../models/Searchtype")({
             "value": {
@@ -393,6 +420,7 @@ const create = (req, res, next) => {
                 "tags": tags,
                 "pffType": pffType,
             },
+            "types": types,
             "minSize": minSize,
             "maxSize": maxSize,
             "createdBy": user._id,
@@ -411,7 +439,7 @@ const update = (req, res, next) => {
         
     const user = req.user;
     const {searchtypeId} = req.params;
-    const { name, pffType, isComplete, isMultiple, lunar, tags } = req.body;
+    const { lunar, name, tags, pffType, types, minSize, maxSize } = req.body;
 
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to update params."})
@@ -424,7 +452,7 @@ const update = (req, res, next) => {
     } else {
 
         if (!tags.includes(name)) tags.push(name);
-        types.map(type => !tags.include(type) && tags.push(type));
+        types.map(type => !tags.includes(type) && tags.push(type));
         
         let update = {
             "value": {
@@ -433,6 +461,7 @@ const update = (req, res, next) => {
                 "tags": tags,
                 "pffType": pffType,
             },
+            "types": types,
             "minSize": minSize,
             "maxSize": maxSize,
             "updatedBy": user._id
@@ -440,8 +469,9 @@ const update = (req, res, next) => {
         
         let options = { "new": true };
 
-        require("../models/Searchtype").findByIdAndUpdate(searchtypeId, update, options, function(errType, type) {
-            if (!!errType || !type) {
+        require("../models/Searchtype").findByIdAndUpdate(searchtypeId, update, options, function(errSearchtype, searchtype) {
+            if (!!errSearchtype || !searchtype) {
+                console.log(errSearchtype)
                 res.status(400).json({message: "Search Type could not be updated." });
             } else {
                 res.status(200).json({message: "Search Type has successfuly been updated." });
@@ -460,8 +490,8 @@ const _delete = (req, res, next) => {
     } else if (!searchtypeId) {
         res.status(400).json({message: "Type ID is missing."});
     } else {
-        require("../models/Searchtype").findByIdAndDelete(searchtypeId, function(errType, type) {
-            if (!!errType || !type) {
+        require("../models/Searchtype").findByIdAndDelete(searchtypeId, function(errSearchtype, searchtype) {
+            if (!!errSearchtype || !searchtype) {
                 res.status(400).json({message: "Search Type could not be deleted." });
             } else {
                 res.status(200).json({message: "Search Type has successfuly been deleted." });

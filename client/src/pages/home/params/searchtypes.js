@@ -16,7 +16,6 @@ import Layout from "../../../components/layout";
 import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
-import ParamInput from "../../../components/param-input";
 import ParamTag from "../../../components/param-tag";
 import _ from "lodash";
 
@@ -86,14 +85,11 @@ export default class Searchtypes extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
-        // this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.toggleModalSubmit = this.toggleModalSubmit.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
@@ -106,7 +102,6 @@ export default class Searchtypes extends React.Component {
         this.onFocus = this.onFocus.bind(this);
         this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
 
@@ -132,7 +127,6 @@ export default class Searchtypes extends React.Component {
         const tableContainer = document.getElementById("table-container");
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
@@ -169,10 +163,6 @@ export default class Searchtypes extends React.Component {
             window.location.reload(true);
         }
     }
-
-    // componentWillUnmount() {
-    //     clearInterval(this.interval);
-    // }
 
     resize() {
         const tableContainer = document.getElementById("table-container");
@@ -282,17 +272,6 @@ export default class Searchtypes extends React.Component {
         }
     }
 
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
-
     toggleModalSearch() {
         const { showSearch } = this.state;
         this.setState({
@@ -358,7 +337,6 @@ export default class Searchtypes extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else if (response.status !== 200) {
@@ -415,7 +393,6 @@ export default class Searchtypes extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -469,7 +446,6 @@ export default class Searchtypes extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -528,7 +504,6 @@ export default class Searchtypes extends React.Component {
                     const data = text && JSON.parse(text);
                     const resMsg = (data && data.message) || response.statusText;
                     if (response.status === 401) {
-                        // Unauthorized
                         localStorage.removeItem("user");
                         window.location.reload(true);
                     } else if (response.status !== 200) {
@@ -545,8 +520,8 @@ export default class Searchtypes extends React.Component {
                                 ...this.state.params,
                                 searchtype_name: { value: "", placeholder: "Name", selection: { _id: data.doc.name, name: data.doc.name }, options: [], hover: "", page: 0 },
                                 searchtype_pffType: { value: "", placeholder: "PFF Type", selection: { _id: data.doc.pffType, name: data.doc.pffType }, options: [], hover: "", page: 0 },
-                                searchtype_minSize: { value: "", placeholder: "Min Size", selection: { _id: data.doc.minSize, name: data.doc.minSize }, options: [], hover: "", page: 0 },
-                                searchtype_maxSize: { value: "", placeholder: "Max Size", selection: { _id: data.doc.maxSize, name: data.doc.maxSize }, options: [], hover: "", page: 0 },
+                                searchtype_minSize: { value: "", placeholder: "Min Size", selection: { _id: data.doc.minSize, name: !!data.doc.minSize ? `${data.doc.minSize} mm` : "" }, options: [], hover: "", page: 0 },
+                                searchtype_maxSize: { value: "", placeholder: "Max Size", selection: { _id: data.doc.maxSize, name: !!data.doc.maxSize ?  `${data.doc.maxSize} mm` : "" }, options: [], hover: "", page: 0 },
                                 searchtype_lunar: { value: "", placeholder: "vLunar", selection: { _id: data.doc.lunar, name: data.doc.lunar}, options: [], hover: "", page: 0 },
                                 searchtype_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.tags] },
                                 searchtype_types: { value: "", placeholder: "Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.types] },
@@ -623,44 +598,6 @@ export default class Searchtypes extends React.Component {
           this.setState({ selectedRows: [...selectedRows, id] });
         }       
     }
-
-    // handleDownlaod(event, exportId) {
-    //     event.preventDefault();
-    //     const { downloadingExport } = this.state;
-    //     if (!!exportId && !downloadingExport) {
-    //         this.setState({
-    //             downloadingExport: true
-    //         }, () => {
-    //             const requestOptions = {
-    //                 method: "GET",
-    //                 headers: { ...authHeader(), "Content-Type": "application/json" },
-    //             };
-    //             return fetch(`${process.env.REACT_APP_API_URI}/server/searchtypes/download/${exportId}`, requestOptions)
-    //             .then(response => {
-    //                 this.setState({ downloadingExport: false });
-    //                 if (!response.ok) {
-    //                     if (response.status === 401) {
-    //                         localStorage.removeItem('user');
-    //                         window.location.reload(true);
-    //                     } else {
-    //                         response.text().then(text => {
-    //                             const data = text && JSON.parse(text);
-    //                             const resMsg = (data && data.message) || response.statusText;
-    //                             this.setState({
-    //                                 alert: {
-    //                                     type: "alert-danger",
-    //                                     message: resMsg
-    //                                 },
-    //                             });
-    //                         });
-    //                     }
-    //                 } else {
-    //                     response.blob().then(blob => saveAs(blob, "export.xlsx"));
-    //                 }
-    //             });
-    //         });
-    //     }
-    // }
 
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
@@ -758,19 +695,28 @@ export default class Searchtypes extends React.Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({
                     sort: sort,
-                    dropdown: {
-                        name: this.state.params.name.selection._id,
-                        pffType: this.state.params.pffType.selection._id,
-                        minSize: this.state.params.minSize.selection._id,
-                        maxSize: this.state.params.maxSize.selection._id,
-                        lunar: this.state.params.lunar.selection._id,
-                        tags: this.state.params.tags.selection._id,
-                        types: this.state.params.types.selection._id,
-                        createdBy: this.state.params.createdBy.selection._id,
-                        createdAt: this.state.params.createdAt.selection._id,
-                        updatedBy: this.state.params.updatedBy.selection._id,
-                        updatedAt: this.state.params.updatedAt.selection._id,
-                    },
+                    dropdown: !!/^searchtype_/.test(key) ?
+                    (
+                        {
+                            pffType: this.state.params.searchtype_pffType.selection._id,
+                        }
+                    )
+                    :
+                    (
+                        {
+                            name: this.state.params.name.selection._id,
+                            pffType: this.state.params.pffType.selection._id,
+                            minSize: this.state.params.minSize.selection._id,
+                            maxSize: this.state.params.maxSize.selection._id,
+                            lunar: this.state.params.lunar.selection._id,
+                            tags: this.state.params.tags.selection._id,
+                            types: this.state.params.types.selection._id,
+                            createdBy: this.state.params.createdBy.selection._id,
+                            createdAt: this.state.params.createdAt.selection._id,
+                            updatedBy: this.state.params.updatedBy.selection._id,
+                            updatedAt: this.state.params.updatedAt.selection._id,
+                        }  
+                    ),
                     name: this.state.params[key].value,
                     page: page || 0
                 })
@@ -1012,12 +958,12 @@ export default class Searchtypes extends React.Component {
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
-                        <button title="Create Article Type" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Article</span>
+                        <button title="Create Search Type" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Search</span>
                         </button>
                     </div>
                     <div className="body-section">
-                        <div className="row row-table-container"> {/* borderStyle: "solid", borderWidth: "1px", borderColor: "#ddd", */}
+                        <div className="row row-table-container">
                             <div id="table-container" className="table-responsive custom-table-container custom-table-container__fixed-row" >
                                 <table className="table table-hover table-bordered table-sm">
                                     <thead>
@@ -1227,17 +1173,10 @@ export default class Searchtypes extends React.Component {
                         size="modal-lg"
                     >
                         <div className="modal-body">
-                            {!this.state.retrievingElement ?
+                            {!retrievingElement ?
                                 (
                                     <div className="modal-body-content">
                                         <section id="info" className="drop-section">
-                                        {/* <div className="modal-body-content-section-title-container">
-                                                <div className="modal-body-content-section-title-row">
-                                                    <div className="modal-body-content-section-title">
-                                                        Info
-                                                    </div>
-                                                </div>
-                                            </div> */}
                                             <div className="row row-cols-1">
                                                 <div className="col">
                                                     <div className="modal-body-content-section-info">
@@ -1257,16 +1196,6 @@ export default class Searchtypes extends React.Component {
                                                 </div>
                                             </div>
                                             <div className="row row-cols-1 row-cols-md-2">
-                                                {/* <ParamInput
-                                                    key="0"
-                                                    name="searchtype_name"
-                                                    focused={focused}
-                                                    value={params.searchtype_name.selection.name}
-                                                    placeholder={params.searchtype_name.placeholder}
-                                                    onChange={this.handleChangeInput}
-                                                    onFocus={this.onFocus}
-                                                    handleClearValue={this.handleClearValue}
-                                                /> */}
                                                 <ParamSelect
                                                     key="0"
                                                     name="searchtype_name"
@@ -1358,7 +1287,6 @@ export default class Searchtypes extends React.Component {
                                                     toggleDropDown={this.toggleDropDown}
                                                 />
                                             </div>
-                                            {/* <hr /> */}
                                         </section>
                                         <section id="tags" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1382,7 +1310,6 @@ export default class Searchtypes extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            {/* <hr /> */}
                                         </section>
                                         <section id="types" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1406,7 +1333,6 @@ export default class Searchtypes extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            {/* <hr /> */}
                                         </section>
                                     </div>   
                                 )

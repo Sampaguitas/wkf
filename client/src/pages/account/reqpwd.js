@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import InputIcon from "../../components/input-icon";
-import logo from "../../assets/logo.jpg"; //logo.svg
+import logo from "../../assets/logo.jpg";
 import rdb from "../../assets/rdb.svg";
 
 export default class ReqPwd extends Component {

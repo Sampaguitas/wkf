@@ -86,14 +86,11 @@ export default class Types extends React.Component {
         this.handleClearAlert = this.handleClearAlert.bind(this);
         this.setAlert = this.setAlert.bind(this);
         this.toggleSort = this.toggleSort.bind(this);
-        // this.handleChangeHeader = this.handleChangeHeader.bind(this);
         this.getDocuments = this.getDocuments.bind(this);
         this.colDoubleClick = this.colDoubleClick.bind(this);
         this.setColWidth = this.setColWidth.bind(this);
         this.changePage = this.changePage.bind(this);
-        // this.handleDownlaod = this.handleDownlaod.bind(this);
         this.generateBody = this.generateBody.bind(this);
-        //dropdown
         this.toggleModalSearch = this.toggleModalSearch.bind(this);
         this.toggleModalSubmit = this.toggleModalSubmit.bind(this);
         this.handleClearFields = this.handleClearFields.bind(this);
@@ -106,14 +103,11 @@ export default class Types extends React.Component {
         this.onFocus = this.onFocus.bind(this);
         this.onHover = this.onHover.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
-
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleOnclick = this.handleOnclick.bind(this);
-
         this.addTag = this.addTag.bind(this);
         this.removeTag = this.removeTag.bind(this);
 
@@ -132,7 +126,6 @@ export default class Types extends React.Component {
         const tableContainer = document.getElementById("table-container");
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        // this.interval = setInterval(() => this.getDocuments(this.state.paginate.currentPage), 3000);
 
         document.getElementById("export").addEventListener("click", event => {
             if (!/drop-/.test(event.target.className) && event.target.type !== "checkbox") {
@@ -169,10 +162,6 @@ export default class Types extends React.Component {
             window.location.reload(true);
         }
     }
-
-    // componentWillUnmount() {
-    //     clearInterval(this.interval);
-    // }
 
     resize() {
         const tableContainer = document.getElementById("table-container");
@@ -279,17 +268,6 @@ export default class Types extends React.Component {
         }
     }
 
-    // handleChangeHeader(event) {
-    //     const { filter } = this.state;
-    //     const { name, value } = event.target;
-    //     this.setState({
-    //         filter: {
-    //             ...filter,
-    //             [name]: value
-    //         }
-    //     });
-    // }
-
     toggleModalSearch() {
         const { showSearch } = this.state;
         this.setState({
@@ -355,7 +333,6 @@ export default class Types extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else if (response.status !== 200) {
@@ -412,7 +389,6 @@ export default class Types extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -466,7 +442,6 @@ export default class Types extends React.Component {
                         const data = text && JSON.parse(text);
                         const resMsg = (data && data.message) || response.statusText;
                         if (response.status === 401) {
-                            // Unauthorized
                             localStorage.removeItem("user");
                             window.location.reload(true);
                         } else {
@@ -497,28 +472,6 @@ export default class Types extends React.Component {
         }
     }
 
-    // handleOnclick(event, _id) {
-    //     event.preventDefault();
-    //     const { elements, currentUser } = this.state;
-    //     let found = elements.find(element => _.isEqual(element._id, _id));
-    //     if (!_.isUndefined(found) && !!currentUser.isAdmin) {
-    //         this.setState({
-    //             _id,
-    //             params: {
-    //                 ...this.state.params,
-    //                 type_name: { value: found.name, placeholder: "Name", selection: { _id: found.name, name: found.name}, options: [], hover: "", page: 0 },
-    //                 type_pffType: { value: "", placeholder: "PFF Type", selection: { _id: found.pffType, name: found.pffType}, options: [], hover: "", page: 0 },
-    //                 type_isComplete: { value: found.isComplete, placeholder: "Is Complete", selection: { _id: found.isComplete, name: !found.isComplete ? "false" : "true" }, options: [], hover: "", page: 0 },
-    //                 type_isMultiple: { value: found.isMultiple, placeholder: "Is Multiple", selection: { _id: found.isMultiple, name: !found.isMultiple ? "false": "true" }, options: [], hover: "", page: 0 },
-    //                 type_lunar: { value: found.lunar, placeholder: "vLunar", selection: { _id: found.lunar, name: found.lunar}, options: [], hover: "", page: 0 },
-    //                 type_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-    //                 type_specs: { value: "", placeholder: "Specs", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
-    //             },
-    //             showSubmit: true
-    //         });
-    //     }
-    // }
-
     handleOnclick(event, _id) {
         event.preventDefault();
         const { currentUser } = this.state;
@@ -547,7 +500,6 @@ export default class Types extends React.Component {
                     const data = text && JSON.parse(text);
                     const resMsg = (data && data.message) || response.statusText;
                     if (response.status === 401) {
-                        // Unauthorized
                         localStorage.removeItem("user");
                         window.location.reload(true);
                     } else if (response.status !== 200) {
@@ -642,44 +594,6 @@ export default class Types extends React.Component {
           this.setState({ selectedRows: [...selectedRows, id] });
         }       
     }
-
-    // handleDownlaod(event, exportId) {
-    //     event.preventDefault();
-    //     const { downloadingExport } = this.state;
-    //     if (!!exportId && !downloadingExport) {
-    //         this.setState({
-    //             downloadingExport: true
-    //         }, () => {
-    //             const requestOptions = {
-    //                 method: "GET",
-    //                 headers: { ...authHeader(), "Content-Type": "application/json" },
-    //             };
-    //             return fetch(`${process.env.REACT_APP_API_URI}/server/types/download/${exportId}`, requestOptions)
-    //             .then(response => {
-    //                 this.setState({ downloadingExport: false });
-    //                 if (!response.ok) {
-    //                     if (response.status === 401) {
-    //                         localStorage.removeItem('user');
-    //                         window.location.reload(true);
-    //                     } else {
-    //                         response.text().then(text => {
-    //                             const data = text && JSON.parse(text);
-    //                             const resMsg = (data && data.message) || response.statusText;
-    //                             this.setState({
-    //                                 alert: {
-    //                                     type: "alert-danger",
-    //                                     message: resMsg
-    //                                 },
-    //                             });
-    //                         });
-    //                     }
-    //                 } else {
-    //                     response.blob().then(blob => saveAs(blob, "export.xlsx"));
-    //                 }
-    //             });
-    //         });
-    //     }
-    // }
 
     generateBody() {
         const { elements, retrieving, paginate, settingsColWidth, selectAllRows, selectedRows } = this.state;
@@ -1305,7 +1219,6 @@ export default class Types extends React.Component {
                                                     handleClearValue={this.handleClearValue}
                                                 />
                                             </div>
-                                            {/* <hr /> */}
                                         </section>
                                         <section id="tags" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1329,7 +1242,6 @@ export default class Types extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            {/* <hr /> */}
                                         </section>
                                         <section id="specs" className="drop-section">
                                             <div className="modal-body-content-section-title-container">
@@ -1353,7 +1265,6 @@ export default class Types extends React.Component {
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
                                             />
-                                            {/* <hr /> */}
                                         </section>
                                     </div>   
                                 )

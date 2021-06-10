@@ -364,9 +364,9 @@
       overflow-Y: auto !important;
     }
 
-    .modal-body-content {
-        padding-bottom: calc(var(--vh, 1vh) * 75 - 40px) !important; /* 180px !important; */
-    }
+    /* .modal-body-content {
+        padding-bottom: calc(var(--vh, 1vh) * 75 - 40px) !important; 
+    } */
   
   }
 

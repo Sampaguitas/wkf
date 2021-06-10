@@ -101,7 +101,7 @@ class ResetPwd extends React.Component {
     const { alert, user, resetting } = this.state;
     return (
       <div className="container full-height" style={{overflowY: "auto"}}>
-        <section className="card-login"> {/*  shadow p-3 mb-5 bg-body rounded */}
+        <section className="card-login">
           <img src={logo} className="img-fluid" alt="Van Leeuwen Pipe and Tube"/>
           <img src={rdb} className="img-fluid mt-2" alt="European Stock Management (ESM)" />
           <hr />

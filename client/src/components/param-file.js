@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import _ from 'lodash';
 import "../styles/param.css"
 
 class ParamFile extends Component{

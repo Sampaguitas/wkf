@@ -2,7 +2,6 @@ import React from "react";
 import HeaderBarMenu from "./header-bar-menu";
 import SideBarMenu from "./side-bar-menu";
 import Footer from "./footer.js";
-// import "../styles/bootstrap.min.css";
 
 export default class Layout extends React.Component {
     render() {

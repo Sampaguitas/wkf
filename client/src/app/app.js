@@ -25,7 +25,6 @@ import Searchtypes from "../pages/home/params/searchtypes";
 import Grades from "../pages/home/params/grades";
 import Surfaces from "../pages/home/params/surfaces";
 
-
 library.add(fas, far, fal);
 
 export default class App extends React.Component {

@@ -172,7 +172,6 @@ export default class Stock extends React.Component {
         this.changePage = this.changePage.bind(this);
         this.generateBody = this.generateBody.bind(this);
         // this.generateSuppliers = this.generateSuppliers.bind(this);
-        //dropdown
         this.handleClearFields = this.handleClearFields.bind(this);
         this.getDropdownOptions = this.getDropdownOptions.bind(this);
         this.handleChangeDropdown = this.handleChangeDropdown.bind(this);
@@ -181,12 +180,8 @@ export default class Stock extends React.Component {
         this.onFocusDropdown = this.onFocusDropdown.bind(this);
         this.onHoverDropdown = this.onHoverDropdown.bind(this);
         this.toggleDropDown = this.toggleDropDown.bind(this);
-        //article
         this.getArticle = this.getArticle.bind(this);
         this.toggleModalArticle = this.toggleModalArticle.bind(this);
-        //tabs
-        // this.handleModalTabClick = this.handleModalTabClick.bind(this);
-        //selection
         this.toggleSelectAllRow = this.toggleSelectAllRow.bind(this);
         this.updateSelectedRows = this.updateSelectedRows.bind(this);
         // this.updateSelectedSuppliers = this.updateSelectedSuppliers.bind(this);
@@ -1405,7 +1400,6 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1449,7 +1443,6 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1481,7 +1474,6 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1513,7 +1505,6 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {/* <hr /> */}
                                 </section>
                                 <section>
                                     <div className="modal-body-content-section-title-container">
@@ -1569,7 +1560,6 @@ export default class Stock extends React.Component {
                                             </tbody>
                                         </table>
                                     </div>
-                                    {/* <hr /> */}
                                 </section>
                             </div>
                         </div>

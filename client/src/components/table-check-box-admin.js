@@ -47,7 +47,6 @@ export default class TableCheckBoxAdmin extends Component {
                     const data = text && JSON.parse(text);
                     const resMsg = (data && data.message) || response.statusText;
                     if (response.status === 401) {
-                        // Unauthorized
                         localStorage.removeItem("user");
                         window.location.reload(true);
                     } else {
