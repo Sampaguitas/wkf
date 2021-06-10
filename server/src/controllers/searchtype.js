@@ -72,8 +72,8 @@ const getAll = (req, res, next) => {
                             "$project": {
                                 "name": "$value.name",
                                 "pffType": "$value.pffType",
-                                "minSize": 1,
-                                "maxSize": 1,
+                                "minSize": { "$concat": ["$minSize", " mm"] },
+                                "maxSize": { "$concat": ["$maxSize", " mm"] },
                                 "createdBy": "$createdBy.name",
                                 "updatedBy": "$updatedBy.name",
                                 "createdAt": 1,
