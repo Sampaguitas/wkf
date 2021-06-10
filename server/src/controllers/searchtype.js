@@ -292,9 +292,9 @@ const getDrop = (req, res, next) => {
             case "maxSize":
                 require("../models/Searchtype").aggregate([
                     ...require("../pipelines/first_stage/searchtype")(myMatch, format),
-                    {
-                        "$unwind": `$${key}`
-                    },
+                    // {
+                    //     "$unwind": `$${key}`
+                    // },
                     {
                         "$group": {
                             "_id": `$${key}`,

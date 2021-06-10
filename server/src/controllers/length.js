@@ -70,11 +70,6 @@ const getAll = (req, res, next) => {
                                 "updatedAt": 1,
                             }
                         }
-                        // {
-                        //     "$project": {
-                        //         "name": 1
-                        //     }
-                        // }
                     ],
                     "pagination": [
                         ...require("../pipelines/first_stage/length")(myMatch, format),
