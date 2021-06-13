@@ -11,7 +11,9 @@ module.exports = (size, pffType, key) => {
                 }
             });
         } else {
-            require("../models/Size").findOne({"tags": size, "pffTypes": pffType}, function (err, res) {
+            require("../models/Size").findOne({
+                "tags": size, "pffTypes": pffType
+            }, function (err, res) {
                 if (!!err || !res) {
                     resolve({
                         "key": key,

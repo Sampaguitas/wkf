@@ -162,7 +162,10 @@ const sizeThree = (req, res, next) => {
     if (!["FORGED_OLETS", "OTHERS", "undefined", ""].includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeTwo)) {
         res.status(200).json([])
     } else {
-        require("../models/Size").findOne({ "tags": sizeTwo }, function (errTempOne, resTempOne) {
+        require("../models/Size").findOne({
+            "tags": sizeTwo,
+            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType // ----> new
+        }, function (errTempOne, resTempOne) {
             if (errTempOne || !resTempOne) {
                 res.status(200).json([]);
             } else {
@@ -214,7 +217,10 @@ const sizeTwo = (req, res, next) => {
     if (noPffTwo.includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeOne)) {
         res.status(200).json([])
     } else {
-        require("../models/Size").findOne({ "tags": sizeOne }, function (errTempOne, resTempOne) {
+        require("../models/Size").findOne({
+            "tags": sizeOne,
+            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType // ----> new
+        }, function (errTempOne, resTempOne) {
             if (errTempOne || !resTempOne) {
                 res.status(200).json([]);
             } else {
@@ -315,7 +321,11 @@ const wallOne = (req, res, next) => {
     if (noWallOne.includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeOne)) {
         res.status(200).json([])
     } else {
-        require("../models/Size").findOne({ "tags": sizeOne, "mm": { "$ne": null } }, function (errTempOne, resTempOne) {
+        require("../models/Size").findOne({
+            "tags": sizeOne,
+            "mm": { "$ne": null },
+            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType // ----> new
+        }, function (errTempOne, resTempOne) {
             if (errTempOne || !resTempOne) {
                 res.status(200).json([]);
             } else {
@@ -369,7 +379,11 @@ const wallTwo = (req, res, next) => {
     if (noWallTwo.includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeTwo)) {
         res.status(200).json([])
     } else {
-        require("../models/Size").findOne({ "tags": sizeTwo, "mm": { "$ne": null } }, function (errTempOne, resTempOne) {
+        require("../models/Size").findOne({
+            "tags": sizeTwo,
+            "mm": { "$ne": null },
+            "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType // ----> new
+        }, function (errTempOne, resTempOne) {
             if (errTempOne || !resTempOne) {
                 res.status(200).json([]);
             } else {
