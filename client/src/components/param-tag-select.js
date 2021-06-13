@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import _ from 'lodash';
 import "../styles/param.css"
 
-class ParamTag extends Component{
+class ParamTagSelect extends Component{
 
     componentDidMount() {
         const { name, handleNext } = this.props;
@@ -89,4 +89,4 @@ class ParamTag extends Component{
     }
 }
 
-export default ParamTag;
+export default ParamTagSelect;

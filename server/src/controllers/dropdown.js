@@ -317,7 +317,7 @@ const wallOne = (req, res, next) => {
     const sizeOne = decodeURI(req.query.sizeOne);
     const name = decodeURI(req.query.name);
     let regSch = ["CARBON_STEEL", "LOW_TEMP", "LOW_ALLOY"].includes(steelType) ? /^S\d*$/ : /^S\d*S?$/
-    let noWallOne = ["FORGED_FITTINGS", "MI_FITTINGS", "SW_GASKETS", "FASTENERS", "RING_GASKETS"];
+    let noWallOne = ["FORGED_FITTINGS", "MI_FITTINGS", "LINE_BLANKS", "SW_GASKETS", "FASTENERS", "RING_GASKETS"];
     if (noWallOne.includes(pffType) || ["undefined", "OTHERS", ""].includes(sizeOne)) {
         res.status(200).json([])
     } else {

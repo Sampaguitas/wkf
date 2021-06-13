@@ -17,7 +17,7 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
-import ParamTag from "../../../components/param-tag";
+import ParamTagSelect from "../../../components/param-tag-select";
 import _ from "lodash";
 
 export default class Lengths extends React.Component {
@@ -1122,7 +1122,7 @@ export default class Lengths extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="2"
                                                 name="length_tags"
                                                 object={params.length_tags}
@@ -1146,7 +1146,7 @@ export default class Lengths extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="3"
                                                 name="length_pffTypes"
                                                 object={params.length_pffTypes}

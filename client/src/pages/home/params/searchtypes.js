@@ -16,7 +16,7 @@ import Layout from "../../../components/layout";
 import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
-import ParamTag from "../../../components/param-tag";
+import ParamTagSelect from "../../../components/param-tag-select";
 import _ from "lodash";
 
 export default class Searchtypes extends React.Component {
@@ -1295,7 +1295,7 @@ export default class Searchtypes extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="5"
                                                 name="searchtype_tags"
                                                 object={params.searchtype_tags}
@@ -1318,7 +1318,7 @@ export default class Searchtypes extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="6"
                                                 name="searchtype_types"
                                                 object={params.searchtype_types}

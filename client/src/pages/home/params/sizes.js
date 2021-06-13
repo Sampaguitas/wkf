@@ -17,7 +17,8 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
-import ParamTag from "../../../components/param-tag";
+import ParamTagSelect from "../../../components/param-tag-select";
+import ParamTagInput from "../../../components/param-tag-input";
 import _ from "lodash";
 
 export default class Sizes extends React.Component {
@@ -930,8 +931,8 @@ export default class Sizes extends React.Component {
                         <button title="Refresh Page" className="btn btn-sm btn-gray" onClick={this.handleRefresh}>
                             <span><FontAwesomeIcon icon="sync-alt" className="fa mr-2"/>Refresh</span>
                         </button>
-                        <button title="Create Length" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
-                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Length</span>
+                        <button title="Create Size" className="btn btn-sm btn-gray" onClick={this.toggleModalSubmit} disabled={!currentUser.isAdmin ? true : false}> {/* style={{height: "34px"}} */}
+                            <span><FontAwesomeIcon icon="plus" className="fa mr-2" />Create Size</span>
                         </button>
                     </div>
                     <div className="body-section">
@@ -1129,7 +1130,7 @@ export default class Sizes extends React.Component {
                     <Modal
                         show={showSubmit}
                         hideModal={this.toggleModalSubmit}
-                        title="Length"
+                        title="Size"
                         size="modal-lg"
                     >
                         <div className="modal-body">
@@ -1195,19 +1196,16 @@ export default class Sizes extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagInput
                                                 key="4"
                                                 name="size_tags"
                                                 object={params.size_tags}
                                                 focused={focused}
-                                                onChange={this.handleChange}
-                                                handleNext={this.handleNext}
-                                                handleSelect={this.handleSelect}
+                                                onChange={this.handleChangeInput}
                                                 onFocus={this.onFocus}
-                                                onHover={this.onHover}
-                                                toggleDropDown={this.toggleDropDown}
                                                 addTag={this.addTag}
                                                 removeTag={this.removeTag}
+                                                handleClearValue={this.handleClearValue}
                                             />
                                         </section>
                                         <section id="pfftypes" className="drop-section">
@@ -1218,7 +1216,7 @@ export default class Sizes extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="5"
                                                 name="size_pffTypes"
                                                 object={params.size_pffTypes}

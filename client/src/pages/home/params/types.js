@@ -17,7 +17,7 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
-import ParamTag from "../../../components/param-tag";
+import ParamTagSelect from "../../../components/param-tag-select";
 import _ from "lodash";
 
 export default class Types extends React.Component {
@@ -1229,7 +1229,7 @@ export default class Types extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="3"
                                                 name="type_tags"
                                                 object={params.type_tags}
@@ -1252,7 +1252,7 @@ export default class Types extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="3"
                                                 name="type_specs"
                                                 object={params.type_specs}

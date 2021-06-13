@@ -17,7 +17,7 @@ import Modal from "../../../components/modal";
 import Pagination from "../../../components/pagination";
 import ParamSelect from "../../../components/param-select";
 import ParamInput from "../../../components/param-input";
-import ParamTag from "../../../components/param-tag";
+import ParamTagSelect from "../../../components/param-tag-select";
 import _ from "lodash";
 
 export default class Grades extends React.Component {
@@ -1236,7 +1236,7 @@ export default class Grades extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="3"
                                                 name="grade_tags"
                                                 object={params.grade_tags}
@@ -1260,7 +1260,7 @@ export default class Grades extends React.Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <ParamTag
+                                            <ParamTagSelect
                                                 key="3"
                                                 name="grade_pffTypes"
                                                 object={params.grade_pffTypes}
