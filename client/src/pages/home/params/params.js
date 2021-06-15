@@ -108,6 +108,15 @@ export default class Params extends React.Component {
                             </NavLink>
                         </div>
 
+                        <div className="col-xs-6 col-sm-4">
+                            <NavLink to={{ 
+                                    pathname: "/ends",
+                                }} className="navlink-card" tag="a"
+                            >
+                                    <span>Ends</span>
+                            </NavLink>
+                        </div>
+
                     </div>                    
                 </div>
             </Layout>

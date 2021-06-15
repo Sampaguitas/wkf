@@ -2,10 +2,26 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const EndSchema = new Schema({
-    "lunar": String,
-    "name": String,
-    "tags": [String],
-    "pffTypes": [String]
+    "lunar": {
+        "type": String
+    },
+    "name": {
+        "type": String
+    },
+    "tags": [{
+        "type": String
+    }],
+    "pffTypes": [{
+        "type": String
+    }],
+    "createdBy": {
+        "type": mongoose.SchemaTypes.ObjectId,
+        "ref": "users"
+    },
+    "updatedBy": {
+        "type": mongoose.SchemaTypes.ObjectId,
+        "ref": "users"
+    }
 },
 {
     "timestamps": true

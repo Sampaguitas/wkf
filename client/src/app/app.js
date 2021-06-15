@@ -26,6 +26,7 @@ import Grades from "../pages/home/params/grades";
 import Sizes from "../pages/home/params/sizes";
 import Surfaces from "../pages/home/params/surfaces";
 import Lengths from "../pages/home/params/lengths";
+import Ends from "../pages/home/params/ends";
 
 library.add(fas, far, fal);
 
@@ -106,6 +107,9 @@ export default class App extends React.Component {
               </PrivateRoute>
               <PrivateRoute exact path="/lengths" user={user}>
                 <Lengths user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
+              </PrivateRoute>
+              <PrivateRoute exact path="/ends" user={user}>
+                <Ends user={user} collapsed={collapsed} toggleCollapse={this.toggleCollapse}/>
               </PrivateRoute>
               <Route path="*">
                 <NotFound />

@@ -1,15 +1,13 @@
 module.exports = (myMatch, format) => {
     return [
         {
-            "$match": myMatch
+            "$addFields": {
+                "createdAt": { "$dateToString": { format, "date": "$createdAt"} },
+                "updatedAt": { "$dateToString": { format, "date": "$updatedAt"} },
+            }
         },
         {
-            "$project": {
-                "lunar": 1,
-                "name": 1,
-                "tags": 1,
-                "pffTypes": 1,
-            }
+            "$match": myMatch
         },
         
     ];
