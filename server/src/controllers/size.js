@@ -148,13 +148,30 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "mm":
+                require("../models/Size").aggregate([
+                    ...require("../pipelines/first_stage/size")(myMatch, format),
+                    {
+                        "$group": {
+                            "_id": `$${key}X`,
+                            "name": { "$first": { "$concat": [ `$$ROOT.${key}X`, ` mm` ] } },
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             case "inch":
                 require("../models/Size").aggregate([
                     ...require("../pipelines/first_stage/size")(myMatch, format),
                     {
                         "$group": {
                             "_id": `$${key}X`,
-                            "name": { "$first": { "$concat": [ `$$ROOT.${key}X`, `${key === inch ? " in" : " mm"}` ] } },
+                            "name": { "$first": { "$concat": [ `$$ROOT.${key}X`, ` in` ] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page, selectionArray)
@@ -285,12 +302,14 @@ const create = (req, res, next) => {
         res.status(400).json({message: "Wrong lunar format."});
     } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
         res.status(400).json({message: "Wrong mm format."});
-    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1})?$/.test(inch)) {
+    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1,3})?$/.test(inch)) {
         res.status(400).json({message: "Wrong in format."});
     } else {
         
-        if (!tags.includes(nps)) tags.push(nps);
-        if (!tags.includes(dn)) tags.push(dn);
+        if (!!nps && !tags.includes(nps)) tags.push(nps);
+        if (!!dn && !tags.includes(dn)) tags.push(dn);
+        if (!!mm && !tags.includes(`${mm} mm`)) tags.push(`${mm} mm`);
+        if (!!inch && !tags.includes(`${inch} in`)) tags.push(`${inch} in`);
 
         let newSize = new require("../models/Size")({
             "lunar": lunar.toUpperCase(),
@@ -328,12 +347,14 @@ const update = (req, res, next) => {
         res.status(400).json({message: "Wrong lunar format."});
     } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
         res.status(400).json({message: "Wrong mm format."});
-    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1})?$/.test(inch)) {
+    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1,3})?$/.test(inch)) {
         res.status(400).json({message: "Wrong in format."});
     } else {
 
-        if (!tags.includes(nps)) tags.push(nps);
-        if (!tags.includes(dn)) tags.push(dn);
+        if (!!nps && !tags.includes(nps)) tags.push(nps);
+        if (!!dn && !tags.includes(dn)) tags.push(dn);
+        if (!!mm && !tags.includes(`${mm} mm`)) tags.push(`${mm} mm`);
+        if (!!inch && !tags.includes(`${inch} in`)) tags.push(`${inch} in`);
         
         let update = {
             "lunar": lunar.toUpperCase(),

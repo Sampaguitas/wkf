@@ -5,7 +5,8 @@ module.exports = (myMatch, format) => {
                 "createdAt": { "$dateToString": { format, "date": "$createdAt"} },
                 "updatedAt": { "$dateToString": { format, "date": "$updatedAt"} },
                 "sizeIdX": { "$toString": "$sizeId" },
-                "mmX": { "$toString": "$mm" }
+                "mmX": { "$toString": "$mm" },
+                "inchX": { "$toString": "$inch" }
             }
         },
         {
