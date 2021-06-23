@@ -14,7 +14,7 @@ const SizeSchema = new Schema({
     "mm": {
         "type": Number
     },
-    "in": {
+    "inch": {
         "type": Number
     },
     "pffTypes": [{

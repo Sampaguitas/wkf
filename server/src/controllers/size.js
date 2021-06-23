@@ -24,7 +24,7 @@ const getAll = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.nps, dropdown.dn, dropdown.mm, dropdown.tags, dropdown.pffTypes, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.nps, dropdown.dn, dropdown.mm, dropdown.inch, dropdown.tags, dropdown.pffTypes, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         require("../models/Size").aggregate([
             {
                 $facet: {
@@ -66,7 +66,8 @@ const getAll = (req, res, next) => {
                             "$project": {
                                 "nps": 1,
                                 "dn": 1,
-                                "mm":  { "$concat": ["$mm", " mm"] },
+                                "mm":  { "$concat": ["$mmX", " mm"] },
+                                "inch":  { "$concat": ["$inchX", " in"] },
                                 "createdBy": "$createdBy.name",
                                 "updatedBy": "$updatedBy.name",
                                 "createdAt": 1,
@@ -107,7 +108,7 @@ const getDrop = (req, res, next) => {
 
     const dateFormat = req.body.dateFormat || "DD/MM/YYYY"
     let format = dateFormat.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y');
-    matchDropdown(dropdown.lunar, dropdown.nps, dropdown.dn, dropdown.mm, dropdown.tags, dropdown.pffTypes, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
+    matchDropdown(dropdown.lunar, dropdown.nps, dropdown.dn, dropdown.mm, dropdown.inch, dropdown.tags, dropdown.pffTypes, dropdown.createdBy, dropdown.createdAt, dropdown.updatedBy, dropdown.updatedAt).then(myMatch => {
         switch(key) {
             case "size_pffTypes":
                 require("../models/Pff").aggregate([
@@ -147,12 +148,13 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "mm":
+            case "inch":
                 require("../models/Size").aggregate([
                     ...require("../pipelines/first_stage/size")(myMatch, format),
                     {
                         "$group": {
-                            "_id": `$${key}`,
-                            "name": { "$first": { "$concat": [ `$$ROOT.${key}`, ` ${key}` ] } },
+                            "_id": `$${key}X`,
+                            "name": { "$first": { "$concat": [ `$$ROOT.${key}X`, `${key === inch ? " in" : " mm"}` ] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page, selectionArray)
@@ -255,12 +257,12 @@ function matchDropdown() {
     let myArgs = arguments;
 
     return new Promise(function(resolve) {
-        resolve(["lunar", "nps", "dn", "mm", "tags", "pffTypes", "createdBy", "createdAt", "updatedBy", "updatedAt"].reduce(function(acc, cur, index) {
+        resolve(["lunar", "nps", "dn", "mm", "inch", "tags", "pffTypes", "createdBy", "createdAt", "updatedBy", "updatedAt"].reduce(function(acc, cur, index) {
             if (myArgs[index] !== "") {
                 if (["createdBy", "updatedBy"].includes(cur)) {
                     acc[`${cur}`] = ObjectId(myArgs[index]);
-                } else if (cur == "mm") {
-                    acc[`${cur}`] = myArgs[index];
+                } else if (["mm", "inch"].includes(cur)) {
+                    acc[`${cur}X`] = myArgs[index];
                 } else {
                     acc[`${cur}`] = myArgs[index];
                 }
@@ -273,7 +275,7 @@ function matchDropdown() {
 const create = (req, res, next) => {
     
     const user = req.user;
-    const { lunar, nps, dn, mm, tags, pffTypes } = req.body;
+    const { lunar, nps, dn, mm, inch, tags, pffTypes } = req.body;
 
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to create params"});
@@ -283,6 +285,8 @@ const create = (req, res, next) => {
         res.status(400).json({message: "Wrong lunar format."});
     } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
         res.status(400).json({message: "Wrong mm format."});
+    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1})?$/.test(inch)) {
+        res.status(400).json({message: "Wrong in format."});
     } else {
         
         if (!tags.includes(nps)) tags.push(nps);
@@ -293,6 +297,7 @@ const create = (req, res, next) => {
             "nps": nps,
             "dn": dn,
             "mm": mm,
+            "inch": inch,
             "tags": tags,
             "pffTypes": pffTypes,
             "createdBy": user._id,
@@ -311,7 +316,7 @@ const update = (req, res, next) => {
 
     const user = req.user;
     const {sizeId} = req.params;
-    const { lunar, nps, dn, mm, tags, pffTypes } = req.body;
+    const { lunar, nps, dn, mm, inch, tags, pffTypes } = req.body;
 
     if (!user.isAdmin) {
         res.status(400).json({message: "You do not have the permission to update params."});
@@ -323,6 +328,8 @@ const update = (req, res, next) => {
         res.status(400).json({message: "Wrong lunar format."});
     } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
         res.status(400).json({message: "Wrong mm format."});
+    } else if (!!inch && !/^[0-9]{1,}(.[0-9]{1})?$/.test(inch)) {
+        res.status(400).json({message: "Wrong in format."});
     } else {
 
         if (!tags.includes(nps)) tags.push(nps);
@@ -333,6 +340,7 @@ const update = (req, res, next) => {
             "nps": nps,
             "dn": dn,
             "mm": mm,
+            "inch": inch,
             "tags": tags,
             "pffTypes": pffTypes,
             "updatedBy": user._id

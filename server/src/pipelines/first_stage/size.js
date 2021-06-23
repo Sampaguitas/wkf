@@ -4,7 +4,8 @@ module.exports = (myMatch, format) => {
             "$addFields": {
                 "createdAt": { "$dateToString": { format, "date": "$createdAt"} },
                 "updatedAt": { "$dateToString": { format, "date": "$updatedAt"} },
-                "mm": { "$toString": "$mm" }
+                "mmX": { "$toString": "$mm" },
+                "inchX": { "$toString": "$inch" }
             }
         },
         {

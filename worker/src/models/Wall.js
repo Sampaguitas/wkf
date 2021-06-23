@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const WallSchema = new Schema({
     "sizeId": Number,
     "mm": Number,
-    "in": Number,
+    "inch": Number,
     "idt": String,
     "sch": String,
     "schS": String,

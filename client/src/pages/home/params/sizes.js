@@ -35,7 +35,8 @@ export default class Sizes extends React.Component {
             params: {
                 nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -45,7 +46,8 @@ export default class Sizes extends React.Component {
                 updatedAt: { value: "", placeholder: "Updated At", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                size_mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                size_mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                size_inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                 size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
@@ -181,6 +183,7 @@ export default class Sizes extends React.Component {
         if (this.state.params.nps.selection._id !== prevState.params.nps.selection._id) this.getDocuments();
         if (this.state.params.dn.selection._id !== prevState.params.dn.selection._id) this.getDocuments();
         if (this.state.params.mm.selection._id !== prevState.params.mm.selection._id) this.getDocuments();
+        if (this.state.params.inch.selection._id !== prevState.params.inch.selection._id) this.getDocuments();
         if (this.state.params.lunar.selection._id !== prevState.params.lunar.selection._id) this.getDocuments();
         if (this.state.params.tags.selection._id !== prevState.params.tags.selection._id) this.getDocuments();
         if (this.state.params.pffTypes.selection._id !== prevState.params.pffTypes.selection._id) this.getDocuments();
@@ -192,6 +195,7 @@ export default class Sizes extends React.Component {
         if (this.state.params.nps.value !== prevState.params.nps.value) this.getDropdownOptions("nps", 0);
         if (this.state.params.dn.value !== prevState.params.dn.value) this.getDropdownOptions("dn", 0);
         if (this.state.params.mm.value !== prevState.params.mm.value) this.getDropdownOptions("mm", 0);
+        if (this.state.params.inch.value !== prevState.params.inch.value) this.getDropdownOptions("inch", 0);
         if (this.state.params.lunar.value !== prevState.params.lunar.value) this.getDropdownOptions("lunar", 0);
         if (this.state.params.tags.value !== prevState.params.tags.value) this.getDropdownOptions("tags", 0);
         if (this.state.params.pffTypes.value !== prevState.params.pffTypes.value) this.getDropdownOptions("pffTypes", 0);
@@ -279,7 +283,8 @@ export default class Sizes extends React.Component {
                 ...this.state.params,
                 size_nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                size_mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                size_mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                size_inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 size_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                 size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
@@ -307,6 +312,7 @@ export default class Sizes extends React.Component {
                             nps: params.nps.selection._id,
                             dn: params.dn.selection._id,
                             mm: params.mm.selection._id,
+                            inch: params.inch.selection._id,
                             lunar: params.lunar.selection._id,
                             tags: params.tags.selection._id,
                             pffTypes: params.pffTypes.selection._id,
@@ -369,6 +375,7 @@ export default class Sizes extends React.Component {
                         nps: params.size_nps.selection._id,
                         dn: params.size_dn.selection._id,
                         mm: params.size_mm.selection._id,
+                        inch: params.size_inch.selection._id,
                         lunar: params.size_lunar.selection._id,
                         tags: params.size_tags.selectionArray,
                         pffTypes: params.size_pffTypes.selectionArray,
@@ -391,7 +398,8 @@ export default class Sizes extends React.Component {
                                     ...this.state.params,
                                     size_nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                                    size_mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    size_mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    size_inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                     size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
@@ -443,7 +451,8 @@ export default class Sizes extends React.Component {
                                     ...this.state.params,
                                     size_nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                                    size_mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    size_mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                                    size_inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                                     size_tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                                     size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
@@ -473,7 +482,8 @@ export default class Sizes extends React.Component {
                     ...this.state.params,
                     size_nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                     size_dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                    size_mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    size_mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                    size_inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                     size_lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                     size_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [] },
                     size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [] },
@@ -506,7 +516,8 @@ export default class Sizes extends React.Component {
                                 ...this.state.params,
                                 size_nps: { value: data.doc.nps || "", placeholder: "NPS", selection: { _id: data.doc.nps || "", name: data.doc.nps || ""}, options: [], hover: "", page: 0 },
                                 size_dn: { value: data.doc.dn || "", placeholder: "DN", selection: { _id: data.doc.name || "", name: data.doc.dn || ""}, options: [], hover: "", page: 0 },
-                                size_mm: { value: data.doc.mm || "", placeholder: "OD", selection: { _id: data.doc.mm || "", name: data.doc.mm || ""}, options: [], hover: "", page: 0 },
+                                size_mm: { value: data.doc.mm || "", placeholder: "mm", selection: { _id: data.doc.mm || "", name: data.doc.mm || ""}, options: [], hover: "", page: 0 },
+                                size_inch: { value: data.doc.inch || "", placeholder: "inch", selection: { _id: data.doc.inch || "", name: data.doc.inch || ""}, options: [], hover: "", page: 0 },
                                 size_lunar: { value: data.doc.lunar, placeholder: "vLunar", selection: { _id: data.doc.lunar, name: data.doc.lunar}, options: [], hover: "", page: 0 },
                                 size_tags: { value: "", placeholder: "Tags", selection: { _id: "", tags: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.tags] },
                                 size_pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0, selectionArray: [...data.doc.pffTypes] },
@@ -600,10 +611,11 @@ export default class Sizes extends React.Component {
                         <TableData colIndex="1" value={element.nps} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                         <TableData colIndex="2" value={element.dn} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                         <TableData colIndex="3" value={element.mm} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="4" value={element.createdBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="5" value={element.createdAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="6" value={element.updatedBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
-                        <TableData colIndex="7" value={element.updatedAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="4" value={element.inch} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="5" value={element.createdBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="6" value={element.createdAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="7" value={element.updatedBy} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
+                        <TableData colIndex="8" value={element.updatedAt} type="text" settingsColWidth={settingsColWidth} handleClick={this.handleOnclick} eventId={element._id} />
                     </tr>
                 );
             });
@@ -611,6 +623,7 @@ export default class Sizes extends React.Component {
             for (let i = 0; i < paginate.pageSize; i++) {
                 tempRows.push(
                     <tr key={i}>
+                        <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
                         <td className="no-select"><Skeleton /></td>
@@ -637,7 +650,8 @@ export default class Sizes extends React.Component {
                 ...this.state.params,
                 nps: { value: "", placeholder: "NPS", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 dn: { value: "", placeholder: "DN", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
-                mm: { value: "", placeholder: "OD", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                mm: { value: "", placeholder: "mm", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
+                inch: { value: "", placeholder: "inch", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 lunar: { value: "", placeholder: "vLunar", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 tags: { value: "", placeholder: "Tags", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
                 pffTypes: { value: "", placeholder: "PFF Types", selection: { _id: "", name: ""}, options: [], hover: "", page: 0 },
@@ -681,6 +695,7 @@ export default class Sizes extends React.Component {
                         nps: this.state.params.nps.selection._id,
                         dn: this.state.params.dn.selection._id,
                         mm: this.state.params.mm.selection._id,
+                        inch: this.state.params.inch.selection._id,
                         lunar: this.state.params.lunar.selection._id,
                         tags: this.state.params.tags.selection._id,
                         pffTypes: this.state.params.pffTypes.selection._id,
@@ -949,7 +964,7 @@ export default class Sizes extends React.Component {
                                                 type="text"
                                                 title="NPS"
                                                 name="nps"
-                                                width="80px"
+                                                // width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="1"
@@ -961,7 +976,7 @@ export default class Sizes extends React.Component {
                                                 type="text"
                                                 title="DN"
                                                 name="dn"
-                                                width="80px"
+                                                // width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="2"
@@ -971,11 +986,22 @@ export default class Sizes extends React.Component {
                                             />
                                             <TableHeader
                                                 type="text"
-                                                title="OD"
+                                                title="mm"
                                                 name="mm"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
                                                 index="3"
+                                                colDoubleClick={this.colDoubleClick}
+                                                setColWidth={this.setColWidth}
+                                                settingsColWidth={settingsColWidth}
+                                            />
+                                            <TableHeader
+                                                type="text"
+                                                title="inch"
+                                                name="inch"
+                                                sort={sort}
+                                                toggleSort={this.toggleSort}
+                                                index="4"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -987,7 +1013,7 @@ export default class Sizes extends React.Component {
                                                 width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="4"
+                                                index="5"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -999,7 +1025,7 @@ export default class Sizes extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="5"
+                                                index="6"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -1011,7 +1037,7 @@ export default class Sizes extends React.Component {
                                                 width="220px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="6"
+                                                index="7"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -1023,7 +1049,7 @@ export default class Sizes extends React.Component {
                                                 width="80px"
                                                 sort={sort}
                                                 toggleSort={this.toggleSort}
-                                                index="7"
+                                                index="8"
                                                 colDoubleClick={this.colDoubleClick}
                                                 setColWidth={this.setColWidth}
                                                 settingsColWidth={settingsColWidth}
@@ -1067,7 +1093,7 @@ export default class Sizes extends React.Component {
                                         </div>
                                     </div>
                                     <div className="row row-cols-1 row-cols-md-2">
-                                        {Object.keys(params).map((key, index) => index < 6 &&  
+                                        {Object.keys(params).map((key, index) => index < 7 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -1098,7 +1124,7 @@ export default class Sizes extends React.Component {
                                         </div>
                                     </div>
                                     <div className="row row-cols-1 row-cols-md-2">
-                                        {Object.keys(params).map((key, index) => index > 5 && index < 10 &&  
+                                        {Object.keys(params).map((key, index) => index > 6 && index < 11 &&  
                                             <ParamSelect
                                                 key={key}
                                                 name={key}
@@ -1178,6 +1204,16 @@ export default class Sizes extends React.Component {
                                                 />
                                                 <ParamInput
                                                     key="3"
+                                                    name="size_inch"
+                                                    focused={focused}
+                                                    value={params.size_inch.selection.name}
+                                                    placeholder={params.size_inch.placeholder}
+                                                    onChange={this.handleChangeInput}
+                                                    onFocus={this.onFocus}
+                                                    handleClearValue={this.handleClearValue}
+                                                />
+                                                <ParamInput
+                                                    key="4"
                                                     name="size_lunar"
                                                     focused={focused}
                                                     value={params.size_lunar.selection.name}
@@ -1197,7 +1233,7 @@ export default class Sizes extends React.Component {
                                                 </div>
                                             </div>
                                             <ParamTagInput
-                                                key="4"
+                                                key="5"
                                                 name="size_tags"
                                                 object={params.size_tags}
                                                 focused={focused}
@@ -1217,7 +1253,7 @@ export default class Sizes extends React.Component {
                                                 </div>
                                             </div>
                                             <ParamTagSelect
-                                                key="5"
+                                                key="6"
                                                 name="size_pffTypes"
                                                 object={params.size_pffTypes}
                                                 focused={focused}
@@ -1238,6 +1274,7 @@ export default class Sizes extends React.Component {
                                     <div className="modal-body-content">
                                         <section id="singles" className="drop-section">
                                             <div className="row row-cols-1">
+                                                <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
                                                 <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
                                                 <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>
                                                 <div className="col"><div className="form-group drop-form-group"><Skeleton /></div></div>

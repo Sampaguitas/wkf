@@ -141,14 +141,14 @@ const sizeOne = (req, res, next) => {
                 } else if(regMm.test(cur)) {
                     acc.mm.push(cur);
                 } else if(regIn.test(cur)) {
-                    acc.in.push(cur);
+                    acc.inch.push(cur);
                 } else {
                     acc.other.push(cur);
                 }
                 return acc;
-            }, { "nps": [], "dn": [], "mm": [], "in": [], "other": [] });
+            }, { "nps": [], "dn": [], "mm": [], "inch": [], "other": [] });
             res.status(200).json(
-                [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
+                [...temp.nps, ...temp.dn, ...temp.mm, ...temp.inch, ...temp.other]
                 .filter((value, index, self) => self.indexOf(value) === index)
             );
         }
@@ -192,14 +192,14 @@ const sizeThree = (req, res, next) => {
                             } else if (regMm.test(cur)) {
                                 acc.mm.push(cur);
                             } else if (regIn.test(cur)) {
-                                acc.in.push(cur);
+                                acc.inch.push(cur);
                             } else {
                                 acc.other.push(cur);
                             }
                             return acc;
-                        }, { "nps": [], "dn": [], "mm": [], "in": [], "other": [] });
+                        }, { "nps": [], "dn": [], "mm": [], "inch": [], "other": [] });
                         res.status(200).json(
-                            [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
+                            [...temp.nps, ...temp.dn, ...temp.mm, ...temp.inch, ...temp.other]
                             .filter((value, index, self) => self.indexOf(value) === index)
                         );
                     }
@@ -247,14 +247,14 @@ const sizeTwo = (req, res, next) => {
                             } else if (regMm.test(cur)) {
                                 acc.mm.push(cur);
                             } else if (regIn.test(cur)) {
-                                acc.in.push(cur);
+                                acc.inch.push(cur);
                             } else {
                                 acc.other.push(cur);
                             }
                             return acc;
-                        }, { "nps": [], "dn": [], "mm": [], "in": [], "other": [] });
+                        }, { "nps": [], "dn": [], "mm": [], "inch": [], "other": [] });
                         res.status(200).json(
-                            [...temp.nps, ...temp.dn, ...temp.mm, ...temp.in, ...temp.other]
+                            [...temp.nps, ...temp.dn, ...temp.mm, ...temp.inch, ...temp.other]
                             .filter((value, index, self) => self.indexOf(value) === index)
                         );
                     }
@@ -348,7 +348,7 @@ const wallOne = (req, res, next) => {
                             if (regMm.test(cur)) {
                                 acc.mm.push(cur);
                             } else if (regIn.test(cur)) {
-                                acc.in.push(cur);
+                                acc.inch.push(cur);
                             } else if (regIdt.test(cur)) {
                                 acc.idt.push(cur);
                             } else if (regSch.test(cur)) {
@@ -356,10 +356,10 @@ const wallOne = (req, res, next) => {
                             }
                             return acc;
                         }, {
-                            "mm": [], "in": [], "idt": [], "sch": []
+                            "mm": [], "inch": [], "idt": [], "sch": []
                         });
                         res.status(200).json(
-                            [...temp.idt, ...temp.sch, ...temp.mm, ...temp.in]
+                            [...temp.idt, ...temp.sch, ...temp.mm, ...temp.inch]
                             .filter((value, index, self) => self.indexOf(value) === index)
                         );
                     }
@@ -406,7 +406,7 @@ const wallTwo = (req, res, next) => {
                             if (regMm.test(cur)) {
                                 acc.mm.push(cur);
                             } else if (regIn.test(cur)) {
-                                acc.in.push(cur);
+                                acc.inch.push(cur);
                             } else if (regIdt.test(cur)) {
                                 acc.idt.push(cur);
                             } else if (regSch.test(cur)) {
@@ -414,10 +414,10 @@ const wallTwo = (req, res, next) => {
                             }
                             return acc;
                         }, {
-                            "mm": [], "in": [], "idt": [], "sch": []
+                            "mm": [], "inch": [], "idt": [], "sch": []
                         });
                         res.status(200).json(
-                            [...temp.idt, ...temp.sch, ...temp.mm, ...temp.in]
+                            [...temp.idt, ...temp.sch, ...temp.mm, ...temp.inch]
                             .filter((value, index, self) => self.indexOf(value) === index)
                         );
                     }
