@@ -5,13 +5,23 @@ const getById = (req, res, next) => {
 
     const {wallId} = req.params;
 
-    require("../models/Wall").findById(wallId, function (err, doc) {
+    require("../models/Wall").findById(wallId, {
+        "sizeId": { "$toString": "$sizeId" },
+        "mm": { "$toString": "$mm" },
+        "inch": { "$toString": "$inch" },
+        "idt": "$idt",
+        "sch": "$sch",
+        "schS": "$schS",
+        "lunar": "$lunar",
+        "tags": "$tags",
+        "pffTypes": "$pffTypes",
+    }, function (err, doc) {
         if (!!err) {
             res.status(400).json({ message: "An error has occured."})
         } if (!doc) {
             res.status(400).json({ message: "Could not retrieve export information." });
         } else {
-            res.json({doc: doc});
+            res.json({doc});
         }
     });
 }
@@ -133,14 +143,18 @@ const getDrop = (req, res, next) => {
                 require("../models/Size").aggregate([
                     {
                         "$match": {
-                            "mm": { "$ne": null },
-                            "pffType": !!dropdown.pffTypes ? dropdown.pffTypes : { "$exists": true }
+                            "mm": { "$ne": null }
                         }
+                    },
+                    {
+                        "$addFields": {
+                            "mm": { "$toString": "$mm" },
+                        },
                     },
                     {
                         "$group": {
                             "_id": `$mm`,
-                            "name": {"$first":`$$ROOT.mm`},
+                            "name": {"$first": { "$concat": [`$$ROOT.mm`, " mm"] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page, selectionArray)
@@ -153,67 +167,63 @@ const getDrop = (req, res, next) => {
                 });
                 break;
             case "wall_idt":
-                let foundOne = [
-                    { "_id": "STD", "name": "STD" },
-                    { "_id": "XS", "name": "XS" },
-                    { "_id": "XXS", "name": "XXS" }
-                ].filter(e => {
-                    let myRegex = new RegExp(escape(name));
-                    return !!name ? myRegex.test(e) : true;
+                require("../models/Idt").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
                 });
-                if (foundOne === undefined) {
-                    res.status(200).json([]);
-                } else {
-                    res.status(200).json({foundOne});
-                }
-                break;
+                break
             case "wall_sch":
-                let foundTwo = [
-                    { "_id": "S5", "name": "S5" },
-                    { "_id": "S10", "name": "S10" },
-                    { "_id": "S20", "name": "S20" },
-                    { "_id": "S30", "name": "S30" },
-                    { "_id": "S40", "name": "S40" },
-                    { "_id": "S60", "name": "S60" },
-                    { "_id": "S80", "name": "S80" },
-                    { "_id": "S100", "name": "S100" },
-                    { "_id": "S120", "name": "S120" },
-                    { "_id": "S140", "name": "S140" },
-                    { "_id": "S160", "name": "S160" },
-                ].filter(e => {
-                    let myRegex = new RegExp(escape(name));
-                    return !!name ? myRegex.test(e) : true;
+                require("../models/Sch").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
                 });
-                if (foundTwo === undefined) {
-                    res.status(200).json([]);
-                } else {
-                    res.status(200).json({foundTwo});
-                }
-                break;
+                break
             case "wall_schS":
-                "S5S", "S10S", "S40S", "S80S"
-                let foundThree = [
-                    { "_id": "S5S", "name": "S5S" },
-                    { "_id": "S10S", "name": "S10S" },
-                    { "_id": "S40S", "name": "S40S" },
-                    { "_id": "S80S", "name": "S80S" },
-                ].filter(e => {
-                    let myRegex = new RegExp(escape(name));
-                    return !!name ? myRegex.test(e) : true;
+                require("../models/Schs").aggregate([
+                    {
+                        "$group": {
+                            "_id": `$name`,
+                            "name": {"$first":`$$ROOT.name`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
                 });
-                if (foundThree === undefined) {
-                    res.status(200).json([]);
-                } else {
-                    res.status(200).json({foundThree});
-                }
-                break;
+                break
             case "sizeId":
                 require("../models/Wall").aggregate([
                     ...require("../pipelines/first_stage/wall")(myMatch, format),
                     {
                         "$group": {
                             "_id": `$${key}X`,
-                            "name": {"$first":`$$ROOT.${key}X`},
+                            "name": { "$first": { "$concat": [`$$ROOT.${key}X`, " mm" ] } },
                         }
                     },
                     ...require("../pipelines/projection/drop")(name, page, selectionArray)
