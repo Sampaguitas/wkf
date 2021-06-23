@@ -276,14 +276,17 @@ const create = (req, res, next) => {
     const { lunar, nps, dn, mm, tags, pffTypes } = req.body;
 
     if (!user.isAdmin) {
-        res.status(400).json({message: "You do not have the permission to create params"})
-    } else if (!nps || !pffTypes || pffTypes.length < 1 || !lunar) {
-        res.status(400).json({message: "Name, PFF Types and lunar cannot be emty."})
+        res.status(400).json({message: "You do not have the permission to create params"});
+    } else if ((!nps && !dn) || !pffTypes || pffTypes.length < 1 || !lunar) {
+        res.status(400).json({message: "Name, PFF Types and lunar cannot be emty."});
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 2) {
-        res.status(400).json({message: "Wrong lunar format."})
+        res.status(400).json({message: "Wrong lunar format."});
+    } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
+        res.status(400).json({message: "Wrong mm format."});
     } else {
         
-        if (!tags.includes(name)) tags.push(name);
+        if (!tags.includes(nps)) tags.push(nps);
+        if (!tags.includes(dn)) tags.push(dn);
 
         let newSize = new require("../models/Size")({
             "lunar": lunar.toUpperCase(),
@@ -305,22 +308,25 @@ const create = (req, res, next) => {
 
 
 const update = (req, res, next) => {
-        
+
     const user = req.user;
     const {sizeId} = req.params;
     const { lunar, nps, dn, mm, tags, pffTypes } = req.body;
 
     if (!user.isAdmin) {
-        res.status(400).json({message: "You do not have the permission to update params."})
+        res.status(400).json({message: "You do not have the permission to update params."});
     } else if (!sizeId) {
         res.status(400).json({message: "Size ID is missing."});
-    } else if (!nps || !pffTypes || pffTypes.length < 1 || !lunar) {
-        res.status(400).json({message: "Name, PFF Types and lunar cannot be emty."});
+    } else if ((!nps && !dn) || !pffTypes || pffTypes.length < 1 || !lunar) {
+        res.status(400).json({message: "Size, PFF Types and lunar cannot be emty."});
     } else if (!/^[0-9a-fA-F]+$/.test(lunar) || lunar.length !== 2) {
-        res.status(400).json({message: "Wrong lunar format."})
+        res.status(400).json({message: "Wrong lunar format."});
+    } else if (!!mm && !/^[0-9]{1,}(.[0-9]{1})?$/.test(mm)) {
+        res.status(400).json({message: "Wrong mm format."});
     } else {
 
-        if (!tags.includes(name)) tags.push(name);
+        if (!tags.includes(nps)) tags.push(nps);
+        if (!tags.includes(dn)) tags.push(dn);
         
         let update = {
             "lunar": lunar.toUpperCase(),

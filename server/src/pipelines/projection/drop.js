@@ -5,11 +5,9 @@ module.exports = (name, page, selectionArray) => {
     if (!selectionArray) selectionArray = [];
 
     return [
-        // {
-        //     "$unwind": "$data"
-        // },
         {
             "$match": {
+                "_id": { "$ne": "" },
                 "name": { "$regex": new RegExp(escape(name),"i") }
             }
         },
@@ -29,16 +27,5 @@ module.exports = (name, page, selectionArray) => {
         {
             "$skip": 10 * page
         },
-        // {
-        //     "$group": {
-        //         "_id": null,
-        //         "data":{ "$push": `$data`}
-        //     }
-        // },
-        // {
-        //     "$project":{
-        //         "_id": 0
-        //     }
-        // }
     ];
 }
