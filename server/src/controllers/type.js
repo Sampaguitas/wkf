@@ -109,7 +109,13 @@ const getDrop = (req, res, next) => {
         
         switch(key) {
             case "type_tags":
+                console.log(dropdown.pffType);
                 require("../models/Type").aggregate([
+                    {
+                        "$match": {
+                            "pffType": !!dropdown.pffType ? dropdown.pffType : { "$exists": true }
+                        }
+                    },
                     {
                         "$group": {
                             "_id": `$name`,
@@ -171,9 +177,26 @@ const getDrop = (req, res, next) => {
                     res.status(200).json(foundOne);
                 }
                 break;
-            case "lunar":
             case "name":
             case "pffType":
+                require("../models/Type").aggregate([
+                    ...require("../pipelines/first_stage/type")(myMatch, format),
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
+            case "lunar":
                 require("../models/Type").aggregate([
                     ...require("../pipelines/first_stage/type")(myMatch, format),
                     {

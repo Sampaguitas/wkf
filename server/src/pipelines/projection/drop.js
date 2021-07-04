@@ -1,6 +1,7 @@
-const escape = require("../../functions/escape");
+const escapeBegin = require("../../functions/escapeBegin");
+const escapeContain = require("../../functions/escapeContain");
 
-module.exports = (name, page, selectionArray) => {
+module.exports = (name, page, selectionArray, contain) => {
     
     if (!selectionArray) selectionArray = [];
 
@@ -8,7 +9,7 @@ module.exports = (name, page, selectionArray) => {
         {
             "$match": {
                 "_id": { "$ne": "" },
-                "name": { "$regex": new RegExp(escape(name),"i") }
+                "name": { "$regex": new RegExp(!!contain ? escapeContain(name) : escapeBegin(name),"i") }
             }
         },
         {

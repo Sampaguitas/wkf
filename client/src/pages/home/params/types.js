@@ -202,10 +202,12 @@ export default class Types extends React.Component {
         if (this.state.params.createdAt.value !== prevState.params.createdAt.value) this.getDropdownOptions("createdAt", 0);
         if (this.state.params.updatedBy.value !== prevState.params.updatedBy.value) this.getDropdownOptions("updatedBy", 0);
         if (this.state.params.updatedAt.value !== prevState.params.updatedAt.value) this.getDropdownOptions("updatedAt", 0);
+        if (this.state.params.type_pffType.value !== prevState.params.type_pffType.value) this.getDropdownOptions("type_pffType", 0);
         if (this.state.params.type_tags.value !== prevState.params.type_tags.value) this.getDropdownOptions("type_tags", 0);
         if (this.state.params.type_isComplete.value !== prevState.params.type_isComplete.value) this.getDropdownOptions("type_isComplete", 0);
         if (this.state.params.type_isMultiple.value !== prevState.params.type_isMultiple.value) this.getDropdownOptions("type_isMultiple", 0);
         if (this.state.params.type_specs.value !== prevState.params.type_specs.value) this.getDropdownOptions("type_specs", 0);
+        
 
         if (elements !== prevState.elements) {
             let remaining = selectedRows.reduce(function(acc, cur) {
@@ -687,7 +689,12 @@ export default class Types extends React.Component {
                 headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify({
                     sort: sort,
-                    dropdown: {
+                    dropdown: /type_/.test(key) ?
+                    {
+                        pffType: this.state.params.type_pffType.selection._id,
+                    }
+                    :
+                    {
                         name: this.state.params.name.selection._id,
                         pffType: this.state.params.pffType.selection._id,
                         isComplete: this.state.params.isComplete.selection._id,

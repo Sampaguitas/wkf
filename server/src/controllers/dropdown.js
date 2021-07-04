@@ -9,7 +9,7 @@ const artNr = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Stock").distinct("artNr", {
         "opco": ["undefined", "OTHERS", ""].includes(opco) ? { "$exists": true } : opco,
-        "artNr" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,"i") }
+        "artNr" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,"i") }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -22,7 +22,7 @@ const artNr = (req, res, next) => {
 const currency = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Currency").distinct("_id", {
-        "_id" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,"i") }
+        "_id" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,"i") }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -37,7 +37,7 @@ const end = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/End").distinct("name", {
         "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
-        "name" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,"i") }
+        "name" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,"i") }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -58,7 +58,7 @@ const grade = (req, res, next) => {
         "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
         "isComplete": isComplete === "true" ? true : { "$exists": true },
         "isMultiple": isMultiple === "false" ? false : { "$exists": true },
-        "name" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,"i") }
+        "name" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,"i") }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -75,7 +75,7 @@ const length = (req, res, next) => {
         { 
             "$match": { 
                 "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
-                "name" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                "name" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
             }
         },
         { "$sort": { "_id": 1 } },
@@ -92,7 +92,7 @@ const length = (req, res, next) => {
 const opco = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Stock").distinct("opco", {
-        "opco" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,"i") }
+        "opco" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,"i") }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -105,7 +105,7 @@ const opco = (req, res, next) => {
 const pffType = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Pff").distinct("name",{
-        "name" : { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+        "name" : { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -123,7 +123,7 @@ const sizeOne = (req, res, next) => {
         {
             "$match": {
                 "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
-                "tags": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                "tags": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
             }
         },
         { "$sort": { "_id" : 1 } },
@@ -175,7 +175,7 @@ const sizeThree = (req, res, next) => {
                         "$match": {
                             "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
                             "mm": ["undefined", "OTHERS", ""].includes(pffType) ? { "$ne": null } : pffType === "FORGED_OLETS" ? { "$gte": resTempOne.mm } : { "$lt": resTempOne.mm },
-                            "tags": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                            "tags": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
                         }
                     },
                     { "$sort": { "_id": 1 } },
@@ -230,7 +230,7 @@ const sizeTwo = (req, res, next) => {
                         "$match": {
                             "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
                             "mm": ["undefined", "OTHERS", ""].includes(pffType) ? { "$ne": null } : pffType === "FORGED_OLETS" ? { "$gte": resTempOne.mm } : { "$lt": resTempOne.mm },
-                            "tags": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                            "tags": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
                         }
                     },
                     { "$sort": { "_id": 1 } },
@@ -267,7 +267,7 @@ const sizeTwo = (req, res, next) => {
 const steelType = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Steel").distinct("name", {
-        "name": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+        "name": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -282,7 +282,7 @@ const surface = (req, res, next) => {
     const name = decodeURI(req.query.name);
     require("../models/Surface").distinct("name", {
         "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
-        "name": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+        "name": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -301,7 +301,7 @@ const type = (req, res, next) => {
         "pffType": ["undefined", "OTHERS", ""].includes(pffType) ? { $exists: true } : pffType,
         "isMultiple": isMultiple === "false" ? false : { $exists: true },
         "isComplete": isComplete === "true" ? true : { $exists: true },
-        "name": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+        "name": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
     }).exec(function (error, result) {
         if (!!error || !result) {
             res.status(200).json([]);
@@ -335,7 +335,7 @@ const wallOne = (req, res, next) => {
                         "$match": {
                             "sizeId": resTempOne.mm,
                             "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
-                            "tags": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                            "tags": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
                         }
                     },
                     { "$sort": { "_id": 1 } },
@@ -393,7 +393,7 @@ const wallTwo = (req, res, next) => {
                         "$match": {
                             "sizeId": resTempOne.mm,
                             "pffTypes": ["undefined", "OTHERS", ""].includes(pffType) ? { "$exists": true } : pffType,
-                            "tags": { "$regex": new RegExp(`^${require("../functions/escape")(name)}`,'i') }
+                            "tags": { "$regex": new RegExp(`^${require("../functions/escapeBegin")(name)}`,'i') }
                         }
                     },
                     { "$sort": { "_id": 1 } },

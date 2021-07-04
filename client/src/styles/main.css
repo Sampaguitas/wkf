@@ -290,6 +290,39 @@ address {
   box-sizing: border-box;
 }
 
+/* .custom-table-container > table > tbody > tr:nth-child(even) {
+  background-color: #d8e1e6;
+  color: #43474b !important;
+}
+
+.custom-table-container > table > tbody > tr:nth-child(odd) {
+  background-color: #b7c2c8;
+    color: #43474b !important;
+}
+
+.custom-table-container > table > tbody > tr > td, .custom-table-container > table > tbody > tr > th, .custom-table-container > table > thead > tr > th {
+  border: 1px solid white;
+  border-top-color: white;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-right-color: white;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-bottom-color: white;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: white;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+} */
+
+
+
 .no-padding {
   padding: 0;
 }

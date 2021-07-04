@@ -131,7 +131,7 @@ const getDrop = (req, res, next) => {
                             "name": {"$first":`$$ROOT.name`},
                         }
                     },
-                    ...require("../pipelines/projection/drop")(name, page, selectionArray)
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray, true)
                 ]).exec(function(error, result) {
                     if (!!error || !result) {
                         res.status(200).json([])
@@ -170,7 +170,6 @@ const getDrop = (req, res, next) => {
                 }
                 break;
             case "lunar":
-            case "name":
             case "steelType":
                 require("../models/Grade").aggregate([
                     ...require("../pipelines/first_stage/grade")(myMatch, format),
@@ -189,7 +188,45 @@ const getDrop = (req, res, next) => {
                     }
                 });
                 break;
+            case "name":
+                require("../models/Grade").aggregate([
+                    ...require("../pipelines/first_stage/grade")(myMatch, format),
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray, true)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             case "tags":
+                require("../models/Grade").aggregate([
+                    ...require("../pipelines/first_stage/grade")(myMatch, format),
+                    {
+                        "$unwind": `$${key}`
+                    },
+                    {
+                        "$group": {
+                            "_id": `$${key}`,
+                            "name": {"$first":`$$ROOT.${key}`},
+                        }
+                    },
+                    ...require("../pipelines/projection/drop")(name, page, selectionArray, true)
+                ]).exec(function(error, result) {
+                    if (!!error || !result) {
+                        res.status(200).json([])
+                    } else {
+                        res.status(200).json(result)
+                    }
+                });
+                break;
             case "pffTypes":
                 require("../models/Grade").aggregate([
                     ...require("../pipelines/first_stage/grade")(myMatch, format),

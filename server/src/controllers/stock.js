@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
-const escape = require("../functions/escape");
+const escapeBegin = require("../functions/escapeBegin");
 var moment = require('moment');
 
 let regexOutlet = /^(ELBOL|ELBOWFL|LATROFL|LATROL|NIPOFL|NIPOL|SOCKOL|SWEEPOL|THREADOL|WELDOL|WELDOFL)( \d*)?$/
@@ -403,7 +403,7 @@ const getDrop = (req, res, next) => {
         switch(key) {
             case "stock":
                 let found = [ { "_id": true, "name": "available > 0"} ].filter(e => {
-                    let myRegex = new RegExp(escape(name));
+                    let myRegex = new RegExp(escapeBegin(name));
                     return !!name ? myRegex.test(e.name) : true;
                 });
                 if (found === undefined) {
@@ -603,7 +603,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$match": {
-                            "tags": { "$regex": new RegExp(escape(name),"i") }
+                            "tags": { "$regex": new RegExp(escapeBegin(name),"i") }
                         }
                     },
                     {
@@ -702,7 +702,7 @@ const getDrop = (req, res, next) => {
                                 },
                                 {
                                     "$match": {
-                                        "tags": { "$regex": new RegExp(escape(name),"i") }
+                                        "tags": { "$regex": new RegExp(escapeBegin(name),"i") }
                                     }
                                 },
                                 {
@@ -773,7 +773,7 @@ const getDrop = (req, res, next) => {
                         },
                         {
                             "$match": {
-                                "tags": { "$regex": new RegExp(escape(name),"i") }
+                                "tags": { "$regex": new RegExp(escapeBegin(name),"i") }
                             }
                         },
                         {
@@ -843,7 +843,7 @@ const getDrop = (req, res, next) => {
                     },
                     {
                         "$match": {
-                            "tags": { "$regex": new RegExp(escape(name),"i") }
+                            "tags": { "$regex": new RegExp(escapeBegin(name),"i") }
                         }
                     },
                     {
@@ -901,7 +901,7 @@ const getDrop = (req, res, next) => {
                 },
                 {
                     "$match": {
-                        "supplierNames": { "$regex": new RegExp(escape(name),"i"), "$ne": "" }
+                        "supplierNames": { "$regex": new RegExp(escapeBegin(name),"i"), "$ne": "" }
                     }
                 },
                 {
