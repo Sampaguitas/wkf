@@ -93,6 +93,7 @@ export default class Import extends React.Component {
         this.handleChangeFile = this.handleChangeFile.bind(this);
         this.handleUploadParam = this.handleUploadParam.bind(this);
         this.file_param = React.createRef();
+        this.fileInput = React.createRef();
     }
 
 
@@ -644,7 +645,7 @@ export default class Import extends React.Component {
                         ...this.state.params[name],
                         value: event.target.files[0].name,
                         selection: {
-                            _id: this.state.params[name].selection._id,
+                            ...this.state.params[name].selection,
                             name: event.target.files[0].name
                         }
                     }
@@ -656,12 +657,14 @@ export default class Import extends React.Component {
     handleUploadParam(event) {
         event.preventDefault();
         const { uploadingParam } = this.state
-        if(!uploadingParam && !!this.file_param.current) {
+        // console.log("this.file_param.current.files:", this.file_param.current.files);
+        if(!uploadingParam && !!this.fileInput.current && !!this.fileInput.current.files) {
+            // console.log(this.fileInput.current.files)
             this.setState({
                 uploadingParam: true
             }, () => {
                 var data = new FormData()
-                data.append('file', this.file_param.current.files[0]);
+                data.append('file', this.fileInput.current.files[0]);
                 const requestOptions = {
                     method: 'POST',
                     headers: { ...authHeader()}, //, 'Content-Type': 'application/json'
@@ -976,7 +979,7 @@ export default class Import extends React.Component {
                                                 placeholder={params.file_param.placeholder}
                                                 onChange={this.handleChangeFile}
                                                 selection={params.file_param.selection}
-                                                ref={this.file_param}
+                                                ref={this.fileInput}
                                             />
                                         </div>
                                     </section>
