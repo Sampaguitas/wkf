@@ -979,7 +979,7 @@ export default class Import extends React.Component {
                                                 placeholder={params.file_param.placeholder}
                                                 onChange={this.handleChangeFile}
                                                 selection={params.file_param.selection}
-                                                ref={this.fileInput}
+                                                fileRef={this.fileInput}
                                             />
                                         </div>
                                     </section>

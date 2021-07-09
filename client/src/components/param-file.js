@@ -4,7 +4,7 @@ import "../styles/param.css"
 class ParamFile extends Component{
 
     render() {
-        const { name, placeholder, onChange, selection, ref } = this.props;
+        const { name, placeholder, onChange, selection, fileRef } = this.props;
         return(
             <div className="col mt-3">
                 <div className="input-group">
@@ -14,7 +14,7 @@ class ParamFile extends Component{
                             type="file"
                             name={name}
                             id={name}
-                            ref={ref}
+                            ref={fileRef}
                             className="custom-file-input"
                             style={{opacity: 0, position: 'absolute', pointerEvents: 'none', width: '1px'}}
                             onChange={event => onChange(event, name)}
