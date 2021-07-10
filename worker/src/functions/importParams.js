@@ -83,6 +83,7 @@ function updateOperation(opco, artNr, sizeOne, sizeTwo, sizeThree, wallOne, wall
             let update = { parameters };
             
             resolve( { "updateOne": { "filter": filter, "update": update } } );
-        });
+        })
+        .catch(err => console.log(err));
     });
 }

@@ -187,7 +187,7 @@
 
 .modal-body {
     padding: 12px 24px !important;
-    max-height: calc(var(--vh, 1vh) * 75 - 156px); /*calc(75vh - 156px);  */
+    max-height: calc(var(--vh, 1vh) * 95 - 156px); /*calc(75vh - 156px);  */
     overflow-Y: auto !important;
 }
 
